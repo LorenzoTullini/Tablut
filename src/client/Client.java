@@ -1,9 +1,26 @@
 package client;
 
 public class Client {
+    private static TimeManager timeManager;
+
     public static void main(String argv[]) {
-        System.out.println("Ciao a tutti !!");
-        System.out.println("Ciao a tutti versione 2!!");
-        System.out.println("Ciao a tutti versione 3!!");
+        timeManager = new TimeManager();
+        TimerThread tt = new TimerThread(timeManager, 20*1000);
+        tt.start();
+
+        try {
+            pseudoMiniMax();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("[Main] Invio mossa al meraviglioso server di Chesani");
+    }
+
+    private static void pseudoMiniMax() throws InterruptedException {
+        while (!timeManager.isEnd()){
+            System.out.println("[MiniMax] Faccio conti difficilissimi !!!");
+            Thread.sleep(1000);
+        }
     }
 }
