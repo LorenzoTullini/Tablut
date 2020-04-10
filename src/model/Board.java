@@ -2,22 +2,24 @@ package model;
 
 public class Board {
     private final int L = 1; // Liberation = escapes dei Cianchi
-    private final int C = -1; // Camps = campi dei neri
     private final int F = 2; // Fortress = castello
     private final int E = 0; // Empty = celle vuote
+    private final int CW = 3; // campi bianchi
+    private final int CA = -2; // campi neri parte nord / est
+    private final int CB =-3; // campi neri parte sud / ovest
     private int board[][];
 
     public Board() {
         this.board = new int[][]{
-                {E, L, L, C, C, C, L, L, E},
-                {L, E, E, E, C, E, E, E, L},
-                {L, E, E, E, E, E, E, E, L},
-                {C, E, E, E, E, E, E, E, C},
-                {C, C, E, E, F, E, E, C, C},
-                {C, E, E, E, E, E, E, E, C},
-                {L, E, E, E, E, E, E, E, L},
-                {L, E, E, E, C, E, E, E, L},
-                {E, L, L, C, C, C, L, L, E},
+                {E, L, L, CA, CA, CA, L, L, E},
+                {L, E, E, E, CA, E, E, E, L},
+                {L, E, E, E, CW, E, E, E, L},
+                {CB, E, E, E, CW, E, E, E, CA},
+                {CB, CB, CW, CW, F, CW, CW, CA, CA},
+                {CB, E, E, E, CW, E, E, E, CA},
+                {L, E, E, E, CW, E, E, E, L},
+                {L, E, E, E, CB, E, E, E, L},
+                {E, L, L, CB, CB, CB, L, L, E},
 
         };
     }
