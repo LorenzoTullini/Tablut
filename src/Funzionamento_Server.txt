@@ -1,0 +1,116 @@
+Tablut game server:
+
+1) Server attende le connessioni da entrambi i giocatori
+2) Ogni giocatore invia il proprio nome in un json "Nome_Giocatore"
+3) Il server invia ad entrambi l'initial state formato:
+{
+  "board": [
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK",
+      "BLACK",
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "WHITE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    [
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "WHITE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK"
+    ],
+    [
+      "BLACK",
+      "BLACK",
+      "WHITE",
+      "WHITE",
+      "KING",
+      "WHITE",
+      "WHITE",
+      "BLACK",
+      "BLACK"
+    ],
+    [
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "WHITE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK"
+    ],
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "WHITE",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ],
+    [
+      "EMPTY",
+      "EMPTY",
+      "EMPTY",
+      "BLACK",
+      "BLACK",
+      "BLACK",
+      "EMPTY",
+      "EMPTY",
+      "EMPTY"
+    ]
+  ],
+  "turn": "WHITE"
+}
+4) Il giocatore invia la propria mossa nel formato:
+{
+  "from": "g5",
+  "to": "g8",
+  "turn": "WHITE"
+}
+5) Il server ritorna il nuovo stato della scacchiera nel formato come sopra

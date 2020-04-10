@@ -3,6 +3,14 @@ package client;
 public class Client {
     private static TimeManager timeManager;
 
+    /*
+    TODO Lista parametri:
+       - Nome giocatore
+       - Player Type
+       - IP server
+       - Porta server
+    */
+
     public static void main(String argv[]) {
         timeManager = new TimeManager();
         TimerThread tt = new TimerThread(timeManager, 20*1000);
