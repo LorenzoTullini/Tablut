@@ -25,4 +25,8 @@ public class Move {
         return to;
     }
 
+    public String toString(){
+        return getFrom().toString() + " --> " + getTo().toString();
+    }
+
 }

@@ -39,7 +39,7 @@ public class TableState {
        List<Move> moves = new ArrayList<>();
        for(int i=0; i<9; i++){
            for(int j=0; j<9; j++) {
-               if (this.state[i][j] == W || this.state[i][j] == K && player.equals("WHITE"))
+               if ((this.state[i][j] == W || this.state[i][j] == K) && player.toString().equals("WHITE"))
                    moves.addAll(getMovesFor(i, j, player));
                if (this.state[i][j] == B && player.equals("BLACK"))
                    moves.addAll(getMovesFor(i, j, player));
@@ -52,18 +52,51 @@ public class TableState {
 
     private Collection<? extends Move> getMovesFor(int x, int y, PlayerType player) {
        List<Move> moves = new ArrayList<>();
-       if(player.equals("WHITE")){
+       Coord i = new Coord(x,y);
+       if(player.toString().equals("WHITE")){
            //NORD
-           for(int i=0; x+i>9; i++){
-               x--;
-               //if(this.state[x][y]==B || this.board.getBoard()[x][y]==C)
-
+           int xN=x;
+           xN--;
+           while(xN>0){
+               if(this.state[xN][y]!=E || this.board.getBoard()[xN][y]==C || this.board.getBoard()[xN][y]==F)
+                   break;
+               else moves.add(new Move(i, new Coord(xN,y)));
+               xN--;
            }
-           //EST
-           //OVEST
+
            //SUD
-       }
-       return null;
+           int xS=x;
+           xS++;
+           while(xS<9){
+               if(this.state[xS][y]!=E || this.board.getBoard()[xS][y]==C || this.board.getBoard()[xS][y]==F)
+                   break;
+               else moves.add(new Move(i, new Coord(xS,y)));
+               xS++;
+           }
+
+           //EST
+           int yE=y;
+           yE++;
+           while(yE<9){
+               if(this.state[x][yE]!=E || this.board.getBoard()[x][yE]==C || this.board.getBoard()[x][yE]==F)
+                   break;
+               else moves.add(new Move(i, new Coord(x,yE)));
+               yE++;
+           }
+
+           //OVEST
+           int yO=y;
+           yO--;
+           while(yO>0){
+               if(this.state[x][yO]!=E || this.board.getBoard()[x][yO]==C || this.board.getBoard()[x][yO]==F)
+                   break;
+               else moves.add(new Move(i, new Coord(x,yO)));
+               yO--;
+           }
+
+       } // end if white
+
+       return moves;
     }
 
     public int[][] performMove(Move m) {
@@ -76,11 +109,24 @@ public class TableState {
     }
 
     public int getWhitePiecesCount(){
-       return 0;
+       int totW=0;
+       for(int i=0; i<9; i++){
+           for(int j=0; i<9; j++)
+               if(this.state[i][j]==W)
+                   totW++;
+       }
+       //aggiungo il re
+       return totW++;
     }
 
     public int getBlackPiecesCount() {
-        return 0;
+        int totB=0;
+        for(int i=0; i<9; i++){
+            for(int j=0; i<9; j++)
+                if(this.state[i][j]==B)
+                    totB++;
+        }
+        return totB;
     }
 
     public PlayerType getPieceAtCoord(Coord c){
