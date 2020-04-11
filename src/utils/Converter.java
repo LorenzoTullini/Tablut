@@ -7,7 +7,7 @@ import model.PlayerType;
 public class Converter {
     private static String convertCoord(Coord c){
         char x = c.getX()<0 || c.getX()>8 ? '?' : (char)('a' + c.getX());
-        int y = c.getY(); //TODO: cambiare 9 con una macro che indichi la dimensione della scacchiera per il tipo di gioco corrente
+        int y = c.getY();
         String res = ""+x+y;
         return res;
     }
