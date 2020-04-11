@@ -1,8 +1,10 @@
-package client;
+package utils;
 
-//import com.google.gson.Gson;
+import com.google.gson.Gson;
+import model.Move;
+import model.PlayerType;
+
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -15,7 +17,7 @@ Network class uses for all communications to game server
 TODO: bisogna distinguere se il giocatore è bianco o nero per scegliere la porta a cui inviare i messaggi, decidere se qui o nel main con due oggetti Network separati
 */
 
-/*public class Network {
+public class Network {
     private Socket playerSocket;
     private String ip;
     private int port;
@@ -45,9 +47,33 @@ TODO: bisogna distinguere se il giocatore è bianco o nero per scegliere la port
         }
     }
 
-    //TODO: getState per ricevere lo stato attuale dal server
+    public String getState(){ //String è temporana
+        try {
+            return StreamUtils.readString(in);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-    //TODO: sendMove per mandare la mossa scelta al server
+    //Convert Move -> Servermove and send to server
+    public void sendMove(Move m, PlayerType playerType){
+        ServerMove serverMove = Converter.covertMove(m, playerType);
+        try {
+            StreamUtils.writeString(out, this.gson.toJson(serverMove));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Send ServerMove to server
+    public void sendMove(ServerMove serverMove){
+        try {
+            StreamUtils.writeString(out, this.gson.toJson(serverMove));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     //Close connection with the server
     public void distroyNetwork(){
@@ -60,4 +86,4 @@ TODO: bisogna distinguere se il giocatore è bianco o nero per scegliere la port
         }
 
     }
-}*/
+}
