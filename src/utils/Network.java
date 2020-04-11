@@ -1,6 +1,7 @@
 package utils;
 
 //import com.google.gson.Gson;
+import com.google.gson.Gson;
 import model.Move;
 import model.PlayerType;
 
@@ -18,7 +19,7 @@ TODO: bisogna distinguere se il giocatore è bianco o nero per scegliere la port
 */
 
 public class Network {
-    /*
+
     private Socket playerSocket;
     private String ip;
     private int port;
@@ -86,5 +87,5 @@ public class Network {
             e.printStackTrace();
         }
 
-    }*/
+    }
 }

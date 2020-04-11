@@ -24,7 +24,7 @@ public class Client {
        - Porta server
     */
 
-    /*
+
     public static void main(String argv[]) {
         timeManager = new TimeManager();
         TimerThread tt = new TimerThread(timeManager, 60*1000);
@@ -76,5 +76,5 @@ public class Client {
     }
     //----------------------------------------------------------------------------------
 
-     */
+
 }
