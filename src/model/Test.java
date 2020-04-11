@@ -24,6 +24,7 @@ public class Test {
                 System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(x));
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
+                System.out.println("Distanza del re dalla salveza: " +gameState.getKingDistance());
             }
 
             if(gameState.hasBlackWon()==false) {

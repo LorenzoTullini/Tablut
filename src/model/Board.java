@@ -1,5 +1,8 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Board {
     private final int L = 1; // Liberation = escapes dei Cianchi
     private final int F = 2; // Fortress = castello
@@ -26,5 +29,16 @@ public class Board {
 
     public int[][] getBoard(){
         return this.board;
+    }
+
+    public List<Coord> getLCoord(){
+        List<Coord> LCoord = new ArrayList<>();
+        for(int i=0; i<9; i++){
+            for(int j=0; j<9; j++){
+                if(this.board[i][j] == L)
+                    LCoord.add(new Coord(i,j));
+            }
+        }
+        return LCoord;
     }
 }
