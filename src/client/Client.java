@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class Client {
+
     private static TimeManager timeManager;
     private static PlayerType playerType;
     private static Network ntw;
@@ -23,6 +24,7 @@ public class Client {
        - Porta server
     */
 
+    /*
     public static void main(String argv[]) {
         timeManager = new TimeManager();
         TimerThread tt = new TimerThread(timeManager, 60*1000);
@@ -73,4 +75,6 @@ public class Client {
         return new Move(from,to);
     }
     //----------------------------------------------------------------------------------
+
+     */
 }
