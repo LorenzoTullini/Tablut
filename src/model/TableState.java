@@ -156,7 +156,7 @@ public class TableState {
        return moves;
     }
 
-    public Move performMove(Move m) {
+    /*public Move performMove(Move m) {
        Coord i = m.getFrom();
        Coord f = m.getTo();
        int piece = this.state[i.getX()][i.getY()];
@@ -167,7 +167,9 @@ public class TableState {
        this.state[i.getX()][i.getY()] = E;
        this.state[f.getX()][f.getY()] = piece;
        return m;
-    }
+    }*/
+
+    public TableState performMove(Move m) {return null;}
 
     public int getWhitePiecesCount(){
        int totW=0;
