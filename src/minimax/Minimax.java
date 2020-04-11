@@ -7,8 +7,6 @@ import model.TableState;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,10 +41,14 @@ public class Minimax {
 
 
     public Move minimax(TableState initialState, TimeManager gestore, int turn) {
-        return performMinimax(initialState, gestore, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        return performMinimax(initialState, gestore, true, turn, 0);
     }
 
-    private Move performMinimax(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alfa, double beta) {
+    public Move alphabeta(TableState initialState, TimeManager gestore, int turn) {
+        return performAlphabeta(initialState, gestore, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
+    }
+
+    private Move performMinimax(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth) {
         var allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
         Move bestMove = null;
         double bestCost;
@@ -74,7 +76,7 @@ public class Minimax {
                 var newState = state.performMove(m);
 
                 //procedi con l'esplorazione
-                res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1, alfa, beta);
+                res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1);
                 if (res != null) {
                     if (isMaxTurn) {
                         if (res.getCosto() > bestCost) {
@@ -82,20 +84,10 @@ public class Minimax {
                             bestMove = res;
                         }
 
-                        alfa = Math.max(alfa, bestCost);
-
-                        if (alfa >= beta) {
-                            break;
-                        }
                     } else {
                         if (res.getCosto() < bestCost) {
                             bestCost = res.getCosto();
                             bestMove = res;
-                        }
-
-                        beta = Math.min(beta, bestCost);
-                        if (alfa >= beta) {
-                            break;
                         }
                     }
                 }
@@ -113,19 +105,11 @@ public class Minimax {
                         bestCost = m.getCosto();
                         bestMove = m;
                     }
-
-                    alfa = Math.max(alfa, bestCost);
-
                 } else {
                     if (m.getCosto() < bestCost) {
                         bestCost = m.getCosto();
                         bestMove = m;
                     }
-
-                    beta = Math.min(beta, bestCost);
-                }
-                if (alfa >= beta) {
-                    break;
                 }
             }
             Instant stop = Instant.now();
@@ -133,6 +117,72 @@ public class Minimax {
         }
         //TODO Bisogna trovare un modo per dire che se una mossa porta direttamente alla vittoria quella mossa è direttamente da scegliere. Però min cercherà sempre di evitarla...
 
+
+        return bestMove;
+    }
+
+    private Move performAlphabeta(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
+        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
+        //TODO deve entare in questo if anche se si tratta di uno stato di vittori
+        if (currentDepth == maxDepth || gestore.isEnd() || allPossibleMoves.isEmpty()) {
+            //valuta il nodo corrente
+            int heuristicIndex;
+            if (turn < 40) {
+                heuristicIndex = 0;
+            } else if (turn < 70) {
+                heuristicIndex = 1;
+            } else {
+                heuristicIndex = 2;
+            }
+            //Per scrupolo, probabilmente si può togliere
+            if (performedMove != null) {
+                performedMove.setCosto(isMaxTurn ?
+                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
+                        opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
+            }
+
+            return performedMove;
+        }
+
+
+        Move bestMove = null;
+        double bestCost;
+
+        if (isMaxTurn) {
+            bestCost = Double.NEGATIVE_INFINITY;
+            TableState newState;
+            for (Move m : allPossibleMoves) {
+                newState = state.performMove(m);
+                performAlphabeta(newState, gestore, false, turn + 1, currentDepth + 1, alpha, beta, m);
+
+                if (m.getCosto() > bestCost) {
+                    bestCost = m.getCosto();
+                    bestMove = m;
+                }
+
+                alpha = Math.max(alpha, m.getCosto());
+                if (alpha >= beta) {
+                    return bestMove;
+                }
+            }
+        } else {
+            bestCost = Double.POSITIVE_INFINITY;
+            TableState newState;
+            for (Move m : allPossibleMoves) {
+                newState = state.performMove(m);
+                performAlphabeta(newState, gestore, true, turn + 1, currentDepth + 1, alpha, beta, m);
+
+                if (m.getCosto() < bestCost) {
+                    bestCost = m.getCosto();
+                    bestMove = m;
+                }
+
+                beta = Math.min(beta, m.getCosto());
+                if (alpha >= beta) {
+                    return bestMove;
+                }
+            }
+        }
 
         return bestMove;
     }
