@@ -43,10 +43,10 @@ public class Minimax {
 
 
     public Move minimax(TableState initialState, TimeManager gestore, int turn) {
-        return performMinimax(initialState, gestore, true, turn, 0);
+        return performMinimax(initialState, gestore, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     }
 
-    private Move performMinimax(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth) {
+    private Move performMinimax(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alfa, double beta) {
         var allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
         Move bestMove = null;
         double bestCost;
@@ -74,17 +74,28 @@ public class Minimax {
                 var newState = state.performMove(m);
 
                 //procedi con l'esplorazione
-                res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1);
+                res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1, alfa, beta);
                 if (res != null) {
                     if (isMaxTurn) {
                         if (res.getCosto() > bestCost) {
                             bestCost = res.getCosto();
                             bestMove = res;
                         }
+
+                        alfa = Math.max(alfa, bestCost);
+
+                        if (alfa >= beta) {
+                            break;
+                        }
                     } else {
                         if (res.getCosto() < bestCost) {
                             bestCost = res.getCosto();
                             bestMove = res;
+                        }
+
+                        beta = Math.min(beta, bestCost);
+                        if (alfa >= beta) {
+                            break;
                         }
                     }
                 }
@@ -102,11 +113,19 @@ public class Minimax {
                         bestCost = m.getCosto();
                         bestMove = m;
                     }
+
+                    alfa = Math.max(alfa, bestCost);
+
                 } else {
                     if (m.getCosto() < bestCost) {
                         bestCost = m.getCosto();
                         bestMove = m;
                     }
+
+                    beta = Math.min(beta, bestCost);
+                }
+                if (alfa >= beta) {
+                    break;
                 }
             }
             Instant stop = Instant.now();
