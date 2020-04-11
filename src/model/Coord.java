@@ -26,4 +26,19 @@ public class Coord {
         return "(" + this.x + "," + this.y + ")";
     }
 
+    public Coord goNord() {
+        return new Coord(this.getX()-1, this.getY());
+    }
+
+    public Coord goEst() {
+        return new Coord(this.getX(), this.getY()+1);
+    }
+
+    public Coord goOvest() {
+        return new Coord(this.getX(), this.getY()-1);
+    }
+
+    public Coord goSud() {
+        return new Coord(this.getX()+1, this.getY());
+    }
 }

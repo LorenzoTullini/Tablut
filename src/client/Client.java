@@ -11,7 +11,7 @@ public class Client {
        - Porta server
     */
 
-    public static void main(String argv[]) {
+  /*  public static void main(String argv[]) {
         timeManager = new TimeManager();
         TimerThread tt = new TimerThread(timeManager, 20*1000);
         Network ntw = new Network("localhost", 9999);
@@ -23,7 +23,7 @@ public class Client {
             e.printStackTrace();
         }*/
 
-        System.out.println("[Main] Invio mossa al meraviglioso server di Chesani");
+      /*  System.out.println("[Main] Invio mossa al meraviglioso server di Chesani");
         ntw.sendPlayerName("Chesani è bellissimo");
         ntw.distroyNetwork();
 
@@ -34,5 +34,5 @@ public class Client {
             System.out.println("[MiniMax] Faccio conti difficilissimi !!!");
             Thread.sleep(1000);
         }
-    }
+    }*/
 }

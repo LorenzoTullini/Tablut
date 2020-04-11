@@ -1,6 +1,6 @@
 package client;
 
-import com.google.gson.Gson;
+//import com.google.gson.Gson;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -15,7 +15,7 @@ Network class uses for all communications to game server
 TODO: bisogna distinguere se il giocatore è bianco o nero per scegliere la porta a cui inviare i messaggi, decidere se qui o nel main con due oggetti Network separati
 */
 
-public class Network {
+/*public class Network {
     private Socket playerSocket;
     private String ip;
     private int port;
@@ -60,4 +60,4 @@ public class Network {
         }
 
     }
-}
+}*/
