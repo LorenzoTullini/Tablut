@@ -5,24 +5,32 @@ import model.Move;
 import model.PlayerType;
 import model.TableState;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class Minimax {
-    private static int maxDepth = 3;
+    private int maxDepth;
+    //TODO Le euristiche devono tenere conto anche della possibilità che una mossa possa condurre alla vittoria
     private static IHeuristic[] whiteEheuristic = null;
     private static IHeuristic[] blackEheuristic = null;
     //L'avversario gioca sempre come min
     private PlayerType myColour, opponentColour;
     private IHeuristic[] myHeuristic, opponentHeuristic;
 
-    public Minimax(PlayerType myColour) {
+    public Minimax(PlayerType myColour, int maxDepth) {
         if (whiteEheuristic == null || blackEheuristic == null) {
             //se non sono già stati inizializzati
             whiteEheuristic = new IHeuristic[3];
             blackEheuristic = new IHeuristic[3];
+
+            //inizializzazione euristiche
         }
+
+        this.maxDepth = maxDepth;
 
         this.myColour = myColour;
         this.opponentColour = (myColour == PlayerType.WHITE) ? PlayerType.BLACK : PlayerType.WHITE;
@@ -33,13 +41,15 @@ public class Minimax {
         this.opponentHeuristic = (myColour == PlayerType.BLACK) ? whiteEheuristic : blackEheuristic;
     }
 
+
     public Move minimax(TableState initialState, TimeManager gestore, int turn) {
         return performMinimax(initialState, gestore, true, turn, 0);
     }
 
     private Move performMinimax(TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth) {
         var allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
-        List<Move> results = new ArrayList<>();
+        Move bestMove = null;
+        double bestCost;
 
         //determina quale euristica usare
         int heuristicIndex;
@@ -51,51 +61,60 @@ public class Minimax {
             heuristicIndex = 2;
         }
 
+        if (isMaxTurn) {
+            bestCost = Double.NEGATIVE_INFINITY;
+        } else {
+            bestCost = Double.POSITIVE_INFINITY;
+        }
+
         //metto prima l'if così non viene valutato una singola volta
         if (currentDepth < maxDepth && !gestore.isEnd()) {
+            Move res;
             for (Move m : allPossibleMoves) {
                 var newState = state.performMove(m);
 
                 //procedi con l'esplorazione
-                Move res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1);
+                res = performMinimax(newState, gestore, !isMaxTurn, turn + 1, currentDepth + 1);
                 if (res != null) {
-                    results.add(res);
+                    if (isMaxTurn) {
+                        if (res.getCosto() > bestCost) {
+                            bestCost = res.getCosto();
+                            bestMove = res;
+                        }
+                    } else {
+                        if (res.getCosto() < bestCost) {
+                            bestCost = res.getCosto();
+                            bestMove = res;
+                        }
+                    }
                 }
             }
         } else {
+            System.out.println("Sto valutando le foglie al livello: " + currentDepth);
+            Instant start = Instant.now();
             for (Move m : allPossibleMoves) {
                 var newState = state.performMove(m);
 
                 //termina l'esplorazione, valuta tutti i figli e ritorna la mosaa che produce il risultato migliore
-                m.setCosto(isMaxTurn ? myHeuristic[heuristicIndex].evaluate(newState) : opponentHeuristic[heuristicIndex].evaluate(newState));
-                results.add(m);
-            }
-        }
-
-        Move bestMove = null;
-        double bestCost;
-
-        if (isMaxTurn) {
-            bestCost = Double.NEGATIVE_INFINITY;
-            //rstituisci la mossa migliore
-            for (Move m : results) {
-                if (m.getCosto() > bestCost) {
-                    bestMove = m;
-                    bestCost = m.getCosto();
+                m.setCosto(isMaxTurn ? myHeuristic[heuristicIndex].evaluate(newState, currentDepth) : opponentHeuristic[heuristicIndex].evaluate(newState, currentDepth));
+                if (isMaxTurn) {
+                    if (m.getCosto() > bestCost) {
+                        bestCost = m.getCosto();
+                        bestMove = m;
+                    }
+                } else {
+                    if (m.getCosto() < bestCost) {
+                        bestCost = m.getCosto();
+                        bestMove = m;
+                    }
                 }
             }
-        } else {
-            bestCost = Double.POSITIVE_INFINITY;
-            //rstituisci la mossa migliore
-            for (Move m : results) {
-                if (m.getCosto() < bestCost) {
-                    bestMove = m;
-                    bestCost = m.getCosto();
-                }
-            }
+            Instant stop = Instant.now();
+            System.out.println("Ho finito di valutare le foglie al livello: " + currentDepth + "in: " + Duration.between(start, stop) + " ms");
         }
+        //TODO Bisogna trovare un modo per dire che se una mossa porta direttamente alla vittoria quella mossa è direttamente da scegliere. Però min cercherà sempre di evitarla...
+
 
         return bestMove;
     }
-
 }
