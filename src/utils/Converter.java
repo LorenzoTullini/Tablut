@@ -32,7 +32,6 @@ public class Converter {
         int row = 0;
         int col = 0;
 
-
         int E = 0;
         int B = 1; // pedone nero che lascia il suo campo
         int BA = 2; //pedone nero che è ancora nel campo nord / est
