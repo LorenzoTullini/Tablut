@@ -3,10 +3,7 @@ package client;
 import model.Coord;
 import model.Move;
 import model.PlayerType;
-import utils.Converter;
-import utils.Network;
-import utils.ServerMove;
-import utils.ServerPlayerType;
+import utils.*;
 
 import java.util.Random;
 import java.util.Scanner;
@@ -31,49 +28,51 @@ public class Client {
         playerType = PlayerType.WHITE;
         ntw = new Network("localhost", 5800);
 
-        humanPlayer(ServerPlayerType.WHITE);
+        humanPlayer(PlayerType.WHITE);
 
     }
 
     //--------------------------------FUNZIONI DI TEST----------------------------------------
-    private static void humanPlayer(ServerPlayerType type){
+    private static void humanPlayer(PlayerType playerType){
         ntw.sendPlayerName("Chesani");
-        String state;
+        String stateJson;
+
+        //Ricevo stato iniziale
+        stateJson = ntw.getState();
+        ServerState serverState =new ServerState(stateJson);
+        serverState.printStatus();
 
         while(true) {
-            System.out.println("Aspetto l'avversario ...");
-            state = ntw.getState();
+            //Controllo se lo stato ricevuto rappresenta una partita in corso
+            if(serverState.haveIWin(playerType)){
+                System.out.println("Ho vinto !!");
+                break;
+            }else if(serverState.haveILost(playerType)){
+                System.out.println("Ho perso !!");
+                break;
+            }
 
-            System.out.print("Scegli pedina: ");
-            Scanner scanner = new Scanner(System.in);
-            String from = scanner.nextLine();
-            System.out.print("Fai la tua mossa: ");
-            String to = scanner.nextLine();
+            if(serverState.isMyTurn(playerType)){
+                System.out.print("Scegli pedina: ");
+                Scanner scanner = new Scanner(System.in);
+                String from = scanner.nextLine();
+                System.out.print("Fai la tua mossa: ");
+                String to = scanner.nextLine();
 
-            ServerMove serverMove = new ServerMove(from, to, type);
-            ntw.sendMove(serverMove);
+                ServerMove serverMove = new ServerMove(from, to, Converter.typeConverter(playerType));
+                ntw.sendMove(serverMove);
+            }else{
+                System.out.println("Attendo la mossa dell'avversario:");
+            }
+
+            //Ricevo il nuovo stato
+            stateJson = ntw.getState();
+            serverState = new ServerState(stateJson);
+            serverState.printStatus();
         }
-
-
-    }
-
-    private static void protocolTester(){
-        //--------INIZIO PROTOCOLLO SERVER--------
-        ntw.sendPlayerName("Chesani");
-        String state = ntw.getState();
-        System.out.println(state);
-        Move randomMove = randomMoveGenerator();
-        ntw.sendMove(randomMove, playerType);
-        //--------FINE PROTOCOLLO SERVER--------
         ntw.distroyNetwork();
     }
 
-    private static Move randomMoveGenerator(){
-        Random random = new Random();
-        Coord from = new Coord(random.nextInt(8), random.nextInt(8));
-        Coord to = new Coord(random.nextInt(8), random.nextInt(8));
-        return new Move(from,to);
-    }
     //----------------------------------------------------------------------------------
 
 

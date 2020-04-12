@@ -225,7 +225,6 @@ public class Minimax {
                 }
             }
         }
-
         return bestMove;
     }
 }
