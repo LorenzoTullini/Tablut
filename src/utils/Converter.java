@@ -32,15 +32,17 @@ public class Converter {
         int row = 0;
         int col = 0;
 
-        int E = 0;
-        int B = 1; // pedone nero che lascia il suo campo
-        int BA = 2; //pedone nero che è ancora nel campo nord / est
-        int BB = 3; //pedone nero che è ancora nel campo sud / ovest
-        int W = 4;
-        int K = 5;
+        // state
+        int W = 0;    // pedone bianco
+        int B = 1;    // pedone nero che lascia il suo campo
+        int BA = 2;   // pedone nero che è ancora nel campo nord / est
+        int BB = 3;   // pedone nero che è ancora nel campo sud / ovest
+        int E = 4;    // cella vuota
+        int K = 5;    // re
 
-        int CA = -2; // campi neri parte nord / est
-        int CB = -3; // campi neri parte sud / ovest
+        // board
+        int CA = 3;   // campi neri parte nord / est
+        int CB = 5;   // campi neri parte sud / ovest
 
         JsonObject jsObject = new JsonParser().parse(jsonServerBoard).getAsJsonObject();
         JsonArray serverBoard = jsObject.getAsJsonArray("board");

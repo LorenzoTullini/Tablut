@@ -33,8 +33,8 @@ public class WhiteClient {
         playerType = PlayerType.WHITE;
         ntw = new Network("localhost", 5800);
 
-        //humanPlayer(PlayerType.WHITE);
-        aiPlayer(playerType);
+        humanPlayer(playerType);
+        //aiPlayer(playerType);
 
     }
 
@@ -46,7 +46,9 @@ public class WhiteClient {
         //Ricevo stato iniziale
         stateJson = ntw.getState();
         ServerState serverState =new ServerState(stateJson);
-        serverState.printStatus();
+        TableState tableState = serverState.getTableState();
+        System.out.println(tableState.toString());
+        int turn = 0;
 
         while(true) {
             //Controllo se lo stato ricevuto rappresenta una partita in corso
@@ -74,7 +76,10 @@ public class WhiteClient {
             //Ricevo il nuovo stato
             stateJson = ntw.getState();
             serverState = new ServerState(stateJson);
-            serverState.printStatus();
+            tableState = serverState.getTableState();
+            System.out.println(tableState.toString());
+
+            turn++;
         }
         ntw.distroyNetwork();
     }
@@ -86,8 +91,8 @@ public class WhiteClient {
         //Ricevo stato iniziale
         stateJson = ntw.getState();
         ServerState serverState =new ServerState(stateJson);
-        serverState.printStatus();
         TableState tableState = serverState.getTableState();
+        System.out.println(tableState.toString());
         int turn = 0;
 
         while(true) {
@@ -112,8 +117,8 @@ public class WhiteClient {
             //Ricevo il nuovo stato
             stateJson = ntw.getState();
             serverState = new ServerState(stateJson);
-            serverState.printStatus();
             tableState = serverState.getTableState();
+            System.out.println(tableState.toString());
 
             turn++;
         }
