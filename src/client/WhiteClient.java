@@ -1,18 +1,22 @@
 package client;
 
+import minimax.Minimax;
 import model.Coord;
 import model.Move;
 import model.PlayerType;
+import model.TableState;
 import utils.*;
 
 import java.util.Random;
 import java.util.Scanner;
 
-public class Client {
+public class WhiteClient {
 
     private static TimeManager timeManager;
     private static PlayerType playerType;
     private static Network ntw;
+    private static TimerThread tt;
+
     /*
     TODO Lista parametri:
        - Nome giocatore
@@ -24,17 +28,19 @@ public class Client {
 
     public static void main(String argv[]) {
         timeManager = new TimeManager();
-        TimerThread tt = new TimerThread(timeManager, 60*1000);
+        tt = new TimerThread(timeManager, 60*1000);
+
         playerType = PlayerType.WHITE;
         ntw = new Network("localhost", 5800);
 
-        humanPlayer(PlayerType.WHITE);
+        //humanPlayer(PlayerType.WHITE);
+        aiPlayer(playerType);
 
     }
 
     //--------------------------------FUNZIONI DI TEST----------------------------------------
     private static void humanPlayer(PlayerType playerType){
-        ntw.sendPlayerName("Chesani");
+        ntw.sendPlayerName("JavaBeneCosi");
         String stateJson;
 
         //Ricevo stato iniziale
@@ -73,6 +79,46 @@ public class Client {
         ntw.distroyNetwork();
     }
 
+    private static void aiPlayer(PlayerType playerType){
+        ntw.sendPlayerName("JavaBeneCosi");
+        String stateJson;
+
+        //Ricevo stato iniziale
+        stateJson = ntw.getState();
+        ServerState serverState =new ServerState(stateJson);
+        serverState.printStatus();
+        TableState tableState = serverState.getTableState();
+        int turn = 0;
+
+        while(true) {
+            //Controllo se lo stato ricevuto rappresenta una partita in corso
+            if(serverState.haveIWin(playerType)){
+                System.out.println("Ho vinto !!");
+                break;
+            }else if(serverState.haveILost(playerType)){
+                System.out.println("Ho perso !!");
+                break;
+            }
+
+            if(serverState.isMyTurn(playerType)){
+                tt.start();
+                //Qui va minmax
+                tt.interrupt();
+                //ntw.sendMove(Converter.covertMove(m, playerType));
+            }else{
+                System.out.println("Attendo la mossa dell'avversario:");
+            }
+
+            //Ricevo il nuovo stato
+            stateJson = ntw.getState();
+            serverState = new ServerState(stateJson);
+            serverState.printStatus();
+            tableState = serverState.getTableState();
+
+            turn++;
+        }
+        ntw.distroyNetwork();
+    }
     //----------------------------------------------------------------------------------
 
 

@@ -3,6 +3,7 @@ package utils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import model.PlayerType;
+import model.TableState;
 
 public class ServerState {
     private String[][] serverStatus;
@@ -46,6 +47,11 @@ public class ServerState {
         if (type == PlayerType.BLACK && turn.equals("WHITEWIN")) return true;
         if (type == PlayerType.WHITE && turn.equals("BLACKWIN")) return true;
         return false;
+    }
+
+    public TableState getTableState(){
+        TableState tableState= new TableState(status);
+        return tableState;
     }
 }
 
