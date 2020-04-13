@@ -200,7 +200,7 @@ public class TableState implements Cloneable {
             e.printStackTrace();
         }
 
-        newTS.state = state.clone();
+        //newTS.state = state.clone();
 
         newTS.whitePiecesEaten = 0;
         newTS.blackPiecesEaten = 0;
@@ -386,7 +386,14 @@ public class TableState implements Cloneable {
 
 
     public Object clone() throws CloneNotSupportedException {
-        return new TableState(this.state.clone(), this.whitePiecesEaten, this.blackPiecesEaten);
+        TableState tableState = new TableState(this.state.clone(), this.whitePiecesEaten, this.blackPiecesEaten);
+        if (!tableState.equals(this)) System.out.println("Ocio è diverso !!!!!!!!!!!!");
+        return tableState;
+    }
+
+    public boolean equals(Object tableState){
+        TableState myTableState = (TableState) tableState;
+        return Arrays.deepEquals(myTableState.state, this.state);
     }
 
 
@@ -417,6 +424,9 @@ public class TableState implements Cloneable {
         if(player.equals(PlayerType.WHITE)) {
             for (Move m : moves) {
                 m.setPrio(this.performMove(m).getWhitePiecesEaten());
+                System.out.println();
+                System.out.println(this.toString());
+                System.out.println();
                 movesInOrder.add(m);
             }
         }

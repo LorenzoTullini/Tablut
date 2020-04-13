@@ -152,13 +152,21 @@ public class Minimax {
 
         Move bestMove = null;
         double bestCost;
-
+        System.out.println("Current depth: "+currentDepth);
         if (isMaxTurn) {
             bestCost = Double.NEGATIVE_INFINITY;
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
                 performMinimax(newState, gestore, false, turn + 1, currentDepth + 1, m);
+
+                for (int i = 0; i<9; i++){
+                    for (int j = 0; j < 9; j++){
+                        if (newState.getState()[i][j] == 5){
+                            System.out.println("Re trovato al livello: "+currentDepth);
+                        }
+                    }
+                }
 
                 if (m.getCosto() > bestCost) {
                     bestCost = m.getCosto();
