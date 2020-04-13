@@ -30,9 +30,6 @@ public class WhiteClient {
 
 
     public static void main(String argv[]) {
-        timeManager = new TimeManager();
-        tt = new TimerThread(timeManager, 60*1000);
-
         playerType = PlayerType.WHITE;
         ntw = new Network("localhost", 5800);
 
@@ -129,9 +126,13 @@ public class WhiteClient {
             }
 
             if(serverState.isMyTurn(playerType)){
-                //tt.start();
-                Move bestMove = minimax.minimax(tableState, timeManager, turn);
-                //tt.interrupt();
+                timeManager = new TimeManager();
+                tt = new TimerThread(timeManager, 55*1000);
+
+                tt.start();
+                Move bestMove = minimax.alphabeta(tableState, timeManager, turn);
+                tt.interrupt(); tt = null;
+
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 System.out.println("Ho trovato la mossa (My): " + bestMove.toString());
