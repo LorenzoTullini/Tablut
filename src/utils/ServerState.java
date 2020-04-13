@@ -50,7 +50,7 @@ public class ServerState {
     }
 
     public TableState getTableState(){
-        TableState tableState= new TableState(status);
+        TableState tableState= new TableState(status,0,0);
         return tableState;
     }
 }
