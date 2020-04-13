@@ -195,7 +195,7 @@ public class TableState implements Cloneable {
         TableState newTS = null;
 
         try {
-            newTS = (TableState) super.clone();
+            newTS = (TableState) this.clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }

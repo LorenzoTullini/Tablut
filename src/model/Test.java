@@ -16,10 +16,12 @@ public class Test {
         int x = 0;
         int r = 0;
 
+
+
         while(!gameState.hasWhiteWon() && !gameState.hasBlackWon()) {
             if(!gameState.hasBlackWon()) {
                 //System.out.println("\n");
-                moves = gameState.aggressiveGetAllMovesFor(PlayerType.WHITE);
+                moves = gameState.getAllMovesFor(PlayerType.WHITE);
                 //x = random.nextInt(moves.size());
                 //moves.stream().forEach(m -> //System.out.println(m.toString()));
                 //System.out.println();
