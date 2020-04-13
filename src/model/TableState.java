@@ -38,7 +38,7 @@ public class TableState implements Cloneable {
                 {BB, E, E, E, W, E, E, E, BA},
                 {E, E, E, E, W, E, E, E, E},
                 {E, E, E, E, BB, E, E, E, E},
-                {E, E, E, BB, BB, BB, E, E, E},
+                {E, E, E, BB, BB, BB, E, E, E}
 
         };
 
@@ -355,7 +355,7 @@ public class TableState implements Cloneable {
     public int getWhitePiecesCount() {
         int totW = 0;
         for (int i = 0; i < 9; i++) {
-            for (int j = 0; i < 9; j++)
+            for (int j = 0; j < 9; j++)
                 if (this.state[i][j] == W)
                     totW++;
         }
@@ -366,7 +366,7 @@ public class TableState implements Cloneable {
     public int getBlackPiecesCount() {
         int totB = 0;
         for (int i = 0; i < 9; i++) {
-            for (int j = 0; i < 9; j++)
+            for (int j = 0; j < 9; j++)
                 if (this.state[i][j] == B)
                     totB++;
         }

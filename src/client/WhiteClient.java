@@ -7,6 +7,8 @@ import model.PlayerType;
 import model.TableState;
 import utils.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -31,10 +33,10 @@ public class WhiteClient {
         tt = new TimerThread(timeManager, 60*1000);
 
         playerType = PlayerType.WHITE;
-        ntw = new Network("localhost", 5800);
+        //ntw = new Network("localhost", 5800);
 
-        humanPlayer(playerType);
-        //aiPlayer(playerType);
+        //humanPlayer(playerType);
+        aiPlayer(playerType);
 
     }
 
@@ -85,7 +87,7 @@ public class WhiteClient {
     }
 
     private static void aiPlayer(PlayerType playerType){
-        ntw.sendPlayerName("JavaBeneCosi");
+        /*ntw.sendPlayerName("JavaBeneCosi");
         String stateJson;
 
         //Ricevo stato iniziale
@@ -93,9 +95,20 @@ public class WhiteClient {
         ServerState serverState =new ServerState(stateJson);
         TableState tableState = serverState.getTableState();
         System.out.println(tableState.toString());
-        int turn = 0;
+        int turn = 0;*/
 
-        while(true) {
+        long start = System.currentTimeMillis();
+
+        tt.start();
+        Minimax minimax = new Minimax(playerType, 3, 2);
+        Move bestMove = minimax.minimax(new TableState(), timeManager, 0);
+        tt.interrupt();
+
+        long stop = System.currentTimeMillis();
+        System.out.println("Ci ho messo: "+(stop - start));
+
+
+        /*while(true) {
             //Controllo se lo stato ricevuto rappresenta una partita in corso
             if(serverState.haveIWin(playerType)){
                 System.out.println("Ho vinto !!");
@@ -107,9 +120,10 @@ public class WhiteClient {
 
             if(serverState.isMyTurn(playerType)){
                 tt.start();
-                //Qui va minmax
+                Minimax minimax = new Minimax(playerType, 3, 2);
+                Move bestMove = minimax.minimax(tableState, timeManager, turn);
                 tt.interrupt();
-                //ntw.sendMove(Converter.covertMove(m, playerType));
+                ntw.sendMove(Converter.covertMove(bestMove, playerType));
             }else{
                 System.out.println("Attendo la mossa dell'avversario:");
             }
@@ -122,7 +136,7 @@ public class WhiteClient {
 
             turn++;
         }
-        ntw.distroyNetwork();
+        ntw.distroyNetwork();*/
     }
     //----------------------------------------------------------------------------------
 
