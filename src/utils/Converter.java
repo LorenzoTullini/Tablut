@@ -11,9 +11,9 @@ import model.PlayerType;
 
 public class Converter {
     private static String convertCoord(Coord c){
-        char y = c.getX()<0 || c.getX()>8 ? '?' : (char)('a' + c.getX());
-        int x = c.getY() + 1;
-        String res = ""+y+x;
+        char x = c.getX()<0 || c.getX()>8 ? '?' : (char)('a' + c.getX());
+        int y = c.getY() + 1;
+        String res = ""+x+y;
         return res;
     }
 

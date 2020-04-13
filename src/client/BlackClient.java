@@ -123,6 +123,9 @@ public class BlackClient {
             }else if(serverState.haveILost(playerType)){
                 System.out.println("Ho perso !!");
                 break;
+            }else if(serverState.isDraw()){
+                System.out.println("Partita terminata in pareggio");
+                break;
             }
 
             if(serverState.isMyTurn(playerType)){

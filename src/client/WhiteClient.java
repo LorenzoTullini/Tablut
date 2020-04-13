@@ -123,11 +123,14 @@ public class WhiteClient {
             }else if(serverState.haveILost(playerType)){
                 System.out.println("Ho perso !!");
                 break;
+            }else if(serverState.isDraw()){
+                System.out.println("Partita terminata in pareggio");
+                break;
             }
 
             if(serverState.isMyTurn(playerType)){
                 //tt.start();
-                Move bestMove = minimax.alphabeta(tableState, timeManager, turn);
+                Move bestMove = minimax.minimax(tableState, timeManager, turn);
                 //tt.interrupt();
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
@@ -149,4 +152,6 @@ public class WhiteClient {
         ntw.distroyNetwork();
     }
     //----------------------------------------------------------------------------------
+
+
 }

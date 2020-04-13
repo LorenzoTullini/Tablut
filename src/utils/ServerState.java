@@ -49,6 +49,11 @@ public class ServerState {
         return false;
     }
 
+    public boolean isDraw() {
+        if(turn.equals("DRAW")) return true;
+        return false;
+    }
+
     public TableState getTableState(){
         TableState tableState= new TableState(status, 0, 0);
         return tableState;
