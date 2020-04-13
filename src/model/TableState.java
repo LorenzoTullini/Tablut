@@ -53,6 +53,19 @@ public class TableState implements Cloneable {
     }
 
 
+    static public TableState getAClone (TableState ts){
+        TableState newTS = new TableState();
+        newTS.blackPiecesEaten = ts.getBlackPiecesEaten();
+        newTS.whitePiecesEaten = ts.getWhitePiecesEaten();
+
+        for(int i =0; i <9; i++)
+            for (int j = 0 ; j<9; j++)
+                newTS.getState()[i][j]=ts.getState()[i][j];
+
+        return newTS;
+    }
+
+
     public int[][] getBoard() {
         return this.board.getBoard();
     }
@@ -192,19 +205,15 @@ public class TableState implements Cloneable {
         Coord f = m.getTo();
         int piece = this.state[i.getX()][i.getY()];
 
-        TableState newTS = null;
+        TableState newTS = getAClone(this);
 
-        try {
+        /*try {
             newTS = (TableState) super.clone();
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
-        }
+        }*/
 
         //newTS.state = state.clone();
-
-        newTS.whitePiecesEaten = 0;
-        newTS.blackPiecesEaten = 0;
-
 
         //Se il pezzo nero lascia la sua parte non ci deve piu' rientrare.
         //Viene quindi trasformato in B, ovvero, in base alle regole definite sopra, non potra' piu' andare nei campi CA e CB
@@ -391,6 +400,7 @@ public class TableState implements Cloneable {
         return tableState;
     }
 
+
     public boolean equals(Object tableState){
         TableState myTableState = (TableState) tableState;
         return Arrays.deepEquals(myTableState.state, this.state);
@@ -415,18 +425,19 @@ public class TableState implements Cloneable {
         return d;
     }
 
-    public List <Move> aggressiveGetAllMovesFor(PlayerType player) {
+    public List <Move> aggressiveGetAllMovesFor(PlayerType player, TableState ts) {
 
+        TableState newTS = getAClone(ts);
 
-        List<Move> moves = this.getAllMovesFor(player);
+        List<Move> moves = newTS.getAllMovesFor(player);
         List<Move> movesInOrder = new ArrayList<>();
 
         if(player.equals(PlayerType.WHITE)) {
             for (Move m : moves) {
-                m.setPrio(this.performMove(m).getWhitePiecesEaten());
-                System.out.println();
-                System.out.println(this.toString());
-                System.out.println();
+                m.setPrio(newTS.performMove(m).getWhitePiecesEaten());
+                /*System.out.println();
+                System.out.println(newTS.toString());
+                System.out.println();*/
                 movesInOrder.add(m);
             }
         }
