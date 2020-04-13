@@ -19,7 +19,7 @@ public class Test {
         while(!gameState.hasWhiteWon() && !gameState.hasBlackWon()) {
             if(!gameState.hasBlackWon()) {
                 System.out.println("\n");
-                moves = gameState.getAllMovesFor(PlayerType.WHITE);
+                moves = gameState.aggressiveGetAllMovesFor(PlayerType.WHITE);
                 //x = random.nextInt(moves.size());
                 //moves.stream().forEach(m -> System.out.println(m.toString()));
                 System.out.println();

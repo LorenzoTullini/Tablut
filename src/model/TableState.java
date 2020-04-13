@@ -21,8 +21,8 @@ public class TableState implements Cloneable {
 
 
     private int state[][];
-    private Board board;
-    private Utils utils;
+    private Board board = new Board();
+    private Utils utils = new Utils();
     private boolean whiteWon;
     private boolean blackWon;
     private int whitePiecesEaten;
@@ -41,21 +41,14 @@ public class TableState implements Cloneable {
                 {E, E, E, BB, BB, BB, E, E, E}
 
         };
-
-        board = new Board();
-        utils = new Utils();
         whitePiecesEaten = 0;
         blackPiecesEaten = 0;
-
-
     }
 
-    public TableState(int[][] state) {
+    public TableState(int[][] state, int whitePiecesEaten, int blackPiecesEaten) {
         this.state = state;
-        board = new Board();
-        utils = new Utils();
-        whitePiecesEaten = 0;
-        blackPiecesEaten = 0;
+        this.whitePiecesEaten = whitePiecesEaten;
+        this.blackPiecesEaten = blackPiecesEaten;
 
     }
 
@@ -345,9 +338,12 @@ public class TableState implements Cloneable {
 
     private Coord getKingCoord() {
         for (int i = 0; i < 9; i++)
-            for (int j = 0; j < 9; j++)
+            for (int j = 0; j < 9; j++) {
                 if (this.state[i][j] == K)
                     return new Coord(i, j);
+            }
+
+        System.out.println(this.toString());
         return new Coord(-1, -1);
     }
 
@@ -386,7 +382,7 @@ public class TableState implements Cloneable {
 
 
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        return new TableState(this.state.clone(), this.whitePiecesEaten, this.blackPiecesEaten);
     }
 
 
@@ -399,7 +395,7 @@ public class TableState implements Cloneable {
 
     public int getKingDistance() {
         Coord kC = this.getKingCoord();
-        int d = 10000;
+        int d = 1000;
         for (Coord c : this.board.getLCoord())
             if (kC.manhattanDistance(c) <= d)
                 d = kC.manhattanDistance(c);
@@ -407,19 +403,25 @@ public class TableState implements Cloneable {
     }
 
     public List <Move> aggressiveGetAllMovesFor(PlayerType player) {
-        List<Move> moves = this.getAllMovesFor(player);
+        TableState cloneState = null;
+        try {
+            cloneState = (TableState) this.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        List<Move> moves = cloneState.getAllMovesFor(player);
         List<Move> movesInOrder = new ArrayList<>();
+
         if(player.equals(PlayerType.WHITE)) {
             for (Move m : moves) {
-                TableState ts = this.performMove(m);
-                m.setPrio(this.performMove(m).getWhitePiecesEaten());
+                m.setPrio(cloneState.performMove(m).getWhitePiecesEaten());
                 movesInOrder.add(m);
             }
         }
 
         if(player.equals(PlayerType.BLACK)) {
             for (Move m : moves) {
-                m.setPrio(this.performMove(m).getBlackPiecesEaten());
+                m.setPrio(cloneState.performMove(m).getBlackPiecesEaten());
                 movesInOrder.add(m);
             }
         }
@@ -428,8 +430,6 @@ public class TableState implements Cloneable {
         return movesInOrder;
 
     }
-
-
 
 
 }
