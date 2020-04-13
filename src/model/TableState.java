@@ -4,23 +4,29 @@ import java.util.*;
 
 public class TableState implements Cloneable {
 
-    private final int W = 0;
-    private final int B = 1; // pedone nero che lascia il suo campo
-    private final int BA = 2; //pedone nero che è ancora nel campo nord / est
-    private final int BB = 3; //pedone nero che è ancora nel campo sud / ovest
-    private final int E = 4;
-    private final int K = 5;
-    private final int L = 1; // Liberation = escapes dei Cianchi
-    private final int F = 2; // Fortress = castello
-    private final int CA = -2; // campi neri parte nord / est
-    private final int CB = -3; // campi neri parte sud / ovest
-    private final int CF = -4; //campi neri + castello
+    // state
+    private final int W = 0;    // pedone bianco
+    private final int B = 1;    // pedone nero che lascia il suo campo
+    private final int BA = 2;   // pedone nero che è ancora nel campo nord / est
+    private final int BB = 3;   // pedone nero che è ancora nel campo sud / ovest
+    private final int E = 4;    // cella vuota
+    private final int K = 5;    // re
+
+    // board
+    private final int L = 0;    // Liberation = escapes dei Cianchi
+    private final int F = 1;    // Fortress = castello
+    private final int CA = 3;   // campi neri parte nord / est
+    private final int CB = 5;   // campi neri parte sud / ovest
+    private final int CF = 6;   // campi neri + castello
 
 
     private int state[][];
     private Board board;
+    private Utils utils;
     private boolean whiteWon;
     private boolean blackWon;
+    private int whitePiecesEaten;
+    private int blackPiecesEaten;
 
     public TableState() {
         this.state = new int[][]{
@@ -37,34 +43,70 @@ public class TableState implements Cloneable {
         };
 
         board = new Board();
+        utils = new Utils();
+        whitePiecesEaten = 0;
+        blackPiecesEaten = 0;
 
+
+    }
+
+    public TableState(int[][] state) {
+        this.state = state;
+        board = new Board();
+        utils = new Utils();
+        whitePiecesEaten = 0;
+        blackPiecesEaten = 0;
+
+    }
+
+
+    public int[][] getBoard() {
+        return this.board.getBoard();
+    }
+
+    public int getWhitePiecesEaten(){
+        return this.whitePiecesEaten;
+    }
+
+    public int getBlackPiecesEaten(){
+        return this.blackPiecesEaten;
+    }
+
+    public boolean hasBlackWon() {
+        return this.blackWon;
+    }
+
+    public boolean hasWhiteWon() {
+        return this.whiteWon;
+    }
+
+    public int[][] getState() {
+        return this.state;
     }
 
     public List<Move> getAllMovesFor(PlayerType player) {
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                if ((this.state[i][j] == W || this.state[i][j] == K) && player.toString().equals("WHITE"))
-                    moves.addAll(getMovesFor(i, j, player));
-
-                if (getPiece(this.state[i][j]) == B && player.toString().equals("BLACK"))
+                if ( ((this.getState()[i][j] == W || this.getState()[i][j] == K) && player.equals(PlayerType.WHITE))
+                        || (getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)) )
                     moves.addAll(getMovesFor(i, j, player));
             }
         }
-
         return moves;
-
     }
 
     private Collection<? extends Move> getMovesFor(int x, int y, PlayerType player) {
         List<Move> moves = new ArrayList<>();
-        Coord i = new Coord(x, y);
-        if (player.toString().equals("WHITE")) {
+        Coord i = new Coord(x, y); // coordinata iniziale
+        if (player.equals(PlayerType.WHITE)) {
+
             //NORD
             int xN = x;
             xN--;
             while (xN > 0) {
-                if (this.state[xN][y] != E || this.board.getBoard()[xN][y] == CA || this.board.getBoard()[xN][y] == CB || this.board.getBoard()[xN][y] == F)
+                // se il campo non e' vuoto oppure contiene un campo/castello allora non puo' piu' essere oltrepassato in quella direzione
+                if (this.state[xN][y] != E || this.getCampsAndFortress(this.getBoard()[xN][y]) == CF)
                     break;
                 else moves.add(new Move(i, new Coord(xN, y)));
                 xN--;
@@ -74,16 +116,17 @@ public class TableState implements Cloneable {
             int xS = x;
             xS++;
             while (xS < 9) {
-                if (this.state[xS][y] != E || this.board.getBoard()[xS][y] == CA || this.board.getBoard()[xS][y] == CB || this.board.getBoard()[xS][y] == F)
+                if (this.state[xS][y] != E || this.getCampsAndFortress(this.getBoard()[xS][y]) == CF)
                     break;
                 else moves.add(new Move(i, new Coord(xS, y)));
                 xS++;
             }
+
             //EST
             int yE = y;
             yE++;
             while (yE < 9) {
-                if (this.state[x][yE] != E || this.board.getBoard()[x][yE] == CA || this.board.getBoard()[x][yE] == CB || this.board.getBoard()[x][yE] == F)
+                if (this.state[x][yE] != E || this.getCampsAndFortress(this.getBoard()[x][yE]) == CF)
                     break;
                 else moves.add(new Move(i, new Coord(x, yE)));
                 yE++;
@@ -93,7 +136,7 @@ public class TableState implements Cloneable {
             int yO = y;
             yO--;
             while (yO > 0) {
-                if (this.state[x][yO] != E || this.board.getBoard()[x][yO] == CA || this.board.getBoard()[x][yO] == CB || this.board.getBoard()[x][yO] == F)
+                if (this.state[x][yO] != E || this.getCampsAndFortress(this.getBoard()[x][yO]) == CF)
                     break;
                 else moves.add(new Move(i, new Coord(x, yO)));
                 yO--;
@@ -101,14 +144,13 @@ public class TableState implements Cloneable {
 
         } // end if white
 
-        if (player.toString().equals("BLACK")) {
+        if (player.equals(PlayerType.BLACK)) {
             //NORD
             int xN = x;
             xN--;
             while (xN > 0) {
-                if (this.state[xN][y] != E || this.board.getBoard()[xN][y] == F || (this.state[x][y]) == B && (this.board.getBoard()[xN][y] == CA || this.board.getBoard()[xN][y] == CB)
-                        || (this.state[x][y] == BA && this.board.getBoard()[xN][y] == CB) || (this.state[x][y] == BB && this.board.getBoard()[xN][y] == CA)
-                )
+                if (this.state[xN][y] != E || this.getBoard()[xN][y] == F || (this.state[x][y] == B && (this.getBoard()[xN][y] == CA || this.getBoard()[xN][y] == CB))
+                        || (this.state[x][y] == BA && this.getBoard()[xN][y] == CB) || (this.state[x][y] == BB && this.getBoard()[xN][y] == CA))
                     break;
                 else moves.add(new Move(i, new Coord(xN, y)));
                 xN--;
@@ -118,9 +160,8 @@ public class TableState implements Cloneable {
             int xS = x;
             xS++;
             while (xS < 9) {
-                if (this.state[xS][y] != E || this.board.getBoard()[xS][y] == F || (this.state[x][y]) == B && (this.board.getBoard()[xS][y] == CA || this.board.getBoard()[xS][y] == CB)
-                        || (this.state[x][y] == BA && this.board.getBoard()[xS][y] == CB) || (this.state[x][y] == BB && this.board.getBoard()[xS][y] == CA)
-                )
+                if (this.state[xS][y] != E || this.getBoard()[xS][y] == F || (this.state[x][y] == B && (this.getBoard()[xS][y] == CA || this.getBoard()[xS][y] == CB))
+                        || (this.state[x][y] == BA && this.getBoard()[xS][y] == CB) || (this.state[x][y] == BB && this.getBoard()[xS][y] == CA))
                     break;
                 else moves.add(new Move(i, new Coord(xS, y)));
                 xS++;
@@ -129,9 +170,8 @@ public class TableState implements Cloneable {
             int yE = y;
             yE++;
             while (yE < 9) {
-                if (this.state[x][yE] != E || this.board.getBoard()[x][yE] == F || (this.state[x][y]) == B && (this.board.getBoard()[x][yE] == CA || this.board.getBoard()[x][yE] == CB)
-                        || (this.state[x][y] == BA && this.board.getBoard()[x][yE] == CB) || (this.state[x][y] == BB && this.board.getBoard()[x][yE] == CA)
-                )
+                if (this.state[x][yE] != E || this.getBoard()[x][yE] == F || (this.state[x][y] == B && (this.getBoard()[x][yE] == CA || this.getBoard()[x][yE] == CB))
+                        || (this.state[x][y] == BA && this.getBoard()[x][yE] == CB) || (this.state[x][y] == BB && this.getBoard()[x][yE] == CA))
                     break;
                 else moves.add(new Move(i, new Coord(x, yE)));
                 yE++;
@@ -141,9 +181,8 @@ public class TableState implements Cloneable {
             int yO = y;
             yO--;
             while (yO > 0) {
-                if (this.state[x][yO] != E || this.board.getBoard()[x][yO] == F || (this.state[x][y]) == B && (this.board.getBoard()[x][yO] == CA || this.board.getBoard()[x][yO] == CB)
-                        || (this.state[x][y] == BA && this.board.getBoard()[x][yO] == CB) || (this.state[x][y] == BB && this.board.getBoard()[x][yO] == CA)
-                )
+                if (this.state[x][yO] != E || this.getBoard()[x][yO] == F || (this.state[x][y] == B && (this.getBoard()[x][yO] == CA || this.getBoard()[x][yO] == CB))
+                        || (this.state[x][y] == BA && this.getBoard()[x][yO] == CB) || (this.state[x][y] == BB && this.getBoard()[x][yO] == CA))
                     break;
                 else moves.add(new Move(i, new Coord(x, yO)));
                 yO--;
@@ -151,9 +190,9 @@ public class TableState implements Cloneable {
 
         } // end if black
 
-
         return moves;
     }
+
 
     public TableState performMove(Move m) {
         Coord i = m.getFrom();
@@ -165,61 +204,74 @@ public class TableState implements Cloneable {
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
+
+        newTS.whitePiecesEaten = 0;
+        newTS.blackPiecesEaten = 0;
+
+
         //Se il pezzo nero lascia la sua parte non ci deve piu' rientrare.
-        //Viene quindi trasformato in B, ovvero, in base alle regole definirte sopra, non potra' piuù andare nei campi CA e CB
-        if ((piece == BA && this.board.getBoard()[f.getX()][f.getY()] != CA) || (piece == BB && this.board.getBoard()[f.getX()][f.getY()] != CB))
+        //Viene quindi trasformato in B, ovvero, in base alle regole definite sopra, non potra' piu' andare nei campi CA e CB
+        if ((piece == BA && this.getBoard()[f.getX()][f.getY()] != CA) || (piece == BB && this.getBoard()[f.getX()][f.getY()] != CB))
             piece = B;
+
         newTS.state[i.getX()][i.getY()] = E;
         newTS.state[f.getX()][f.getY()] = piece;
 
+
         // bianco ha vinto?
-        if (newTS.state[f.getX()][f.getY()] == K && newTS.board.getBoard()[f.getX()][f.getY()] == L) {
+        if (piece == K && newTS.getBoard()[f.getX()][f.getY()] == L) {
             whiteWon = true;
-            System.out.println("Re salvo alle coordintate: " + f.toString());
+            System.out.println("Re salvo alle coordinate: " + f.toString());
         }
 
 
-        // Mappa con chiave i vicini e valore il vicino del vicino in direzione nord/est/ovest/sud
-        HashMap<Coord, Coord> nMap = getNeighbours(f, newTS);
+        // Mappa con chiave i vicini e valore il primo vicino del vicino in direzione nord/est/ovest/sud
+        HashMap<Coord, Coord> nMap = utils.getNeighbours(f);
 
         // controllo se bianco mangia qualcosa
         if (piece == W) {
             for (Map.Entry<Coord, Coord> e : nMap.entrySet()) {
-                // se il pezzo è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
-                if (e.getKey().getX() != -1 && e.getValue().getX() != -1)
+                // se il pezzo bianco è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
+                if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
                     if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && newTS.state[e.getValue().getX()][e.getValue().getY()] == W) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo nero che era alle coordintate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        newTS.blackPiecesEaten++;
                     }
+                }
             }
         }
 
         // controllo se nero mangia qualcosa
         if (getPiece(piece) == B) {
             for (Map.Entry<Coord, Coord> e : nMap.entrySet()) {
-                // se il pezzo è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
+                // se il pezzo nero è gia nel bordo oppure è affiancato da un pezzo bianco che è nel bordo, non puo' essere mangiato in quella direzione
                 if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
+                    // per ogni direzione verifico: B-W-B || B-W-CA/CB/F
                     if (newTS.state[e.getKey().getX()][e.getKey().getY()] == W && (getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == B
-                            || getCampsAndFortress(newTS.board.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
+                            || getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo bianco che era alle coordintate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        newTS.whitePiecesEaten++;
                     }
                 }
             }
         }
 
-        if (newTS.hasWhiteWon() == false) {
-            // controllo se nero vince
-            Coord kC = getKingCoord();
-            Set<Coord> nK = getNeighbours(kC, newTS).keySet();
+        // controllo se nero vince
+        if (!newTS.hasWhiteWon()) {
+            Coord kC = newTS.getKingCoord();
+            //System.out.println(kC.toString());
+            // mi bastano gli immediati vicini del re, ovvero il set di chiavi
+            Set<Coord> nK = utils.getNeighbours(kC).keySet();
 
             // re nel castello circondato su 4 lati
-            if (this.board.getBoard()[kC.getX()][kC.getY()] == F) {
+            if (this.getBoard()[kC.getX()][kC.getY()] == F) {
                 int totB = 0;
                 for (Coord c : nK) {
-                    if (c.getX() != -1 && getPiece(newTS.state[c.getX()][c.getY()]) == B)
+                    if (getPiece(newTS.state[c.getX()][c.getY()]) == B)
                         totB++;
                 }
                 if (totB == 4) {
@@ -229,18 +281,18 @@ public class TableState implements Cloneable {
             }
 
             // re adiacente al castello e circondato su 3 lati
-            if (newTS.blackWon == false && this.board.getBoard()[kC.getX()][kC.getY()] != F) {
+            if (!newTS.hasBlackWon() && !newTS.hasWhiteWon() && this.getBoard()[kC.getX()][kC.getY()] != F) {
                 int totB = 0;
                 boolean adjacent = false;
 
                 for (Coord c : nK) {
                     if (c.getX() != -1 && newTS.state[c.getX()][c.getY()] == B)
                         totB++;
-                    if (c.getX() != -1 && newTS.board.getBoard()[c.getX()][c.getY()] == F)
+                    if (c.getX() != -1 && newTS.getBoard()[c.getX()][c.getY()] == F)
                         adjacent = true;
                 }
 
-                if (totB == 3 && adjacent == true) {
+                if (totB == 3 && adjacent) {
                     newTS.blackWon = true;
                     System.out.println("Ho circondato il re sui 3 lati + 1 adiacente al castello alle coordinate: " + kC.toString());
                 }
@@ -248,14 +300,14 @@ public class TableState implements Cloneable {
             }
 
             // re catturato come una pedina normale se non adiacente al castello
-            if (newTS.blackWon == false && this.board.getBoard()[kC.getX()][kC.getY()] != F) {
+            if (!newTS.blackWon && !newTS.hasWhiteWon() && this.getBoard()[kC.getX()][kC.getY()] != F) {
                 boolean adjacent = false;
                 for (Coord c : nK) {
-                    if (c.getX() != -1 && newTS.board.getBoard()[c.getX()][c.getY()] == F)
+                    if (c.getX() != -1 && newTS.getBoard()[c.getX()][c.getY()] == F)
                         adjacent = true;
                 }
 
-                if (adjacent == false) {
+                if (!adjacent) {
                     Coord nord = kC.goNord();
                     Coord est = kC.goEst();
                     Coord ovest = kC.goOvest();
@@ -299,53 +351,6 @@ public class TableState implements Cloneable {
         return new Coord(-1, -1);
     }
 
-    private HashMap<Coord, Coord> getNeighbours(Coord f, TableState newTS) {
-        HashMap<Coord, Coord> nMap = new HashMap<>();
-        Coord key;
-        Coord value;
-        Coord limit = new Coord(-1, -1);
-
-        //nord
-        if (f.getX() - 1 >= 0) key = f.goNord();
-        else key = limit;
-
-        if (f.getX() - 2 >= 0) value = key.goNord();
-        else value = limit;
-
-        nMap.put(key, value);
-
-
-        //est
-        if (f.getY() + 1 <= 8) key = f.goEst();
-        else key = limit;
-
-        if (f.getY() + 2 <= 8) value = key.goEst();
-        else value = limit;
-
-        nMap.put(key, value);
-
-        //ovest
-        if (f.getY() - 1 >= 0) key = f.goOvest();
-        else key = limit;
-
-        if (f.getY() - 2 >= 0) value = key.goOvest();
-        else value = limit;
-
-        nMap.put(key, value);
-
-
-        //sud
-        if (f.getX() + 1 <= 8) key = f.goSud();
-        else key = limit;
-
-        if (f.getX() + 2 <= 8) value = key.goSud();
-        else value = limit;
-
-        nMap.put(key, value);
-
-        return nMap;
-
-    }
 
     public int getWhitePiecesCount() {
         int totW = 0;
@@ -369,7 +374,7 @@ public class TableState implements Cloneable {
     }
 
     public PlayerType getPieceAtCoord(Coord c) {
-        if (this.state[c.getX()][c.getY()] == W)
+        if (this.state[c.getX()][c.getY()] == W )
             return PlayerType.WHITE;
         if (this.state[c.getX()][c.getY()] == B)
             return PlayerType.BLACK;
@@ -391,13 +396,6 @@ public class TableState implements Cloneable {
                 replace("4", "E").replace("5", "K");
     }
 
-    public boolean hasBlackWon() {
-        return blackWon;
-    }
-
-    public boolean hasWhiteWon() {
-        return whiteWon;
-    }
 
     public int getKingDistance() {
         Coord kC = this.getKingCoord();
@@ -407,6 +405,31 @@ public class TableState implements Cloneable {
                 d = kC.manhattanDistance(c);
         return d;
     }
+
+    public List <Move> aggressiveGetAllMovesFor(PlayerType player) {
+        List<Move> moves = this.getAllMovesFor(player);
+        List<Move> movesInOrder = new ArrayList<>();
+        if(player.equals(PlayerType.WHITE)) {
+            for (Move m : moves) {
+                TableState ts = this.performMove(m);
+                m.setPrio(this.performMove(m).getWhitePiecesEaten());
+                movesInOrder.add(m);
+            }
+        }
+
+        if(player.equals(PlayerType.BLACK)) {
+            for (Move m : moves) {
+                m.setPrio(this.performMove(m).getBlackPiecesEaten());
+                movesInOrder.add(m);
+            }
+        }
+
+        movesInOrder.sort(Comparator.comparing(Move::getPrio).reversed());
+        return movesInOrder;
+
+    }
+
+
 
 
 }

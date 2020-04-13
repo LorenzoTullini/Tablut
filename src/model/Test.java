@@ -16,18 +16,20 @@ public class Test {
         int x = 0;
         int r = 0;
 
-        while(gameState.hasWhiteWon()==false && gameState.hasBlackWon()==false) {
-            if(gameState.hasBlackWon()==false) {
+        while(!gameState.hasWhiteWon() && !gameState.hasBlackWon()) {
+            if(!gameState.hasBlackWon()) {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.WHITE);
-                x = random.nextInt(moves.size());
-                System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(x));
+                //x = random.nextInt(moves.size());
+                //moves.stream().forEach(m -> System.out.println(m.toString()));
+                System.out.println();
+                System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(0));
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
-                System.out.println("Distanza del re dalla salveza: " +gameState.getKingDistance());
+                System.out.println("Distanza del re dalla salvezza: " +gameState.getKingDistance());
             }
 
-            if(gameState.hasBlackWon()==false) {
+            if(!gameState.hasBlackWon()) {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.BLACK);
                 r = random.nextInt(moves.size());

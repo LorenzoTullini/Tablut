@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Board {
-    private final int L = 1; // Liberation = escapes dei Cianchi
-    private final int F = 2; // Fortress = castello
-    private final int E = 0; // Empty = celle vuote
-    private final int CW = 3; // campi bianchi
-    private final int CA = -2; // campi neri parte nord / est
-    private final int CB =-3; // campi neri parte sud / ovest
+    private final int L = 0; // Liberation = escapes dei Cianchi
+    private final int F = 1; // Fortress = castello
+    private final int E = 4; // Empty = celle vuote
+    private final int CW = 2; // campi bianchi
+    private final int CA = 3; // campi neri parte nord / est
+    private final int CB = 5; // campi neri parte sud / ovest
     private int board[][];
 
     public Board() {
