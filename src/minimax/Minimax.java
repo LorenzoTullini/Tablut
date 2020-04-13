@@ -121,7 +121,7 @@ public class Minimax {
     }
 
     private Move performMinimax(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, Move performedMove) {
-        if (alreadyVisitedStates.contains(state.hashCode())) {
+        if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
             return performedMove;
         }
@@ -182,7 +182,7 @@ public class Minimax {
     }
 
     private Move performAlphabeta(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
-        if (alreadyVisitedStates.contains(state.hashCode())) {
+        if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
             return performedMove;
         }
@@ -254,7 +254,7 @@ public class Minimax {
     //Controlla in maniera più accurata la presenza di stati già visitati
     private Move performAlphabetaWithHistoryCheck(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove, @NotNull Set<Integer> previousHistory) {
         //se questo stato è già stato raggiunto
-        if (previousHistory.contains(state.hashCode())) {
+        if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
             return performedMove;
         }
