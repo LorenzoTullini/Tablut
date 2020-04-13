@@ -100,12 +100,14 @@ public class WhiteClient {
         long start = System.currentTimeMillis();
 
         tt.start();
-        Minimax minimax = new Minimax(playerType, 3, 2);
-        Move bestMove = minimax.minimax(new TableState(), timeManager, 0);
+        Minimax minimax = new Minimax(playerType, 7, 2);
+        //Move bestMove = minimax.minimax(new TableState(), timeManager, 0);
+        Move bestMove = minimax.parallelAlphaBeta(new TableState(), timeManager, 0);
         tt.interrupt();
 
         long stop = System.currentTimeMillis();
         System.out.println("Ci ho messo: "+(stop - start));
+        System.out.println("Ho trovato la mossa: " + bestMove.toString());
 
 
         /*while(true) {
