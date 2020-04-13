@@ -16,7 +16,7 @@ public class TimerThread extends Thread{
             timeManager.setEnd(true);
             System.out.println("[TimerThread] tempo scaduto !!");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
 }

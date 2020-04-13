@@ -242,7 +242,7 @@ public class TableState implements Cloneable {
                     if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && newTS.state[e.getValue().getX()][e.getValue().getY()] == W) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
                         newTS.blackPiecesEaten++;
                     }
                 }
@@ -259,7 +259,7 @@ public class TableState implements Cloneable {
                             || getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        //System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
                         newTS.whitePiecesEaten++;
                     }
                 }
@@ -282,7 +282,7 @@ public class TableState implements Cloneable {
                 }
                 if (totB == 4) {
                     newTS.blackWon = true;
-                    System.out.println("Ho circondato il re sui 4 lati del castello");
+                    //System.out.println("Ho circondato il re sui 4 lati del castello");
                 }
             }
 
@@ -300,7 +300,7 @@ public class TableState implements Cloneable {
 
                 if (totB == 3 && adjacent) {
                     newTS.blackWon = true;
-                    System.out.println("Ho circondato il re sui 3 lati + 1 adiacente al castello alle coordinate: " + kC.toString());
+                    //System.out.println("Ho circondato il re sui 3 lati + 1 adiacente al castello alle coordinate: " + kC.toString());
                 }
 
             }
@@ -320,12 +320,12 @@ public class TableState implements Cloneable {
                     Coord sud = kC.goSud();
                     if (nord.getX() != -1 && sud.getX() != 9 && getPiece(newTS.state[nord.getX()][nord.getY()]) == B && getPiece(newTS.state[sud.getX()][sud.getY()]) == B) {
                         newTS.blackWon = true;
-                        System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
+                        //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
 
                     if (est.getY() != 9 && ovest.getY() != -1 && getPiece(newTS.state[est.getX()][est.getY()]) == B && getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B) {
                         newTS.blackWon = true;
-                        System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
+                        //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
                 }
             }
