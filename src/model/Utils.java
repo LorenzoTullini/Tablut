@@ -2,12 +2,26 @@ package model;
 
 import java.util.HashMap;
 
+
 public class Utils {
 
     public Utils(){
 
     }
 
+
+    public int getCampsAndFortress(int i) {
+        if (i == TableState.CA || i == TableState.CB || i == TableState.F)
+            return TableState.CF;
+        else return TableState.E;
+    }
+
+
+    public int getPiece(int piece) {
+        if (piece == TableState.BA || piece == TableState.BB || piece == TableState.B)
+            return TableState.B;
+        else return TableState.W;
+    }
 
 
 
@@ -58,5 +72,35 @@ public class Utils {
         return nMap;
 
     }
+
+
+    // se il campo non e' vuoto oppure contiene un campo/castello allora non puo' piu' essere oltrepassato in quella direzione
+    public boolean checkWhite(TableState ts, int cX, int cY){
+        if (ts.getState()[cX][cY] != TableState.E || getCampsAndFortress(ts.getBoard()[cX][cY]) == TableState.CF)
+            return false;
+        else return true;
+
+    }
+
+
+    //cX e cY sono le coordinate del punto immediatamente vicino a quello di coordinate x,y, ovvero il punto di partenza
+    public boolean checkBlack(TableState ts, int cX, int cY, int x, int y){
+        if (ts.getState()[cX][cY] != TableState.E || ts.getBoard()[cX][cY] == TableState.F || (ts.getState()[x][y] == TableState.B && (ts.getBoard()[cX][cY] == TableState.CA || ts.getBoard()[cX][cY] == TableState.CB))
+                || (ts.getState()[x][y] == TableState.BA && ts.getBoard()[cX][cY] == TableState.CB) || (ts.getState()[x][y] == TableState.BB && ts.getBoard()[cX][cY] == TableState.CA))
+            return false;
+        else return true;
+
+    }
+
+
+
+
+
+
+
+
+
+
+
 
 }

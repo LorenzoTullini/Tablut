@@ -21,10 +21,10 @@ public class Test {
             if(!gameState.hasBlackWon()) {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.WHITE);
-                //x = random.nextInt(moves.size());
+                x = random.nextInt(moves.size());
                 //moves.stream().forEach(m -> System.out.println(m.toString()));
                 System.out.println();
-                System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(0));
+                System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(x));
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
                 System.out.println("Distanza del re dalla salvezza: " +gameState.getKingDistance());
@@ -33,6 +33,7 @@ public class Test {
             if(!gameState.hasBlackWon()) {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.BLACK);
+                //moves.stream().forEach(m -> System.out.println(m.toString()));
                 r = random.nextInt(moves.size());
                 System.out.println("NERO: faccio una mossa lecita random: " + moves.get(r));
                 gameState = gameState.performMove(moves.get(r));
