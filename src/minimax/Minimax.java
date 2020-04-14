@@ -170,6 +170,10 @@ public class Minimax {
             return performedMove;
         }
 
+        var captured = 100 * ((isMaxTurn) ?
+                (myColour == PlayerType.WHITE ? 9 - state.getWhitePiecesCount() : 16 - state.getBlackPiecesCount()) :
+                (myColour == PlayerType.WHITE ? 16 - state.getBlackPiecesCount() : 9 - state.getWhitePiecesCount()));
+
         List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
@@ -184,11 +188,9 @@ public class Minimax {
             }
             //Per scrupolo, probabilmente si può togliere
             if (performedMove != null) {
-                var val = rndGen.nextInt(100);
-
-                performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
+                performedMove.setCosto(captured + (isMaxTurn ?
+                        (myColour == PlayerType.WHITE ? 1000 : -1000) :
+                        (myColour == PlayerType.BLACK ? 1000 : -1000)));
             }
 
             return performedMove;
@@ -218,6 +220,7 @@ public class Minimax {
 
                 alpha = Math.max(alpha, m.getCosto());
                 if (alpha >= beta) {
+                    bestMove.setCosto(bestMove.getCosto()+captured);
                     return bestMove;
                 }
             }
@@ -240,10 +243,12 @@ public class Minimax {
 
                 beta = Math.min(beta, m.getCosto());
                 if (alpha >= beta) {
+                    bestMove.setCosto(bestMove.getCosto()+captured);
                     return bestMove;
                 }
             }
         }
+        bestMove.setCosto(bestMove.getCosto()+captured);
         return bestMove;
     }
 
