@@ -5,13 +5,13 @@ import model.Move;
 import model.PlayerType;
 import model.TableState;
 import org.jetbrains.annotations.NotNull;
-//import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+
+//import org.jetbrains.annotations.NotNull;
 
 
 public class Minimax {
@@ -20,7 +20,7 @@ public class Minimax {
     private final PlayerType myColour, opponentColour;
     private final IHeuristic[] myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
-    private final ForkJoinPool fjPool;
+    private final int threadNumber;
 
     public Minimax(PlayerType myColour, int maxDepth, int threadNumber) {
         IHeuristic[] whiteEheuristic = new IHeuristic[3];
@@ -43,7 +43,6 @@ public class Minimax {
                         + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
-        //TODO aggiugnere conteggio dei pezzi in ognuno dei quattro angoli
         blackEheuristic[0] = (TableState s, int depth) ->
                 s.getBlackPiecesCount() - s.getWhitePiecesCount()
                         - (5 - s.getKingDistance())
@@ -72,65 +71,62 @@ public class Minimax {
         this.myHeuristic = (myColour == PlayerType.WHITE) ? whiteEheuristic : blackEheuristic;
         this.opponentHeuristic = (myColour == PlayerType.WHITE) ? blackEheuristic : whiteEheuristic;
 
-        this.alreadyVisitedStates = new HashSet<>();
+        this.alreadyVisitedStates = Collections.synchronizedSet(new HashSet<Integer>());
 
-        this.fjPool = new ForkJoinPool(threadNumber);
+        this.threadNumber = threadNumber;
     }
 
 
-    public Move minimax(@NotNull TableState initialState, TimeManager gestore, int turn) {
+    public Move minimax(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         //aggiungi lo stato prodotto dall'avversario
         alreadyVisitedStates.add(initialState.hashCode());
-        Move res = performMinimax(initialState, gestore, true, turn, 0, null);
+        Move res = performMinimax(initialState, timeManager, true, turn, 0, null);
         //aggiungi lo stato appena prodotto
         alreadyVisitedStates.add(initialState.performMove(res).hashCode());
         return res;
     }
 
-    public Move alphabeta(@NotNull TableState initialState, TimeManager gestore, int turn) {
+    public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         //aggiungi lo stato prodotto dall'avversario
         alreadyVisitedStates.add(initialState.hashCode());
-        Move res = performAlphabeta(initialState, gestore, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
+        Move res = performAlphabeta(initialState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
         //aggiungi lo stato appena prodotto
         alreadyVisitedStates.add(initialState.performMove(res).hashCode());
         return res;
     }
 
-    public Move parallelAlphaBeta(@NotNull TableState initialState, TimeManager gestore, int turn) {
+    public Move parallelAlphaBeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         //Lancia in parallelo threadNumber thread paralleli che effettuano il calcolo su threadNumber sottoalberi distinti in parallelo.
         //Da un singolo problema di ricerca ne abbiamo ora n distinti che però possono essere eseguiti in parallelo
 
         List<Move> allPossibleMoves = initialState.getAllMovesFor(myColour);
+        MoveManager moveManager = new MoveManager(allPossibleMoves);
         Move result = null;
+        Thread[] th = new Thread[threadNumber];
 
-        alreadyVisitedStates.add(initialState.hashCode());
-        ForkJoinTask<Move> task = fjPool.submit(() ->
-                allPossibleMoves.parallelStream().map((Move m) ->
-                        performAlphabeta(initialState.performMove(m), gestore, false, turn + 1, 1, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, m)
-                ).max((Move m1, Move m2) -> {
-                    int res = 0;
-
-                    if (m1.getCosto() < m2.getCosto()) {
-                        res = -1;
-                    } else if (m1.getCosto() > m2.getCosto()) {
-                        res = 1;
-                    }
-
-                    return res;
-                }).orElse(null));
-
-        try {
-            result = task.get();
-            alreadyVisitedStates.add(initialState.performMove(result).hashCode());
-        } catch (Exception e) {
-            result = null;
-            e.printStackTrace();
+        for (int idx = 0; idx < threadNumber; idx++) {
+            th[idx] = new Thread(() -> {
+                Move m;
+                while ((m = moveManager.getMove()) != null) {
+                    TableState newState = initialState.performMove(m);
+                    Move res = performAlphabeta(newState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
+                    moveManager.updateMove(res);
+                }
+            });
+            th[idx].start();
+        }
+        for (int idx = 0; idx < threadNumber; idx++) {
+            try {
+                th[idx].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
-        return result;
+        return moveManager.getBestMove();
     }
 
-    private Move performMinimax(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, Move performedMove) {
+    private Move performMinimax(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, Move performedMove) {
         if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
             return performedMove;
@@ -138,7 +134,7 @@ public class Minimax {
 
         List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
-        if (currentDepth == maxDepth || gestore.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
+        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
             if (turn < 40) {
@@ -166,7 +162,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performMinimax(newState, gestore, false, turn + 1, currentDepth + 1, m);
+                performMinimax(newState, timeManager, false, turn + 1, currentDepth + 1, m);
 
                 if (m.getCosto() > bestCost) {
                     bestCost = m.getCosto();
@@ -178,7 +174,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performMinimax(newState, gestore, true, turn + 1, currentDepth + 1, m);
+                performMinimax(newState, timeManager, true, turn + 1, currentDepth + 1, m);
 
                 if (m.getCosto() < bestCost) {
                     bestCost = m.getCosto();
@@ -190,7 +186,7 @@ public class Minimax {
         return bestMove;
     }
 
-    private Move performAlphabeta(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
+    private Move performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
         if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
             return performedMove;
@@ -198,7 +194,7 @@ public class Minimax {
 
         List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
-        if (currentDepth == maxDepth || gestore.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
+        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
             if (turn < 40) {
@@ -227,7 +223,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performAlphabeta(newState, gestore, false, turn + 1, currentDepth + 1, alpha, beta, m);
+                performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
 
                 if (m.getCosto() > bestCost) {
                     bestCost = m.getCosto();
@@ -244,7 +240,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performAlphabeta(newState, gestore, true, turn + 1, currentDepth + 1, alpha, beta, m);
+                performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
 
                 if (m.getCosto() < bestCost) {
                     bestCost = m.getCosto();
@@ -261,7 +257,7 @@ public class Minimax {
     }
 
     //Controlla in maniera più accurata la presenza di stati già visitati
-    private Move performAlphabetaWithHistoryCheck(@NotNull TableState state, TimeManager gestore, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove, @NotNull Set<Integer> previousHistory) {
+    private Move performAlphabetaWithHistoryCheck(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove, @NotNull Set<Integer> previousHistory) {
         //se questo stato è già stato raggiunto
         if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
             performedMove.setCosto(0);
@@ -271,7 +267,7 @@ public class Minimax {
         List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
         //se è ora di terminare l'esplorazione
-        if (currentDepth == maxDepth || gestore.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
+        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
             if (turn < 40) {
@@ -302,7 +298,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performAlphabetaWithHistoryCheck(newState, gestore, false, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
+                performAlphabetaWithHistoryCheck(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
 
                 if (m.getCosto() > bestCost) {
                     bestCost = m.getCosto();
@@ -319,7 +315,7 @@ public class Minimax {
             TableState newState;
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                performAlphabetaWithHistoryCheck(newState, gestore, true, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
+                performAlphabetaWithHistoryCheck(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
 
                 if (m.getCosto() < bestCost) {
                     bestCost = m.getCosto();
