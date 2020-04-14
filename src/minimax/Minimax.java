@@ -26,36 +26,42 @@ public class Minimax {
 
         //inizializzazione euristiche
         whiteEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 5 - s.getKingDistance()
+                (16 - s.getBlackPiecesCount())
+                        + (s.getWhitePiecesCount())
+                        + (6 - s.getKingDistance())
                         + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[1] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 2 * (5 - s.getKingDistance())
+                2 * (16 - s.getBlackPiecesCount())
+                        + 1.5 * (s.getWhitePiecesCount())
+                        + 2.5 * (6 - s.getKingDistance())
                         + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[2] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 3 * (5 - s.getKingDistance())
+                3 * (16 - s.getBlackPiecesCount())
+                        + 2 * (s.getWhitePiecesCount())
+                        + 5 * (6 - s.getKingDistance())
                         + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getWhitePiecesCount()
-                        - (5 - s.getKingDistance())
+                (s.getBlackPiecesCount())
+                        + (9 - s.getWhitePiecesCount())
+                        - (6 - s.getKingDistance())
                         + getSafeZoneProtection(s)
                         + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[1] = (TableState s, int depth) ->
-                2 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
-                        - 1.5 * (5 - s.getKingDistance())
+                2 * (s.getBlackPiecesCount())
+                        + 1.5 * (9 - s.getWhitePiecesCount())
+                        - 1.5 * (6 - s.getKingDistance())
                         + getSafeZoneProtection(s)
                         + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[2] = (TableState s, int depth) ->
-                3 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
-                        - 1.5 * (5 - s.getKingDistance())
+                3 * (s.getBlackPiecesCount())
+                        + 2 * (9 - s.getWhitePiecesCount())
+                        - 1.5 * (6 - s.getKingDistance())
                         + getSafeZoneProtection(s)
                         + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
