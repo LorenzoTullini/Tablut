@@ -6,10 +6,7 @@ import model.PlayerType;
 import model.TableState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 //import org.jetbrains.annotations.NotNull;
 
@@ -21,6 +18,7 @@ public class Minimax {
     private final IHeuristic[] myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
     private final int threadNumber;
+    private Random rndGen;
 
     public Minimax(PlayerType myColour, int maxDepth, int threadNumber) {
         IHeuristic[] whiteEheuristic = new IHeuristic[3];
@@ -74,6 +72,8 @@ public class Minimax {
         this.alreadyVisitedStates = Collections.synchronizedSet(new HashSet<Integer>());
 
         this.threadNumber = threadNumber;
+
+        this.rndGen = new Random();
     }
 
 
@@ -206,9 +206,11 @@ public class Minimax {
             }
             //Per scrupolo, probabilmente si può togliere
             if (performedMove != null) {
+                var val = rndGen.nextInt(100);
+
                 performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
+                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) + (val < 4 ? 1 : 0) :
+                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth) - (val < 4 ? 1 : 0));
             }
 
             return performedMove;
