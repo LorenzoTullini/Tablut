@@ -108,7 +108,7 @@ public class BlackClient {
         System.out.println("Ci ho messo: "+(stop - start));
         System.out.println("Ho trovato la mossa: " + bestMove.toString());*/
 
-        Minimax minimax = new Minimax(playerType, 3, 2);
+        Minimax minimax = new Minimax(playerType, 5, 2);
 
         while(true) {
             System.out.println("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()) + " turno: " + turn);
@@ -136,6 +136,7 @@ public class BlackClient {
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 System.out.println("Ho trovato la mossa (My): " + bestMove.toString());
+
                 ntw.sendMove(Converter.covertMove(bestMove, playerType));
             }else{
                 System.out.println("Attendo la mossa dell'avversario:");

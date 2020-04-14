@@ -1,6 +1,8 @@
 package minimax;
 
 import client.TimeManager;
+import minimax.IHeuristic;
+import minimax.MoveManager;
 import model.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -62,25 +64,36 @@ public class Minimax {
 
         whiteEheuristic[0] = (TableState s, int depth) ->
                 weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s);
+                        weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[1] = (TableState s, int depth) ->
                 weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s);
-
+                        weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[2] = (TableState s, int depth) ->
                 weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s);
+                        weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
 
         blackEheuristic[0] = (TableState s, int depth) ->
                 weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s);
+                        40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[1] = (TableState s, int depth) ->
                 weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s);
+                        40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[2] = (TableState s, int depth) ->
                 weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s);
+                        40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
 
         this.maxDepth = maxDepth;

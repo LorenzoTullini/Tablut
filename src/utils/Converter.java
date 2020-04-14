@@ -53,6 +53,7 @@ public class Converter {
             for(JsonElement c: r.getAsJsonArray()){
                 String element = c.getAsString();
                 switch (element){
+                    case "THRONE":
                     case "EMPTY":
                         status[row][col] = E;
                         break;

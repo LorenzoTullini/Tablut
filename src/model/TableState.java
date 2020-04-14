@@ -23,8 +23,8 @@ public class TableState {
     private int state[][];
     private Board board = new Board();
     private Utils utils = new Utils();
-    private boolean whiteWon;
-    private boolean blackWon;
+    private boolean whiteWon = false;
+    private boolean blackWon = false;
 
     public TableState() {
         this.state = new int[][]{
@@ -82,6 +82,7 @@ public class TableState {
                     moves.addAll(getMovesFor(i, j, player));
             }
         }
+        Collections.shuffle(moves);
         return moves;
     }
 
@@ -179,7 +180,7 @@ public class TableState {
         // bianco ha vinto?
         if (piece == K && newTS.getBoard()[f.getX()][f.getY()] == L) {
             newTS.whiteWon = true;
-            System.out.println("Re salvo alle coordinate: " + f.toString());
+            //System.out.println("Re salvo alle coordinate: " + f.toString());
         }
 
 
@@ -232,7 +233,7 @@ public class TableState {
                 }
                 if (totB == 4) {
                     newTS.blackWon = true;
-                    System.out.println("Ho circondato il re sui 4 lati del castello");
+                    //System.out.println("Ho circondato il re sui 4 lati del castello");
                 }
             }
 
@@ -250,7 +251,7 @@ public class TableState {
 
                 if (totB == 3 && adjacent) {
                     newTS.blackWon = true;
-                    System.out.println("Ho circondato il re sui 3 lati + 1 adiacente al castello alle coordinate: " + kC.toString());
+                    //System.out.println("Ho circondato il re sui 3 lati + 1 adiacente al castello alle coordinate: " + kC.toString());
                 }
 
             }
@@ -278,7 +279,7 @@ public class TableState {
                     // re circondato a ovest-est
                     if (est.getY() != 9 && ovest.getY() != -1 && utils.getPiece(newTS.state[est.getX()][est.getY()]) == B && utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B) {
                         newTS.blackWon = true;
-                        System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
+                        //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
                 }
             }
