@@ -16,7 +16,7 @@ public class TableState {
     public static final int L = 0;    // Liberation = escapes dei Cianchi
     public static final int F = 1;    // Fortress = castello
     public static final int CA = 3;   // campi neri parte nord / est
-    public static final  int CB = 5;   // campi neri parte sud / ovest
+    public static final int CB = 5;   // campi neri parte sud / ovest
     public static final int CF = 6;   // campi neri + castello
 
 
@@ -38,6 +38,7 @@ public class TableState {
                 {E, E, E, E, BB, E, E, E, E},
                 {E, E, E, BB, BB, BB, E, E, E}
         };
+
 
 
     }
@@ -188,11 +189,11 @@ public class TableState {
         HashMap<Coord, Coord> nMap = utils.getNeighbours(f);
 
         // controllo se bianco mangia qualcosa
-        if (piece == W) {
+        if (utils.getPiece(piece) == W) {
             for (Map.Entry<Coord, Coord> e : nMap.entrySet()) {
                 // se il pezzo bianco è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
                 if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
-                    if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && newTS.state[e.getValue().getX()][e.getValue().getY()] == W) {
+                    if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && utils.getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == W) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
                         //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
