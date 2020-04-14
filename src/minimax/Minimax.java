@@ -94,14 +94,14 @@ public class Minimax {
 //                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
         whiteEheuristic[0] = (TableState s, int depth) ->
-                (s.getWhitePiecesCount() - s.getBlackPiecesCount()) * 300
+                (16 - s.getBlackPiecesCount()) * 300
                         + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(1000 + maxDepth - depth) : 0);
         whiteEheuristic[1] = whiteEheuristic[0];
         whiteEheuristic[2] = whiteEheuristic[0];
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                (s.getBlackPiecesCount() - s.getWhitePiecesCount()) * 300
+                (9 - s.getWhitePiecesCount()) * 300
                         + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(1000 + maxDepth - depth) : 0);
         blackEheuristic[1] = blackEheuristic[0];
