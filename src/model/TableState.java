@@ -178,7 +178,7 @@ public class TableState {
 
         // bianco ha vinto?
         if (piece == K && newTS.getBoard()[f.getX()][f.getY()] == L) {
-            whiteWon = true;
+            newTS.whiteWon = true;
             System.out.println("Re salvo alle coordinate: " + f.toString());
         }
 
