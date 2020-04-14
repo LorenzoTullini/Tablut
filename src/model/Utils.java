@@ -93,14 +93,9 @@ public class Utils {
     }
 
 
-
-
-
-
-
-
-
-
-
-
+    public int getCamps(int i) {
+        if (i == TableState.CA || i == TableState.CB)
+            return TableState.C;
+        else return TableState.E;
+    }
 }

@@ -18,6 +18,7 @@ public class TableState {
     public static final int CA = 3;   // campi neri parte nord / est
     public static final int CB = 5;   // campi neri parte sud / ovest
     public static final int CF = 6;   // campi neri + castello
+    public static final int C = 7;    // campi neri
 
 
     private int state[][];
@@ -273,13 +274,15 @@ public class TableState {
                     Coord sud = kC.goSud();
 
                     // re circondato a nord-sud
-                    if (nord.getX() != -1 && sud.getX() != 9 && utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B && utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B) {
+                    if (nord.getX() != -1 && sud.getX() != 9 && (utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B || utils.getCamps(newTS.getBoard()[nord.getX()][nord.getY()]) == C) &&
+                            (utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B || utils.getCamps(newTS.getBoard()[sud.getX()][sud.getY()]) == C) ) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
 
                     // re circondato a ovest-est
-                    if (est.getY() != 9 && ovest.getY() != -1 && utils.getPiece(newTS.state[est.getX()][est.getY()]) == B && utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B) {
+                    if (est.getY() != 9 && ovest.getY() != -1 && (utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B  || utils.getCamps(newTS.getBoard()[ovest.getX()][ovest.getY()]) == C) &&
+                            (utils.getPiece(newTS.state[est.getX()][est.getY()]) == B || utils.getCamps(newTS.getBoard()[est.getX()][est.getY()]) == C) ) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
