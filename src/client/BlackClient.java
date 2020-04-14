@@ -7,6 +7,9 @@ import model.PlayerType;
 import model.TableState;
 import utils.*;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -27,14 +30,11 @@ public class BlackClient {
 
 
     public static void main(String argv[]) {
-        timeManager = new TimeManager();
-        tt = new TimerThread(timeManager, 60*1000);
-
         playerType = PlayerType.BLACK;
         ntw = new Network("localhost", 5801);
 
-        humanPlayer(playerType);
-        //aiPlayer(playerType);
+        //humanPlayer(playerType);
+        aiPlayer(playerType);
 
     }
 
@@ -92,10 +92,27 @@ public class BlackClient {
         stateJson = ntw.getState();
         ServerState serverState =new ServerState(stateJson);
         TableState tableState = serverState.getTableState();
-        System.out.println(tableState.toString());
+        System.out.println("STATO INIZIALE: ");
+        serverState.printStatus();
         int turn = 0;
 
+        /*long start = System.currentTimeMillis();
+
+        tt.start();
+        Minimax minimax = new Minimax(playerType, 6, 2);
+        Move bestMove = minimax.alphabeta(new TableState(), timeManager, 0);
+        //Move bestMove = minimax.parallelAlphaBeta(new TableState(), timeManager, 0);
+        tt.interrupt();
+
+        long stop = System.currentTimeMillis();
+        System.out.println("Ci ho messo: "+(stop - start));
+        System.out.println("Ho trovato la mossa: " + bestMove.toString());*/
+
+        Minimax minimax = new Minimax(playerType, 3, 2);
+
         while(true) {
+            System.out.println("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()) + " turno: " + turn);
+
             //Controllo se lo stato ricevuto rappresenta una partita in corso
             if(serverState.haveIWin(playerType)){
                 System.out.println("Ho vinto !!");
@@ -103,13 +120,23 @@ public class BlackClient {
             }else if(serverState.haveILost(playerType)){
                 System.out.println("Ho perso !!");
                 break;
+            }else if(serverState.isDraw()){
+                System.out.println("Partita terminata in pareggio");
+                break;
             }
 
             if(serverState.isMyTurn(playerType)){
+                timeManager = new TimeManager();
+                tt = new TimerThread(timeManager, 55*1000);
+
                 tt.start();
-                //Qui va minmax
-                tt.interrupt();
-                //ntw.sendMove(Converter.covertMove(m, playerType));
+                Move bestMove = minimax.alphabeta(tableState, timeManager, turn);
+                tt.interrupt(); tt = null;
+
+                ServerMove serverMove = Converter.covertMove(bestMove, playerType);
+                System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
+                System.out.println("Ho trovato la mossa (My): " + bestMove.toString());
+                ntw.sendMove(Converter.covertMove(bestMove, playerType));
             }else{
                 System.out.println("Attendo la mossa dell'avversario:");
             }
@@ -118,11 +145,14 @@ public class BlackClient {
             stateJson = ntw.getState();
             serverState = new ServerState(stateJson);
             tableState = serverState.getTableState();
-            System.out.println(tableState.toString());
+            System.out.println("NUOVO STATO: ");
+            serverState.printStatus();
 
-            turn++;
+            turn+=1;
         }
         ntw.distroyNetwork();
     }
     //----------------------------------------------------------------------------------
+
+
 }

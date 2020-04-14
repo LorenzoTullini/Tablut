@@ -70,10 +70,10 @@ public class Converter {
                         status[row][col] = K;
                         break;
                 }
-                col ++;
+                row ++;
             }
-            col = 0;
-            row ++;
+            row = 0;
+            col ++;
         }
         return status;
     }
