@@ -173,7 +173,6 @@ public class TableState {
             piece = B;
 
         newTS.state[i.getX()][i.getY()] = E;
-        System.out.println("Metto E "+i.toString());
         newTS.state[f.getX()][f.getY()] = piece;
 
 
