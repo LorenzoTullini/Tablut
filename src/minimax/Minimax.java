@@ -252,12 +252,18 @@ public class Minimax {
 
         Move bestMove = null;
         double bestCost;
-
+        TableState newState = null;
         if (isMaxTurn) {
             bestCost = Double.NEGATIVE_INFINITY;
-            TableState newState;
+
             for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
+                try {
+                    newState = state.performMove(m);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    System.err.println("Eccezione durante il calcolo del nuovo stato");
+                    continue;
+                }
+
                 performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
 
                 if (m.getCosto() > bestCost) {
@@ -272,9 +278,14 @@ public class Minimax {
             }
         } else {
             bestCost = Double.POSITIVE_INFINITY;
-            TableState newState;
+
             for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
+                try {
+                    newState = state.performMove(m);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    System.err.println("Eccezione durante il calcolo del nuovo stato");
+                    continue;
+                }
                 performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
 
                 if (m.getCosto() < bestCost) {
