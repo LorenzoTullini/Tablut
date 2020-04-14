@@ -178,7 +178,7 @@ public class TableState {
 
         // bianco ha vinto?
         if (piece == K && newTS.getBoard()[f.getX()][f.getY()] == L) {
-            whiteWon = true;
+            newTS.whiteWon = true;
             System.out.println("Re salvo alle coordinate: " + f.toString());
         }
 
@@ -317,7 +317,7 @@ public class TableState {
         int totB = 0;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++)
-                if (this.state[i][j] == B)
+                if (utils.getPiece(this.state[i][j]) == B)
                     totB++;
         }
         return totB;
@@ -356,6 +356,7 @@ public class TableState {
                 d = kC.manhattanDistance(c);
         return d;
     }
+
 
 
 }
