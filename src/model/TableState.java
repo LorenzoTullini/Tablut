@@ -193,7 +193,8 @@ public class TableState {
             for (Map.Entry<Coord, Coord> e : nMap.entrySet()) {
                 // se il pezzo bianco è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
                 if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
-                    if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && utils.getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == W) {
+                    if (newTS.state[e.getKey().getX()][e.getKey().getY()] == B && (utils.getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == W
+                            || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
                         //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());

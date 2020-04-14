@@ -22,7 +22,7 @@ public class Test {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.WHITE);
                 x = random.nextInt(moves.size());
-                //moves.stream().forEach(m -> System.out.println(m.toString()));
+                moves.stream().forEach(m -> System.out.println(m.toString()));
                 System.out.println();
                 System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(x));
                 gameState = gameState.performMove(moves.get(x));
