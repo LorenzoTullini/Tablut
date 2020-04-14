@@ -60,39 +60,52 @@ public class Minimax {
 //                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
 //                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
-        whiteEheuristic[0] = (TableState s, int depth) ->
-                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount())
-                        + weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
-        whiteEheuristic[1] = (TableState s, int depth) ->
-                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        +weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//        whiteEheuristic[0] = (TableState s, int depth) ->
+//                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount())
+//                        + weights[8] * evalKingPos(s)
+//                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//        whiteEheuristic[1] = (TableState s, int depth) ->
+//                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
+//                        +weights[8] * evalKingPos(s)
+//                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//
+//        whiteEheuristic[2] = (TableState s, int depth) ->
+//                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
+//                        +weights[8] * evalKingPos(s)
+//                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//
+//        blackEheuristic[0] = (TableState s, int depth) ->
+//                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount())
+//                        + 40 - weights[8] * evalKingPos(s)
+//                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+//        blackEheuristic[1] = (TableState s, int depth) ->
+//                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
+//                        +40 - weights[8] * evalKingPos(s)
+//                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+//        blackEheuristic[2] = (TableState s, int depth) ->
+//                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
+//                        +40 - weights[8] * evalKingPos(s)
+//                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
-        whiteEheuristic[2] = (TableState s, int depth) ->
-                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        +weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+        whiteEheuristic[0] = (TableState s, int depth) ->
+                (s.getWhitePiecesCount() - s.getBlackPiecesCount()) * 300
+                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(1000 + maxDepth - depth) : 0);
+        whiteEheuristic[1] = whiteEheuristic[0];
+        whiteEheuristic[2] = whiteEheuristic[0];
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount())
-                        + 40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
-        blackEheuristic[1] = (TableState s, int depth) ->
-                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        +40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
-        blackEheuristic[2] = (TableState s, int depth) ->
-                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        +40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
-
+                (s.getBlackPiecesCount() - s.getWhitePiecesCount()) * 300
+                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(1000 + maxDepth - depth) : 0);
+        blackEheuristic[1] = blackEheuristic[0];
+        blackEheuristic[2] = blackEheuristic[0];
 
         this.maxDepth = maxDepth;
 
@@ -109,15 +122,6 @@ public class Minimax {
         this.rndGen = new Random();
     }
 
-
-    public Move minimax(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        //aggiungi lo stato prodotto dall'avversario
-        alreadyVisitedStates.add(initialState.hashCode());
-        Move res = performMinimax(initialState, timeManager, true, turn, 0, null);
-        //aggiungi lo stato appena prodotto
-        alreadyVisitedStates.add(initialState.performMove(res).hashCode());
-        return res;
-    }
 
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         //aggiungi lo stato prodotto dall'avversario
@@ -159,65 +163,6 @@ public class Minimax {
         return moveManager.getBestMove();
     }
 
-    private Move performMinimax(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, Move performedMove) {
-        if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
-            performedMove.setCosto(0);
-            return performedMove;
-        }
-
-        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
-
-        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
-            //valuta il nodo corrente
-            int heuristicIndex;
-            if (turn < 8) {
-                heuristicIndex = 0;
-            } else if (turn < 20) {
-                heuristicIndex = 1;
-            } else {
-                heuristicIndex = 2;
-            }
-            //Per scrupolo, probabilmente si può togliere
-            if (performedMove != null) {
-                performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
-            }
-
-            return performedMove;
-        }
-
-
-        Move bestMove = null;
-        double bestCost;
-        if (isMaxTurn) {
-            bestCost = Double.NEGATIVE_INFINITY;
-            TableState newState;
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
-                performMinimax(newState, timeManager, false, turn + 1, currentDepth + 1, m);
-
-                if (m.getCosto() > bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
-                }
-            }
-        } else {
-            bestCost = Double.POSITIVE_INFINITY;
-            TableState newState;
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
-                performMinimax(newState, timeManager, true, turn + 1, currentDepth + 1, m);
-
-                if (m.getCosto() < bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
-                }
-            }
-        }
-
-        return bestMove;
-    }
 
     private Move performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
         if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
@@ -242,8 +187,8 @@ public class Minimax {
                 var val = rndGen.nextInt(100);
 
                 performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) + (val < 4 ? 1.0 / (1 + rndGen.nextInt(50)) : 0) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth) - (val < 4 ? 1.0 / (1 + rndGen.nextInt(50)) : 0));
+                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
+                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
             }
 
             return performedMove;

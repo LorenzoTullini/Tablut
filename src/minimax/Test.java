@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Test {
-    static int NUMERO_PARTITE = 30;
+    static int NUMERO_PARTITE = 5;
     static int profonditaMax = 5;
     static int vittorieBianchi = 0;
     static int vittorieNeri = 0;
