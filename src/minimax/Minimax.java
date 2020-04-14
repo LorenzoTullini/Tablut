@@ -1,9 +1,7 @@
 package minimax;
 
 import client.TimeManager;
-import model.Move;
-import model.PlayerType;
-import model.TableState;
+import model.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -13,6 +11,8 @@ import java.util.*;
 
 public class Minimax {
     private final int maxDepth;
+    private static int[] weights = {10, -1, 1, 1, 1, -2, -4, 2, 5, 1, 1};
+
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
     private final IHeuristic[] myHeuristic, opponentHeuristic;
@@ -25,40 +25,62 @@ public class Minimax {
         IHeuristic[] blackEheuristic = new IHeuristic[3];
 
         //inizializzazione euristiche
+//        whiteEheuristic[0] = (TableState s, int depth) ->
+//                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+//                        + 5 - s.getKingDistance()
+//                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//        whiteEheuristic[1] = (TableState s, int depth) ->
+//                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+//                        + 2 * (5 - s.getKingDistance())
+//                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//        whiteEheuristic[2] = (TableState s, int depth) ->
+//                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+//                        + 3 * (5 - s.getKingDistance())
+//                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+//
+//        blackEheuristic[0] = (TableState s, int depth) ->
+//                s.getBlackPiecesCount() - s.getWhitePiecesCount()
+//                        - (5 - s.getKingDistance())
+//                        + getSafeZoneProtection(s)
+//                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+//        blackEheuristic[1] = (TableState s, int depth) ->
+//                2 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
+//                        - 1.5 * (5 - s.getKingDistance())
+//                        + getSafeZoneProtection(s)
+//                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+//        blackEheuristic[2] = (TableState s, int depth) ->
+//                3 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
+//                        - 1.5 * (5 - s.getKingDistance())
+//                        + getSafeZoneProtection(s)
+//                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+//                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+
         whiteEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 5 - s.getKingDistance()
-                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
+                        weights[8] * evalKingPos(s);
         whiteEheuristic[1] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 2 * (5 - s.getKingDistance())
-                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
+                        weights[8] * evalKingPos(s);
+
         whiteEheuristic[2] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount()
-                        + 3 * (5 - s.getKingDistance())
-                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
+                        weights[8] * evalKingPos(s);
+
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getWhitePiecesCount()
-                        - (5 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
+                        40 - weights[8] * evalKingPos(s);
         blackEheuristic[1] = (TableState s, int depth) ->
-                2 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
-                        - 1.5 * (5 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
+                        40 - weights[8] * evalKingPos(s);
         blackEheuristic[2] = (TableState s, int depth) ->
-                3 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
-                        - 1.5 * (5 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
+                        40 - weights[8] * evalKingPos(s);
 
 
         this.maxDepth = maxDepth;
@@ -401,5 +423,162 @@ public class Minimax {
         }
 
         return res / 20;
+    }
+
+    static double evalKingPos(TableState s) {
+        //trova la posizione del re
+        double score = 0;
+        var internalState = s.getState();
+        int[][] board = s.getBoard();
+        int kingX = 4, kingY = 4;
+        int col, row;
+
+        for (int i = 0; i < 81; i++) {
+            kingX = i / 9;
+            kingY = i % 9;
+
+            if (internalState[kingX][kingY] == TableState.K) {
+                break;
+            }
+        }
+
+        col = kingY - 1;
+        row = kingX;
+
+        while (col >= 0) {
+            if (col == 4 && row == 4) {
+                score += weights[2];
+                break;
+            }
+            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
+                if (col == kingY - 1) {
+                    score += weights[6];
+                } else {
+                    score += weights[5];
+                }
+                break;
+            }
+            if (internalState[row][col] == TableState.W) {
+                if (col == kingY - 1) {
+                    score += weights[4];
+                } else {
+                    score += weights[3];
+                }
+                break;
+            }
+            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
+                score += weights[1];
+                break;
+            }
+            if (board[row][col] == TableState.L) {
+                score += weights[0];
+                break;
+            }
+            col -= 1;
+        }
+
+        col = kingY + 1;
+        row = kingX;
+        while (col < 9) {
+            if (col == 4 && row == 4) {
+                score += weights[2];
+                break;
+            }
+            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
+                if (col == kingY - 1) {
+                    score += weights[6];
+                } else {
+                    score += weights[5];
+                }
+                break;
+            }
+            if (internalState[row][col] == TableState.W) {
+                if (col == kingY - 1) {
+                    score += weights[4];
+                } else {
+                    score += weights[3];
+                }
+                break;
+            }
+            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
+                score += weights[1];
+                break;
+            }
+            if (board[row][col] == TableState.L) {
+                score += weights[0];
+                break;
+            }
+            col -= 1;
+        }
+
+        col = kingY;
+        row = kingX - 1;
+        while (row >= 0) {
+            if (col == 4 && row == 4) {
+                score += weights[2];
+                break;
+            }
+            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
+                if (col == kingY - 1) {
+                    score += weights[6];
+                } else {
+                    score += weights[5];
+                }
+                break;
+            }
+            if (internalState[row][col] == TableState.W) {
+                if (col == kingY - 1) {
+                    score += weights[4];
+                } else {
+                    score += weights[3];
+                }
+                break;
+            }
+            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
+                score += weights[1];
+                break;
+            }
+            if (board[row][col] == TableState.L) {
+                score += weights[0];
+                break;
+            }
+            col -= 1;
+        }
+
+        col = kingY;
+        row = kingX + 1;
+        while (row < 9) {
+            if (col == 4 && row == 4) {
+                score += weights[2];
+                break;
+            }
+            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
+                if (col == kingY - 1) {
+                    score += weights[6];
+                } else {
+                    score += weights[5];
+                }
+                break;
+            }
+            if (internalState[row][col] == TableState.W) {
+                if (col == kingY - 1) {
+                    score += weights[4];
+                } else {
+                    score += weights[3];
+                }
+                break;
+            }
+            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
+                score += weights[1];
+                break;
+            }
+            if (board[row][col] == TableState.L) {
+                score += weights[0];
+                break;
+            }
+            col -= 1;
+        }
+
+        return score;
     }
 }
