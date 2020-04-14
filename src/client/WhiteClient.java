@@ -1,15 +1,14 @@
 package client;
 
 import minimax.Minimax;
-import model.Coord;
 import model.Move;
 import model.PlayerType;
 import model.TableState;
-import utils.*;
+import utils.Converter;
+import utils.Network;
+import utils.ServerMove;
+import utils.ServerState;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Random;
 import java.util.Scanner;
 
 public class WhiteClient {
@@ -100,9 +99,9 @@ public class WhiteClient {
         long start = System.currentTimeMillis();
 
         tt.start();
-        Minimax minimax = new Minimax(playerType, 7, 2);
-        //Move bestMove = minimax.minimax(new TableState(), timeManager, 0);
-        Move bestMove = minimax.parallelAlphaBeta(new TableState(), timeManager, 0);
+        Minimax minimax = new Minimax(playerType, 6, 2);
+        Move bestMove = minimax.alphabeta(new TableState(), timeManager, 0);
+        //Move bestMove = minimax.parallelAlphaBeta(new TableState(), timeManager, 0);
         tt.interrupt();
 
         long stop = System.currentTimeMillis();
