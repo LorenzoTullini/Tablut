@@ -273,7 +273,7 @@ public class TableState {
                     // re circondato a nord-sud
                     if (nord.getX() != -1 && sud.getX() != 9 && utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B && utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B) {
                         newTS.blackWon = true;
-                        System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
+                        //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
 
                     // re circondato a ovest-est
@@ -298,7 +298,7 @@ public class TableState {
                     return new Coord(i, j);
             }
 
-        System.out.println(this.toString());
+        //System.out.println(this.toString());
         return new Coord(-1, -1);
     }
 

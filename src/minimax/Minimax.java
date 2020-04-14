@@ -1,8 +1,6 @@
 package minimax;
 
 import client.TimeManager;
-import minimax.IHeuristic;
-import minimax.MoveManager;
 import model.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,36 +61,36 @@ public class Minimax {
 //                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
         whiteEheuristic[0] = (TableState s, int depth) ->
-                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount())
+                        + weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[1] = (TableState s, int depth) ->
                 weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        +weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+
         whiteEheuristic[2] = (TableState s, int depth) ->
                 weights[7] * (weights[9] * s.getWhitePiecesCount() - weights[10] * s.getBlackPiecesCount()) +
-                        weights[8] * evalKingPos(s)
-                        + ((s.hasWhiteWon()) ? 1000 + maxDepth - depth : 0)
+                        +weights[8] * evalKingPos(s)
+                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
-
         blackEheuristic[0] = (TableState s, int depth) ->
-                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount())
+                        + 40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[1] = (TableState s, int depth) ->
                 weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        +40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[2] = (TableState s, int depth) ->
                 weights[7] * (weights[10] * s.getBlackPiecesCount() - weights[9] * s.getWhitePiecesCount()) +
-                        40 - weights[8] * evalKingPos(s)
-                        + ((s.hasBlackWon()) ? 1000 + maxDepth - depth : 0)
+                        +40 - weights[8] * evalKingPos(s)
+                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
                         + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
 
@@ -172,9 +170,9 @@ public class Minimax {
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
-            if (turn < 40) {
+            if (turn < 8) {
                 heuristicIndex = 0;
-            } else if (turn < 70) {
+            } else if (turn < 20) {
                 heuristicIndex = 1;
             } else {
                 heuristicIndex = 2;
@@ -232,9 +230,9 @@ public class Minimax {
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
-            if (turn < 40) {
+            if (turn < 8) {
                 heuristicIndex = 0;
-            } else if (turn < 70) {
+            } else if (turn < 20) {
                 heuristicIndex = 1;
             } else {
                 heuristicIndex = 2;
@@ -307,9 +305,9 @@ public class Minimax {
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
-            if (turn < 40) {
+            if (turn < 8) {
                 heuristicIndex = 0;
-            } else if (turn < 70) {
+            } else if (turn < 20) {
                 heuristicIndex = 1;
             } else {
                 heuristicIndex = 2;
@@ -438,7 +436,7 @@ public class Minimax {
         return res / 20;
     }
 
-    static double evalKingPos(TableState s) {
+    static double evalKingPos(@NotNull TableState s) {
         //trova la posizione del re
         double score = 0;
         var internalState = s.getState();
