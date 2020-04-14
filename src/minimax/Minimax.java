@@ -28,31 +28,40 @@ public class Minimax {
 
         //inizializzazione euristiche
         whiteEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount() + s.getKingDistance() +
-                        ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+                        + 5 - s.getKingDistance()
+                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[1] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount() + 2 * s.getKingDistance() +
-                        ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+                        + 2 * (5 - s.getKingDistance())
+                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[2] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getBlackPiecesCount() + 3 * s.getKingDistance() +
-                        ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                s.getBlackPiecesCount() - s.getBlackPiecesCount()
+                        + 3 * (5 - s.getKingDistance())
+                        + ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
         //TODO aggiugnere conteggio dei pezzi in ognuno dei quattro angoli
         blackEheuristic[0] = (TableState s, int depth) ->
-                s.getBlackPiecesCount() - s.getWhitePiecesCount() - s.getKingDistance() +
-                        ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                s.getBlackPiecesCount() - s.getWhitePiecesCount()
+                        - (5 - s.getKingDistance())
+                        + getSafeZoneProtection(s)
+                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[1] = (TableState s, int depth) ->
-                2 * (s.getBlackPiecesCount() - s.getWhitePiecesCount()) - 1.5 * s.getKingDistance() +
-                        ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                2 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
+                        - 1.5 * (5 - s.getKingDistance())
+                        + getSafeZoneProtection(s)
+                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[2] = (TableState s, int depth) ->
-                3 * (s.getBlackPiecesCount() - s.getWhitePiecesCount()) - 1.5 * s.getKingDistance() +
-                        ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0) +
-                        ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                3 * (s.getBlackPiecesCount() - s.getWhitePiecesCount())
+                        - 1.5 * (5 - s.getKingDistance())
+                        + getSafeZoneProtection(s)
+                        + ((s.hasBlackWon()) ? 100 + maxDepth - depth : 0)
+                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
 
         this.maxDepth = maxDepth;
@@ -324,5 +333,75 @@ public class Minimax {
             }
         }
         return bestMove;
+    }
+
+    static double getSafeZoneProtection(@NotNull TableState s) {
+        double res = 0.0;
+        //angolo alto sinistra
+        if (s.getState()[0][0] == 1) {
+            res++;
+        }
+        if (s.getState()[2][1] == 1) {
+            res++;
+        }
+        if (s.getState()[3][1] == 1) {
+            res++;
+        }
+        if (s.getState()[1][2] == 1) {
+            res++;
+        }
+        if (s.getState()[1][3] == 1) {
+            res++;
+        }
+        //angolo alto destra
+        if (s.getState()[0][8] == 1) {
+            res++;
+        }
+        if (s.getState()[1][6] == 1) {
+            res++;
+        }
+        if (s.getState()[1][5] == 1) {
+            res++;
+        }
+        if (s.getState()[2][7] == 1) {
+            res++;
+        }
+        if (s.getState()[3][7] == 1) {
+            res++;
+        }
+        //angolo basso destra
+        if (s.getState()[8][8] == 1) {
+            res++;
+        }
+        if (s.getState()[6][7] == 1) {
+            res++;
+        }
+        if (s.getState()[5][7] == 1) {
+            res++;
+        }
+        if (s.getState()[7][6] == 1) {
+            res++;
+        }
+        if (s.getState()[7][5] == 1) {
+            res++;
+        }
+        //angolo basso sinistra
+        if (s.getState()[8][0] == 1) {
+            res++;
+        }
+        if (s.getState()[6][1] == 1) {
+            res++;
+        }
+        if (s.getState()[5][1] == 1) {
+            res++;
+        }
+        if (s.getState()[7][2] == 1) {
+            res++;
+        }
+        if (s.getState()[7][3] == 1) {
+            res++;
+        }
+
+        return res / 20;
     }
 }
