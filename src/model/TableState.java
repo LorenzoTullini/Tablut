@@ -343,6 +343,10 @@ public class TableState {
                 replace("4", "E").replace("5", "K");
     }
 
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(state);
+    }
 
     public int getKingDistance() {
         Coord kC = this.getKingCoord();
