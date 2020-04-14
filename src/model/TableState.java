@@ -79,7 +79,7 @@ public class TableState {
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                if ( ((this.getState()[i][j] == W || this.getState()[i][j] == K) && player.equals(PlayerType.WHITE))
+                if ( (utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
                         || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)) )
                     moves.addAll(getMovesFor(i, j, player));
             }
@@ -91,6 +91,7 @@ public class TableState {
     private Collection<? extends Move> getMovesFor(int x, int y, PlayerType player) {
         List<Move> moves = new ArrayList<>();
         Coord i = new Coord(x, y); // coordinata iniziale
+
         if (player.equals(PlayerType.WHITE)) {
 
             //NORD
@@ -172,7 +173,7 @@ public class TableState {
 
         //Se il pezzo nero lascia la sua parte non ci deve piu' rientrare.
         //Viene quindi trasformato in B, ovvero, in base alle regole definite sopra, non potra' piu' andare nei campi CA e CB
-        if ((piece == BA && this.getBoard()[f.getX()][f.getY()] != CA) || (piece == BB && this.getBoard()[f.getX()][f.getY()] != CB))
+        if ((piece == BA && newTS.getBoard()[f.getX()][f.getY()] != CA) || (piece == BB && newTS.getBoard()[f.getX()][f.getY()] != CB))
             piece = B;
 
         newTS.state[i.getX()][i.getY()] = E;
@@ -228,7 +229,7 @@ public class TableState {
             Set<Coord> nK = utils.getNeighbours(kC).keySet();
 
             // re nel castello circondato su 4 lati
-            if (this.getBoard()[kC.getX()][kC.getY()] == F) {
+            if (newTS.getBoard()[kC.getX()][kC.getY()] == F) {
                 int totB = 0;
                 for (Coord c : nK) {
                     if (utils.getPiece(newTS.state[c.getX()][c.getY()]) == B)
@@ -241,7 +242,7 @@ public class TableState {
             }
 
             // re adiacente al castello e circondato su 3 lati
-            if (!newTS.hasBlackWon() && !newTS.hasWhiteWon() && this.getBoard()[kC.getX()][kC.getY()] != F) {
+            if (!newTS.hasBlackWon() && !newTS.hasWhiteWon() && newTS.getBoard()[kC.getX()][kC.getY()] != F) {
                 int totB = 0;
                 boolean adjacent = false;
 
@@ -274,15 +275,15 @@ public class TableState {
                     Coord sud = kC.goSud();
 
                     // re circondato a nord-sud
-                    if (nord.getX() != -1 && sud.getX() != 9 && (utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B || utils.getCamps(newTS.getBoard()[nord.getX()][nord.getY()]) == C) &&
-                            (utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B || utils.getCamps(newTS.getBoard()[sud.getX()][sud.getY()]) == C) ) {
+                    if (nord.getX() != -1 && sud.getX() != 9 && (utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B || utils.getCamps(newTS.getBoard()[nord.getX()][nord.getY()]) == C)
+                            && (utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B || utils.getCamps(newTS.getBoard()[sud.getX()][sud.getY()]) == C) ) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
 
                     // re circondato a ovest-est
-                    if (est.getY() != 9 && ovest.getY() != -1 && (utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B  || utils.getCamps(newTS.getBoard()[ovest.getX()][ovest.getY()]) == C) &&
-                            (utils.getPiece(newTS.state[est.getX()][est.getY()]) == B || utils.getCamps(newTS.getBoard()[est.getX()][est.getY()]) == C) ) {
+                    if (est.getY() != 9 && ovest.getY() != -1 && (utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B || utils.getCamps(newTS.getBoard()[ovest.getX()][ovest.getY()]) == C)
+                            && (utils.getPiece(newTS.state[est.getX()][est.getY()]) == B || utils.getCamps(newTS.getBoard()[est.getX()][est.getY()]) == C) ) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }

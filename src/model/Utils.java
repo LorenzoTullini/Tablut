@@ -20,7 +20,9 @@ public class Utils {
     public int getPiece(int piece) {
         if (piece == TableState.BA || piece == TableState.BB || piece == TableState.B)
             return TableState.B;
-        else return TableState.W;
+        if(piece == TableState.W || piece == TableState.K)
+            return TableState.W;
+        else return TableState.E;
     }
 
 
@@ -85,8 +87,10 @@ public class Utils {
 
     //cX e cY sono le coordinate del punto immediatamente vicino a quello di coordinate x,y, ovvero il punto di partenza
     public boolean checkBlack(TableState ts, int cX, int cY, int x, int y){
-        if (ts.getState()[cX][cY] != TableState.E || ts.getBoard()[cX][cY] == TableState.F || (ts.getState()[x][y] == TableState.B && (ts.getBoard()[cX][cY] == TableState.CA || ts.getBoard()[cX][cY] == TableState.CB))
-                || (ts.getState()[x][y] == TableState.BA && ts.getBoard()[cX][cY] == TableState.CB) || (ts.getState()[x][y] == TableState.BB && ts.getBoard()[cX][cY] == TableState.CA))
+        if (ts.getState()[cX][cY] != TableState.E || ts.getBoard()[cX][cY] == TableState.F
+                || (ts.getState()[x][y] == TableState.B && (ts.getBoard()[cX][cY] == TableState.CA || ts.getBoard()[cX][cY] == TableState.CB))
+                || (ts.getState()[x][y] == TableState.BA && ts.getBoard()[cX][cY] == TableState.CB)
+                || (ts.getState()[x][y] == TableState.BB && ts.getBoard()[cX][cY] == TableState.CA))
             return false;
         else return true;
 
