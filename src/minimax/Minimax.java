@@ -209,8 +209,8 @@ public class Minimax {
                 var val = rndGen.nextInt(100);
 
                 performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) + (val < 4 ? 1 : 0) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth) - (val < 4 ? 1 : 0));
+                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) + (val < 4 ? 1.0 / (1 + rndGen.nextInt(50)) : 0) :
+                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth) - (val < 4 ? 1.0 / (1 + rndGen.nextInt(50)) : 0));
             }
 
             return performedMove;
