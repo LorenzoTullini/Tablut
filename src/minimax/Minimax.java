@@ -12,7 +12,7 @@ import java.util.*;
 public class Minimax {
     private final int maxDepth;
     private double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1,
-            1, 1, -1, 1.5, 1, 2, 1.5, -1.5, 1.5, 1};
+            1, 1, -1, 1.5, 1, 1.5, 2, -1.5, 1.5, 1};
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
@@ -41,14 +41,14 @@ public class Minimax {
                         + weights[9] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                weights[11] * (9 - s.getWhitePiecesCount()) //attacco
-                        + weights[10] * (s.getBlackPiecesCount()) //difesa
+                weights[10] * (9 - s.getWhitePiecesCount()) //attacco
+                        + weights[11] * (s.getBlackPiecesCount()) //difesa
                         + weights[12] * s.getKingDistance() //distanza del re dalla vittoria
                         + weights[13] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
                         + weights[14] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
         blackEheuristic[1] = (TableState s, int depth) ->
-                weights[16] * (9 - s.getWhitePiecesCount()) //attacco
-                        + weights[15] * (s.getBlackPiecesCount()) //difesa
+                weights[15] * (9 - s.getWhitePiecesCount()) //attacco
+                        + weights[16] * (s.getBlackPiecesCount()) //difesa
                         + weights[17] * s.getKingDistance() //distanza del re dalla vittoria
                         + weights[18] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
                         + weights[19] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
