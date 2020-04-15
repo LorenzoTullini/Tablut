@@ -196,10 +196,10 @@ public class TableState {
                 // se il pezzo bianco è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
                 if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
                     if (utils.getPiece(newTS.state[e.getKey().getX()][e.getKey().getY()]) == B && (utils.getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == W
-                            || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
+                            || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY()) ) )) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
                     }
                 }
             }
@@ -215,7 +215,7 @@ public class TableState {
                             || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
                     }
                 }
             }

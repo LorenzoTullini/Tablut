@@ -13,9 +13,9 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 1;
+    static int NUMERO_PARTITE = 10;
     static int profonditaMax = 6;
-    static int profonditaIniziale = 6;
+    static int profonditaIniziale = 3;
     static int timeoutSec = 20;
     ////////////////////////////////////////////////////////////
 

@@ -1,16 +1,15 @@
 package client;
 
 import minimax.Minimax;
-import model.Coord;
 import model.Move;
 import model.PlayerType;
 import model.TableState;
-import utils.*;
+import utils.Converter;
+import utils.Network;
+import utils.ServerMove;
+import utils.ServerState;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Random;
 import java.util.Scanner;
 
 public class BlackClient {
@@ -108,7 +107,7 @@ public class BlackClient {
         System.out.println("Ci ho messo: "+(stop - start));
         System.out.println("Ho trovato la mossa: " + bestMove.toString());*/
 
-        Minimax minimax = new Minimax(playerType, 5, 2);
+        Minimax minimax = new Minimax(playerType, 5);
 
         while(true) {
             System.out.println("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()) + " turno: " + turn);
