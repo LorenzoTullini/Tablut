@@ -6,9 +6,7 @@ import java.util.HashMap;
 public class Utils {
 
     public Utils(){
-
     }
-
 
     public int getCampsAndFortress(int i) {
         if (i == TableState.CA || i == TableState.CB || i == TableState.F)
@@ -101,5 +99,13 @@ public class Utils {
         if (i == TableState.CA || i == TableState.CB)
             return TableState.C;
         else return TableState.E;
+    }
+
+    public boolean isOK(int x, int y) {
+        if ((x==4 && y==0) || (x==0 && y==4) || (x==4 && y==8) || (x==8 && y==4))
+            return false;
+        else return true;
+
+
     }
 }

@@ -22,13 +22,14 @@ public class Test {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.WHITE);
                 x = random.nextInt(moves.size());
-                moves.stream().forEach(m -> System.out.println(m.toString()));
+                //moves.stream().forEach(m -> System.out.println(m.toString()));
                 System.out.println();
                 System.out.println("BIANCO: faccio una mossa lecita random: " + moves.get(x));
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
                 System.out.println("Distanza del re dalla salvezza: " +gameState.getKingDistance());
-                System.out.println(gameState.hasWhiteWon());
+                System.out.println("Totale pezzi neri mangiati: " + (16-gameState.getBlackPiecesCount()));
+                System.out.println("Bianco ha vinto: "+ gameState.hasWhiteWon());
             }
 
             if(!gameState.hasWhiteWon()) {
@@ -39,6 +40,8 @@ public class Test {
                 System.out.println("NERO: faccio una mossa lecita random: " + moves.get(r));
                 gameState = gameState.performMove(moves.get(r));
                 System.out.println(gameState.toString());
+                System.out.println("Totale pezzi bianchi mangiati: " + (9-gameState.getWhitePiecesCount()));
+                System.out.println("Nero ha vinto: "+ gameState.hasBlackWon());
             }
         }
     }
