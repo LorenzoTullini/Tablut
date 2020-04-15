@@ -14,8 +14,8 @@ public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
     static int NUMERO_PARTITE = 10;
-    static int profonditaMax = 6;
-    static int profonditaIniziale = 3;
+    static int profonditaMax = 5;
+    static int profonditaMin = 3;
     static int timeoutSec = 20;
     ////////////////////////////////////////////////////////////
 
@@ -32,17 +32,18 @@ public class Test {
         TimeManager timeManager = new TimeManager();
         long start, end;
 
-        for (int profMax = profonditaIniziale; profMax <= profonditaMax; profMax++) {
+        for (int profMax = profonditaMin; profMax <= profonditaMax; profMax++) {
             vittorieBianchi = 0;
             vittorieNeri = 0;
             numTurni = new ArrayList<>();
             durataTurnoBianco = new ArrayList<>();
             durataTurnoNero = new ArrayList<>();
+            long inizioTest, fineTest;
 
 
             System.out.println("-------------------------------------------------");
             System.out.println("Profondità: " + profMax);
-
+            inizioTest = System.currentTimeMillis();
             for (int i = 0; i < NUMERO_PARTITE; i++) {
                 //System.out.print("PARTITA: " + (i + 1));
                 System.out.print("#");
@@ -114,20 +115,22 @@ public class Test {
                     turn++;
                 }
             }
+            fineTest = System.currentTimeMillis();
             for (int i = 0; i < NUMERO_PARTITE; i++) {
                 System.out.printf("\b");
             }
-            System.out.printf("Vittorie Bianche: %s (%.2f%%)%n", vittorieBianchi, (100.0 * vittorieBianchi) / NUMERO_PARTITE);
-            System.out.printf("Vittorie Neri: %s (%.2f%%)%n", vittorieNeri, (100.0 * vittorieNeri) / NUMERO_PARTITE);
-            System.out.printf("Durata Turno Bianco  med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+            System.out.printf("Durata Test:      \t%.2f s%n", (fineTest - inizioTest) / 1000.0);
+            System.out.printf("Vittorie Bianche: \t%d (%.2f%%)%n", vittorieBianchi, (100.0 * vittorieBianchi) / NUMERO_PARTITE);
+            System.out.printf("Vittorie Neri:    \t%d (%.2f%%)%n", vittorieNeri, (100.0 * vittorieNeri) / NUMERO_PARTITE);
+            System.out.printf("Durata Turno Bianco  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
                     durataTurnoBianco.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoBianco.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoBianco.stream().min(Double::compare).orElse(-1.0));
-            System.out.printf("Durata Turno Nero    med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+            System.out.printf("Durata Turno Nero    \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
                     durataTurnoNero.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoNero.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoNero.stream().min(Double::compare).orElse(-1.0));
-            System.out.printf("Numero turni         med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+            System.out.printf("Numero turni         \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
                     numTurni.stream().reduce(0.0, Double::sum) / (1.0 * numTurni.size()),
                     numTurni.stream().max(Double::compare).orElse(-1.0),
                     numTurni.stream().min(Double::compare).orElse(-1.0));
