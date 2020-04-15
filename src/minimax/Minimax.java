@@ -65,18 +65,42 @@ public class Minimax {
 
 
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        //aggiungi lo stato prodotto dall'avversario
-        alreadyVisitedStates.add(initialState.hashCode());
-        Move res = performAlphabeta(initialState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
-        //aggiungi lo stato appena prodotto
-        System.out.println(res);
-        alreadyVisitedStates.add(initialState.performMove(res).hashCode());
+        Move res = null;
+        double bestCost = Double.NEGATIVE_INFINITY;
+        double val;
+        double alpha = Double.NEGATIVE_INFINITY, beta = Double.POSITIVE_INFINITY;
+//        //aggiungi lo stato prodotto dall'avversario
+//        alreadyVisitedStates.add(initialState.hashCode());
+//        Move res = performAlphabeta(initialState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
+//        //aggiungi lo stato appena prodotto
+//        System.out.println(res);
+//        alreadyVisitedStates.add(initialState.performMove(res).hashCode());
+        for (Move m : initialState.getAllMovesFor(myColour)) {
+            //parte con il turno di min perché questo qua è già il turno di max
+            val = performAlphabeta(initialState, timeManager, false, turn + 1, 1, alpha, beta);
+
+            alpha = Math.max(alpha, bestCost);
+            if (val > bestCost) {
+                res = m;
+                bestCost = val;
+
+            }
+
+            alpha = Math.max(bestCost, alpha);
+
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        res.setCosto(bestCost);
         return res;
     }
 
 
     private Move performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove) {
         if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
+            //se mlo stato è già stato visto la partita è patta
+            //questo non può verificarsi al primo passaggio in quanto il server ci avrebbe avvisati
             performedMove.setCosto(0);
             return performedMove;
         }
@@ -98,7 +122,7 @@ public class Minimax {
         }
 
 
-        Move bestMove = null, myMove = null;
+//        Move bestMove = null, myMove = null;
         double bestCost;
         TableState newState = null;
         if (isMaxTurn) {
@@ -107,17 +131,16 @@ public class Minimax {
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
 
-                myMove = performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
+                performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
 
-                if (myMove.getCosto() > bestCost) {
-                    bestCost = myMove.getCosto();
-                    bestMove = myMove;
+                if (m.getCosto() > bestCost) {
+                    bestCost = m.getCosto();
                 }
 
                 alpha = Math.max(alpha, bestCost);
                 if (alpha >= beta) {
-
-                    return bestMove;
+                    performedMove.setCosto(bestCost);
+                    return performedMove;
                 }
             }
         } else {
@@ -126,21 +149,70 @@ public class Minimax {
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
 
-                myMove = performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
+                performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
 
-                if (myMove.getCosto() < bestCost) {
-                    bestCost = myMove.getCosto();
-                    bestMove = myMove;
+                if (m.getCosto() < bestCost) {
+                    bestCost = m.getCosto();
                 }
 
                 beta = Math.min(beta, bestCost);
                 if (alpha >= beta) {
-
-                    return bestMove;
+                    performedMove.setCosto(bestCost);
+                    return performedMove;
                 }
             }
         }
 
-        return bestMove;
+        performedMove.setCosto(bestCost);
+        return performedMove;
+    }
+
+    private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta) {
+        if (alreadyVisitedStates.contains(state.hashCode())) {
+            //se mlo stato è già stato visto la partita è patta
+            return 0;
+        }
+
+        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
+
+        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
+            //valuta il nodo corrente
+
+            return isMaxTurn ?
+                    myHeuristic.evaluate(state, currentDepth) :
+                    -opponentHeuristic.evaluate(state, currentDepth);
+        }
+
+        double bestCost;
+        TableState newState = null;
+        if (isMaxTurn) {
+            bestCost = Double.NEGATIVE_INFINITY;
+
+            for (Move m : allPossibleMoves) {
+                newState = state.performMove(m);
+
+                bestCost = Math.max(bestCost, performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta));
+
+                alpha = Math.max(alpha, bestCost);
+                if (alpha >= beta) {
+                    break;
+                }
+            }
+        } else {
+            bestCost = Double.POSITIVE_INFINITY;
+
+            for (Move m : allPossibleMoves) {
+                newState = state.performMove(m);
+
+                bestCost = Math.min(bestCost, performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta));
+
+                beta = Math.min(beta, bestCost);
+                if (alpha >= beta) {
+                    break;
+                }
+            }
+        }
+
+        return bestCost;
     }
 }
