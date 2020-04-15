@@ -26,6 +26,8 @@ public class TableState {
     private Utils utils = new Utils();
     private boolean whiteWon = false;
     private boolean blackWon = false;
+    private int blackPiecesEaten = 0;
+    private int whitePiecesEaten = 0;
 
     public TableState() {
         this.state = new int[][]{
@@ -199,7 +201,9 @@ public class TableState {
                             || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY()) ) )) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        newTS.blackPiecesEaten++;
+
                     }
                 }
             }
@@ -215,7 +219,8 @@ public class TableState {
                             || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        newTS.whitePiecesEaten++;
                     }
                 }
             }
@@ -362,6 +367,14 @@ public class TableState {
             if (kC.manhattanDistance(c) <= d)
                 d = kC.manhattanDistance(c);
         return d;
+    }
+
+    public int getWhitePiecesEaten(){
+        return this.whitePiecesEaten;
+    }
+
+    public int getBlackPiecesEaten(){
+        return this.blackPiecesEaten;
     }
 
 
