@@ -28,30 +28,30 @@ public class Minimax {
 
         //inizializzazione euristiche
         whiteEheuristic[0] = (TableState s, int depth) ->
-                weights[0] * (16 - s.getBlackPiecesCount())
-                        + weights[1] * (s.getWhitePiecesCount())
-                        + weights[2] * (6 - s.getKingDistance())
-                        + weights[3] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
-                        + weights[4] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[0] * (16 - s.getBlackPiecesCount()) //attacco
+                        + weights[1] * (s.getWhitePiecesCount()) //difesa
+                        + weights[2] * (6 - s.getKingDistance()) //distanza del re dalla vittoria
+                        + weights[3] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) //vittoria
+                        + weights[4] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
         whiteEheuristic[1] = (TableState s, int depth) ->
-                weights[5] * (16 - s.getBlackPiecesCount())
-                        + weights[6] * (s.getWhitePiecesCount())
-                        + weights[7] * (6 - s.getKingDistance())
-                        + weights[8] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
-                        + weights[9] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[5] * (16 - s.getBlackPiecesCount()) //attacco
+                        + weights[6] * (s.getWhitePiecesCount()) //difesa
+                        + weights[7] * (6 - s.getKingDistance()) //distanza del re dalla vittoria
+                        + weights[8] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) //vittoria
+                        + weights[9] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                weights[10] * (s.getBlackPiecesCount())
-                        + weights[11] * (9 - s.getWhitePiecesCount())
-                        + weights[12] * (6 - s.getKingDistance())
-                        + weights[13] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0)
-                        + weights[14] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[11] * (9 - s.getWhitePiecesCount()) //attacco
+                        + weights[10] * (s.getBlackPiecesCount()) //difesa
+                        + weights[12] * s.getKingDistance() //distanza del re dalla vittoria
+                        + weights[13] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
+                        + weights[14] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
         blackEheuristic[1] = (TableState s, int depth) ->
-                weights[15] * (s.getBlackPiecesCount())
-                        + weights[16] * (9 - s.getWhitePiecesCount())
-                        + weights[17] * (6 - s.getKingDistance())
-                        + weights[18] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0)
-                        + weights[19] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[16] * (9 - s.getWhitePiecesCount()) //attacco
+                        + weights[15] * (s.getBlackPiecesCount()) //difesa
+                        + weights[17] * s.getKingDistance() //distanza del re dalla vittoria
+                        + weights[18] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
+                        + weights[19] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
 
         this.maxDepth = maxDepth;
 
