@@ -28,9 +28,10 @@ public class Test {
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
                 System.out.println("Distanza del re dalla salvezza: " +gameState.getKingDistance());
+                System.out.println(gameState.hasWhiteWon());
             }
 
-            if(!gameState.hasBlackWon()) {
+            if(!gameState.hasWhiteWon()) {
                 System.out.println("\n");
                 moves = gameState.getAllMovesFor(PlayerType.BLACK);
                 //moves.stream().forEach(m -> System.out.println(m.toString()));
