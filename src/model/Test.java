@@ -11,7 +11,7 @@ public class Test {
         List<Move> moves = null;
         ////System.out.println("MOSSE PER IL BIANCO: le coordinate partono da (0,0) in alto a sinistra");
         //moves.stream().forEach(m -> //System.out.println(m));
-        Random random = new Random();
+        Random random = new Random(System.currentTimeMillis());
         int i = 0;
         int x = 0;
         int r = 0;
@@ -41,15 +41,6 @@ public class Test {
                 System.out.println(gameState.toString());
             }
         }
-
-        /*TableState ts = new TableState();
-        moves = gameState.getAllMovesFor(PlayerType.WHITE);
-        ts = ts.performMove(moves.get(0));
-
-        System.out.println("ciao");
-        ts.toString();*/
-
-
     }
 }
 
