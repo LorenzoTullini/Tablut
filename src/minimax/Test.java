@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 public class Test {
-    static int NUMERO_PARTITE = 5;
-    static int profonditaMax = 5;
+    static int NUMERO_PARTITE = 30;
+    static int profonditaMax = 6;
     static int vittorieBianchi = 0;
     static int vittorieNeri = 0;
     static List<Integer> numTurni = new ArrayList<>();
@@ -41,8 +41,8 @@ public class Test {
                 Set<Integer> schemi = new HashSet<>();
 
                 int turn = 0;
-                Minimax whiteMinimax = new Minimax(PlayerType.WHITE, profMax, 2);
-                Minimax blackMinimax = new Minimax(PlayerType.BLACK, profMax, 2);
+                Minimax whiteMinimax = new Minimax(PlayerType.WHITE, profMax);
+                Minimax blackMinimax = new Minimax(PlayerType.BLACK, profMax);
                 TimerThread tt;
 
                 schemi.add(s.hashCode());
@@ -78,7 +78,7 @@ public class Test {
                     tt = new TimerThread(timeManager, 55 * 1000);
                     tt.start();
                     start = System.currentTimeMillis();
-                    var blackMove = whiteMinimax.alphabeta(s, timeManager, turn);
+                    var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
                     end = System.currentTimeMillis();
                     tt.interrupt();
                     durataTurnoNero.add((end - start) / 1000.0);

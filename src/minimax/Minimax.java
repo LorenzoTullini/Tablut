@@ -11,60 +11,47 @@ import java.util.*;
 
 public class Minimax {
     private final int maxDepth;
-    private static int[] weights = {10, -1, 1, 1, 1, -2, -4, 2, 5, 1, 1};
+    private double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1,
+            1, 1, -1, 1.5, 1, 2, 1.5, -1.5, 1.5, 1};
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
     private final IHeuristic[] myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
-    private final int threadNumber;
+
+
     private Random rndGen;
 
-    public Minimax(PlayerType myColour, int maxDepth, int threadNumber) {
-        IHeuristic[] whiteEheuristic = new IHeuristic[3];
-        IHeuristic[] blackEheuristic = new IHeuristic[3];
+    public Minimax(PlayerType myColour, int maxDepth) {
+        IHeuristic[] whiteEheuristic = new IHeuristic[2];
+        IHeuristic[] blackEheuristic = new IHeuristic[2];
 
         //inizializzazione euristiche
         whiteEheuristic[0] = (TableState s, int depth) ->
-                (16 - s.getBlackPiecesCount())
-                        + (s.getWhitePiecesCount())
-                        + (6 - s.getKingDistance())
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[0] * (16 - s.getBlackPiecesCount())
+                        + weights[1] * (s.getWhitePiecesCount())
+                        + weights[2] * (6 - s.getKingDistance())
+                        + weights[3] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+                        + weights[4] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
         whiteEheuristic[1] = (TableState s, int depth) ->
-                2 * (16 - s.getBlackPiecesCount())
-                        + 1.5 * (s.getWhitePiecesCount())
-                        + 2.5 * (6 - s.getKingDistance())
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
-        whiteEheuristic[2] = (TableState s, int depth) ->
-                3 * (16 - s.getBlackPiecesCount())
-                        + 2 * (s.getWhitePiecesCount())
-                        + 5 * (6 - s.getKingDistance())
-                        + ((s.hasWhiteWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[5] * (16 - s.getBlackPiecesCount())
+                        + weights[6] * (s.getWhitePiecesCount())
+                        + weights[7] * (6 - s.getKingDistance())
+                        + weights[8] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0)
+                        + weights[9] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0);
 
         blackEheuristic[0] = (TableState s, int depth) ->
-                (s.getBlackPiecesCount())
-                        + (9 - s.getWhitePiecesCount())
-                        - (6 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[10] * (s.getBlackPiecesCount())
+                        + weights[11] * (9 - s.getWhitePiecesCount())
+                        + weights[12] * (6 - s.getKingDistance())
+                        + weights[13] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0)
+                        + weights[14] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
         blackEheuristic[1] = (TableState s, int depth) ->
-                2 * (s.getBlackPiecesCount())
-                        + 1.5 * (9 - s.getWhitePiecesCount())
-                        - 1.5 * (6 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
-        blackEheuristic[2] = (TableState s, int depth) ->
-                3 * (s.getBlackPiecesCount())
-                        + 2 * (9 - s.getWhitePiecesCount())
-                        - 1.5 * (6 - s.getKingDistance())
-                        + getSafeZoneProtection(s)
-                        + ((s.hasBlackWon()) ? 500 + maxDepth - depth : 0)
-                        + ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
+                weights[15] * (s.getBlackPiecesCount())
+                        + weights[16] * (9 - s.getWhitePiecesCount())
+                        + weights[17] * (6 - s.getKingDistance())
+                        + weights[18] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0)
+                        + weights[19] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0);
 
         this.maxDepth = maxDepth;
 
@@ -76,9 +63,13 @@ public class Minimax {
 
         this.alreadyVisitedStates = Collections.synchronizedSet(new HashSet<Integer>());
 
-        this.threadNumber = threadNumber;
 
         this.rndGen = new Random();
+    }
+
+    public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
+        this(myColour, maxDepth);
+        this.weights = weights;
     }
 
 
@@ -89,37 +80,6 @@ public class Minimax {
         //aggiungi lo stato appena prodotto
         alreadyVisitedStates.add(initialState.performMove(res).hashCode());
         return res;
-    }
-
-    public Move parallelAlphaBeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        //Lancia in parallelo threadNumber thread paralleli che effettuano il calcolo su threadNumber sottoalberi distinti in parallelo.
-        //Da un singolo problema di ricerca ne abbiamo ora n distinti che però possono essere eseguiti in parallelo
-
-        List<Move> allPossibleMoves = initialState.getAllMovesFor(myColour);
-        MoveManager moveManager = new MoveManager(allPossibleMoves);
-        Move result = null;
-        Thread[] th = new Thread[threadNumber];
-
-        for (int idx = 0; idx < threadNumber; idx++) {
-            th[idx] = new Thread(() -> {
-                Move m;
-                while ((m = moveManager.getMove()) != null) {
-                    TableState newState = initialState.performMove(m);
-                    Move res = performAlphabeta(newState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
-                    moveManager.updateMove(res);
-                }
-            });
-            th[idx].start();
-        }
-        for (int idx = 0; idx < threadNumber; idx++) {
-            try {
-                th[idx].join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return moveManager.getBestMove();
     }
 
 
@@ -134,12 +94,10 @@ public class Minimax {
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
             int heuristicIndex;
-            if (turn < 5) {
+            if (turn < 10) {
                 heuristicIndex = 0;
-            } else if (turn < 15) {
-                heuristicIndex = 1;
             } else {
-                heuristicIndex = 2;
+                heuristicIndex = 1;
             }
             //Per scrupolo, probabilmente si può togliere
             if (performedMove != null) {
@@ -205,307 +163,5 @@ public class Minimax {
         }
 
         return bestMove;
-    }
-
-    //Controlla in maniera più accurata la presenza di stati già visitati
-    private Move performAlphabetaWithHistoryCheck(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta, Move performedMove, @NotNull Set<Integer> previousHistory) {
-        //se questo stato è già stato raggiunto
-        if (performedMove != null && alreadyVisitedStates.contains(state.hashCode())) {
-            performedMove.setCosto(0);
-            return performedMove;
-        }
-
-        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
-
-        //se è ora di terminare l'esplorazione
-        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
-            //valuta il nodo corrente
-            int heuristicIndex;
-            if (turn < 8) {
-                heuristicIndex = 0;
-            } else if (turn < 20) {
-                heuristicIndex = 1;
-            } else {
-                heuristicIndex = 2;
-            }
-            //Per scrupolo, probabilmente si può togliere
-            if (performedMove != null) {
-                performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
-            }
-
-            return performedMove;
-        }
-
-        //esplora il sottoalbero
-        Move bestMove = null;
-        double bestCost;
-        //Ad ogni nodo si crea un universo alternativo che non deve andare ad avere effetti sugli altri universi
-        Set<Integer> myHistory = new HashSet<>(previousHistory);
-        myHistory.add(state.hashCode());
-        if (isMaxTurn) {
-            bestCost = Double.NEGATIVE_INFINITY;
-            TableState newState;
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
-                performAlphabetaWithHistoryCheck(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
-
-                if (m.getCosto() > bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
-                }
-
-                alpha = Math.max(alpha, m.getCosto());
-                if (alpha >= beta) {
-                    return bestMove;
-                }
-            }
-        } else {
-            bestCost = Double.POSITIVE_INFINITY;
-            TableState newState;
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
-                performAlphabetaWithHistoryCheck(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m, myHistory);
-
-                if (m.getCosto() < bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
-                }
-
-                beta = Math.min(beta, m.getCosto());
-                if (alpha >= beta) {
-                    return bestMove;
-                }
-            }
-        }
-        return bestMove;
-    }
-
-    static double getSafeZoneProtection(@NotNull TableState s) {
-        double res = 0.0;
-        //angolo alto sinistra
-        if (s.getState()[0][0] == 1) {
-            res++;
-        }
-        if (s.getState()[2][1] == 1) {
-            res++;
-        }
-        if (s.getState()[3][1] == 1) {
-            res++;
-        }
-        if (s.getState()[1][2] == 1) {
-            res++;
-        }
-        if (s.getState()[1][3] == 1) {
-            res++;
-        }
-        //angolo alto destra
-        if (s.getState()[0][8] == 1) {
-            res++;
-        }
-        if (s.getState()[1][6] == 1) {
-            res++;
-        }
-        if (s.getState()[1][5] == 1) {
-            res++;
-        }
-        if (s.getState()[2][7] == 1) {
-            res++;
-        }
-        if (s.getState()[3][7] == 1) {
-            res++;
-        }
-        //angolo basso destra
-        if (s.getState()[8][8] == 1) {
-            res++;
-        }
-        if (s.getState()[6][7] == 1) {
-            res++;
-        }
-        if (s.getState()[5][7] == 1) {
-            res++;
-        }
-        if (s.getState()[7][6] == 1) {
-            res++;
-        }
-        if (s.getState()[7][5] == 1) {
-            res++;
-        }
-        //angolo basso sinistra
-        if (s.getState()[8][0] == 1) {
-            res++;
-        }
-        if (s.getState()[6][1] == 1) {
-            res++;
-        }
-        if (s.getState()[5][1] == 1) {
-            res++;
-        }
-        if (s.getState()[7][2] == 1) {
-            res++;
-        }
-        if (s.getState()[7][3] == 1) {
-            res++;
-        }
-
-        return res / 20;
-    }
-
-    static double evalKingPos(@NotNull TableState s) {
-        //trova la posizione del re
-        double score = 0;
-        var internalState = s.getState();
-        int[][] board = s.getBoard();
-        int kingX = 4, kingY = 4;
-        int col, row;
-
-        for (int i = 0; i < 81; i++) {
-            kingX = i / 9;
-            kingY = i % 9;
-
-            if (internalState[kingX][kingY] == TableState.K) {
-                break;
-            }
-        }
-
-        col = kingY - 1;
-        row = kingX;
-
-        while (col >= 0) {
-            if (col == 4 && row == 4) {
-                score += weights[2];
-                break;
-            }
-            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
-                if (col == kingY - 1) {
-                    score += weights[6];
-                } else {
-                    score += weights[5];
-                }
-                break;
-            }
-            if (internalState[row][col] == TableState.W) {
-                if (col == kingY - 1) {
-                    score += weights[4];
-                } else {
-                    score += weights[3];
-                }
-                break;
-            }
-            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
-                score += weights[1];
-                break;
-            }
-            if (board[row][col] == TableState.L) {
-                score += weights[0];
-                break;
-            }
-            col -= 1;
-        }
-
-        col = kingY + 1;
-        row = kingX;
-        while (col < 9) {
-            if (col == 4 && row == 4) {
-                score += weights[2];
-                break;
-            }
-            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
-                if (col == kingY - 1) {
-                    score += weights[6];
-                } else {
-                    score += weights[5];
-                }
-                break;
-            }
-            if (internalState[row][col] == TableState.W) {
-                if (col == kingY - 1) {
-                    score += weights[4];
-                } else {
-                    score += weights[3];
-                }
-                break;
-            }
-            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
-                score += weights[1];
-                break;
-            }
-            if (board[row][col] == TableState.L) {
-                score += weights[0];
-                break;
-            }
-            col -= 1;
-        }
-
-        col = kingY;
-        row = kingX - 1;
-        while (row >= 0) {
-            if (col == 4 && row == 4) {
-                score += weights[2];
-                break;
-            }
-            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
-                if (col == kingY - 1) {
-                    score += weights[6];
-                } else {
-                    score += weights[5];
-                }
-                break;
-            }
-            if (internalState[row][col] == TableState.W) {
-                if (col == kingY - 1) {
-                    score += weights[4];
-                } else {
-                    score += weights[3];
-                }
-                break;
-            }
-            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
-                score += weights[1];
-                break;
-            }
-            if (board[row][col] == TableState.L) {
-                score += weights[0];
-                break;
-            }
-            col -= 1;
-        }
-
-        col = kingY;
-        row = kingX + 1;
-        while (row < 9) {
-            if (col == 4 && row == 4) {
-                score += weights[2];
-                break;
-            }
-            if (internalState[row][col] == TableState.B || internalState[row][col] == TableState.BA || internalState[row][col] == TableState.BB) {
-                if (col == kingY - 1) {
-                    score += weights[6];
-                } else {
-                    score += weights[5];
-                }
-                break;
-            }
-            if (internalState[row][col] == TableState.W) {
-                if (col == kingY - 1) {
-                    score += weights[4];
-                } else {
-                    score += weights[3];
-                }
-                break;
-            }
-            if (board[row][col] == TableState.CA || board[row][col] == TableState.CB) {
-                score += weights[1];
-                break;
-            }
-            if (board[row][col] == TableState.L) {
-                score += weights[0];
-                break;
-            }
-            col -= 1;
-        }
-
-        return score;
     }
 }
