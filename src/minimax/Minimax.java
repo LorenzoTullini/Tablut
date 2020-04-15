@@ -93,12 +93,7 @@ public class Minimax {
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
-            int heuristicIndex;
-            if (turn < 10) {
-                heuristicIndex = 0;
-            } else {
-                heuristicIndex = 1;
-            }
+            int heuristicIndex = (turn < 10) ? 0 : 1;
             //Per scrupolo, probabilmente si può togliere
             if (performedMove != null) {
                 performedMove.setCosto(isMaxTurn ?
@@ -117,12 +112,7 @@ public class Minimax {
             bestCost = Double.NEGATIVE_INFINITY;
 
             for (Move m : allPossibleMoves) {
-                try {
-                    newState = state.performMove(m);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    System.err.println("Eccezione durante il calcolo del nuovo stato");
-                    continue;
-                }
+                newState = state.performMove(m);
 
                 performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
 
@@ -141,12 +131,8 @@ public class Minimax {
             bestCost = Double.POSITIVE_INFINITY;
 
             for (Move m : allPossibleMoves) {
-                try {
-                    newState = state.performMove(m);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    System.err.println("Eccezione durante il calcolo del nuovo stato");
-                    continue;
-                }
+                newState = state.performMove(m);
+
                 performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
 
                 if (m.getCosto() < bestCost) {

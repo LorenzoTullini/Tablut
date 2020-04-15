@@ -11,25 +11,34 @@ import java.util.List;
 import java.util.Set;
 
 public class Test {
-    static int NUMERO_PARTITE = 30;
+    ////////////////////////////////////////////////////////////
+    //parametri test
+    static int NUMERO_PARTITE = 1;
     static int profonditaMax = 6;
+    static int profonditaIniziale = 6;
+    static int timeoutSec = 20;
+    ////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////
+    //risultati
     static int vittorieBianchi = 0;
     static int vittorieNeri = 0;
-    static List<Integer> numTurni = new ArrayList<>();
+    static List<Double> numTurni = new ArrayList<>();
     static List<Double> durataTurnoBianco = new ArrayList<>();
     static List<Double> durataTurnoNero = new ArrayList<>();
-
+    ////////////////////////////////////////////////////////////
 
     public static void main(String[] args) {
         TimeManager timeManager = new TimeManager();
         long start, end;
 
-        for (int profMax = 3; profMax <= profonditaMax; profMax++) {
+        for (int profMax = profonditaIniziale; profMax <= profonditaMax; profMax++) {
             vittorieBianchi = 0;
             vittorieNeri = 0;
             numTurni = new ArrayList<>();
             durataTurnoBianco = new ArrayList<>();
             durataTurnoNero = new ArrayList<>();
+
 
             System.out.println("-------------------------------------------------");
             System.out.println("Profondità: " + profMax);
@@ -48,7 +57,8 @@ public class Test {
                 schemi.add(s.hashCode());
                 while (!s.hasWhiteWon() && !s.hasBlackWon()) {
                     //cominciano i bianchi
-                    tt = new TimerThread(timeManager, 55 * 1000);
+                    timeManager = new TimeManager();
+                    tt = new TimerThread(timeManager, timeoutSec * 1000);
                     tt.start();
                     start = System.currentTimeMillis();
                     var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
@@ -59,23 +69,24 @@ public class Test {
                     s = s.performMove(whiteMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Bianchi");
                         break;
                     } else if (s.hasBlackWon()) {
                         vittorieNeri++;
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Neri");
                         break;
                     } else if (schemi.contains(s.hashCode())) {
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Patta");
                         break;
                     }
                     schemi.add(s.hashCode());
                     turn++;
 
-                    tt = new TimerThread(timeManager, 55 * 1000);
+                    timeManager = new TimeManager();
+                    tt = new TimerThread(timeManager, timeoutSec * 1000);
                     tt.start();
                     start = System.currentTimeMillis();
                     var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
@@ -86,16 +97,16 @@ public class Test {
                     s = s.performMove(blackMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Bianchi");
                         break;
                     } else if (s.hasBlackWon()) {
                         vittorieNeri++;
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Neri");
                         break;
                     } else if (schemi.contains(s.hashCode())) {
-                        numTurni.add(turn);
+                        numTurni.add((double) turn);
                         //System.out.println("  --> Patta");
                         break;
                     }
@@ -108,14 +119,18 @@ public class Test {
             }
             System.out.printf("Vittorie Bianche: %s (%.2f%%)%n", vittorieBianchi, (100.0 * vittorieBianchi) / NUMERO_PARTITE);
             System.out.printf("Vittorie Neri: %s (%.2f%%)%n", vittorieNeri, (100.0 * vittorieNeri) / NUMERO_PARTITE);
-            System.out.printf("Durata Turno Bianco  med: %.2f  max: %.2f min: %.2f%n",
-                    durataTurnoBianco.stream().reduce(0.0, (a, b) -> a + b) / (1.0 * durataTurnoBianco.size()),
+            System.out.printf("Durata Turno Bianco  med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    durataTurnoBianco.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoBianco.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoBianco.stream().min(Double::compare).orElse(-1.0));
-            System.out.printf("Durata Turno Nero    med: %.2f  max: %.2f min: %.2f%n",
-                    durataTurnoNero.stream().reduce(0.0, (a, b) -> a + b) / (1.0 * durataTurnoBianco.size()),
+            System.out.printf("Durata Turno Nero    med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    durataTurnoNero.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoNero.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoNero.stream().min(Double::compare).orElse(-1.0));
+            System.out.printf("Numero turni         med: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    numTurni.stream().reduce(0.0, Double::sum) / (1.0 * numTurni.size()),
+                    numTurni.stream().max(Double::compare).orElse(-1.0),
+                    numTurni.stream().min(Double::compare).orElse(-1.0));
             System.out.println("-------------------------------------------------");
         }
     }
