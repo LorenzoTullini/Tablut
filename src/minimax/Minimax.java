@@ -11,47 +11,34 @@ import java.util.*;
 
 public class Minimax {
     private final int maxDepth;
-    private double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1,
-            1, 1, -1, 1.5, 1, 1.5, 2, -1.5, 1.5, 1};
+    private double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1};
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
-    private final IHeuristic[] myHeuristic, opponentHeuristic;
+    private final IHeuristic myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
 
 
     private Random rndGen;
 
     public Minimax(PlayerType myColour, int maxDepth) {
-        IHeuristic[] whiteEheuristic = new IHeuristic[2];
-        IHeuristic[] blackEheuristic = new IHeuristic[2];
 
         //inizializzazione euristiche
-        whiteEheuristic[0] = (TableState s, int depth) ->
+        IHeuristic whiteEheuristic = (TableState s, int depth) ->
                 weights[0] * (16 - s.getBlackPiecesCount()) //attacco
                         + weights[1] * (s.getWhitePiecesCount()) //difesa
                         + weights[2] * (6 - s.getKingDistance()) //distanza del re dalla vittoria
                         + weights[3] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) //vittoria
                         + weights[4] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
-        whiteEheuristic[1] = (TableState s, int depth) ->
-                weights[5] * (16 - s.getBlackPiecesCount()) //attacco
-                        + weights[6] * (s.getWhitePiecesCount()) //difesa
-                        + weights[7] * (6 - s.getKingDistance()) //distanza del re dalla vittoria
-                        + weights[8] * ((s.hasWhiteWon()) ? 100 + maxDepth - depth : 0) //vittoria
-                        + weights[9] * ((s.hasBlackWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
 
-        blackEheuristic[0] = (TableState s, int depth) ->
-                weights[10] * (9 - s.getWhitePiecesCount()) //attacco
-                        + weights[11] * (s.getBlackPiecesCount()) //difesa
-                        + weights[12] * s.getKingDistance() //distanza del re dalla vittoria
-                        + weights[13] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
-                        + weights[14] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
-        blackEheuristic[1] = (TableState s, int depth) ->
-                weights[15] * (9 - s.getWhitePiecesCount()) //attacco
-                        + weights[16] * (s.getBlackPiecesCount()) //difesa
-                        + weights[17] * s.getKingDistance() //distanza del re dalla vittoria
-                        + weights[18] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
-                        + weights[19] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
+
+        IHeuristic blackEheuristic = (TableState s, int depth) ->
+                weights[5] * (9 - s.getWhitePiecesCount()) //attacco
+                        + weights[6] * (s.getBlackPiecesCount()) //difesa
+                        + weights[7] * s.getKingDistance() //distanza del re dalla vittoria
+                        + weights[8] * ((s.hasBlackWon()) ? 150 + maxDepth - depth : 0) //vittoria
+                        + weights[9] * ((s.hasWhiteWon()) ? -(100 + maxDepth - depth) : 0); //sconfitta
+
 
         this.maxDepth = maxDepth;
 
@@ -67,6 +54,10 @@ public class Minimax {
         this.rndGen = new Random();
     }
 
+    public double[] getWeights() {
+        return weights;
+    }
+
     public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
         this(myColour, maxDepth);
         this.weights = weights;
@@ -78,6 +69,7 @@ public class Minimax {
         alreadyVisitedStates.add(initialState.hashCode());
         Move res = performAlphabeta(initialState, timeManager, true, turn, 0, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, null);
         //aggiungi lo stato appena prodotto
+        System.out.println(res);
         alreadyVisitedStates.add(initialState.performMove(res).hashCode());
         return res;
     }
@@ -93,19 +85,20 @@ public class Minimax {
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
-            int heuristicIndex = (turn < 10) ? 0 : 1;
-            //Per scrupolo, probabilmente si può togliere
+
             if (performedMove != null) {
                 performedMove.setCosto(isMaxTurn ?
-                        myHeuristic[heuristicIndex].evaluate(state, currentDepth) :
-                        -opponentHeuristic[heuristicIndex].evaluate(state, currentDepth));
+                        myHeuristic.evaluate(state, currentDepth) :
+                        -opponentHeuristic.evaluate(state, currentDepth));
+            } else {
+                System.err.println("La mossa è null ma non dovrebbe");
             }
 
             return performedMove;
         }
 
 
-        Move bestMove = null;
+        Move bestMove = null, myMove = null;
         double bestCost;
         TableState newState = null;
         if (isMaxTurn) {
@@ -114,14 +107,14 @@ public class Minimax {
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
 
-                performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
+                myMove = performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, m);
 
-                if (m.getCosto() > bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
+                if (myMove.getCosto() > bestCost) {
+                    bestCost = myMove.getCosto();
+                    bestMove = myMove;
                 }
 
-                alpha = Math.max(alpha, m.getCosto());
+                alpha = Math.max(alpha, bestCost);
                 if (alpha >= beta) {
 
                     return bestMove;
@@ -133,14 +126,14 @@ public class Minimax {
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
 
-                performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
+                myMove = performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta, m);
 
-                if (m.getCosto() < bestCost) {
-                    bestCost = m.getCosto();
-                    bestMove = m;
+                if (myMove.getCosto() < bestCost) {
+                    bestCost = myMove.getCosto();
+                    bestMove = myMove;
                 }
 
-                beta = Math.min(beta, m.getCosto());
+                beta = Math.min(beta, bestCost);
                 if (alpha >= beta) {
 
                     return bestMove;
