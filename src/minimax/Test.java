@@ -2,6 +2,7 @@ package minimax;
 
 import client.TimeManager;
 import client.TimerThread;
+import model.Move;
 import model.PlayerType;
 import model.TableState;
 
@@ -28,7 +29,25 @@ public class Test {
     static List<Double> durataTurnoNero = new ArrayList<>();
     ////////////////////////////////////////////////////////////
 
+    ////////////////////////////////////////////////////////////
+    //Costanti scacchiera
+    public static final int W = 0;    // pedone bianco
+    public static final int B = 1;    // pedone nero che lascia il suo campo
+    public static final int BA = 2;   // pedone nero che è ancora nel campo nord / est
+    public static final int BB = 3;   // pedone nero che è ancora nel campo sud / ovest
+    public static final int E = 4;    // cella vuota
+    public static final int K = 5;    // re
+
+    ////////////////////////////////////////////////////////////
     public static void main(String[] args) {
+        //Partita
+        //test1();
+
+        //Sclta mossa
+        test2();
+    }
+
+    public static void test1() {
         TimeManager timeManager = new TimeManager();
         long start, end;
 
@@ -63,6 +82,7 @@ public class Test {
                     tt.start();
                     start = System.currentTimeMillis();
                     var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+                    System.out.println(whiteMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
                     durataTurnoBianco.add((end - start) / 1000.0);
@@ -91,6 +111,7 @@ public class Test {
                     tt.start();
                     start = System.currentTimeMillis();
                     var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+                    System.out.println(blackMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
                     durataTurnoNero.add((end - start) / 1000.0);
@@ -136,5 +157,37 @@ public class Test {
                     numTurni.stream().min(Double::compare).orElse(-1.0));
             System.out.println("-------------------------------------------------");
         }
+    }
+
+    public static void test2() {
+        int[][] table = new int[][]{
+                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, E, K, E, B, E, E},
+                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, B, E, E, E, E, E},
+                {E, B, W, E, W, B, E, E, E},
+                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, E, E, E, E, E, E}
+        };
+
+        TableState state = new TableState(table);
+
+//        Minimax player = new Minimax(PlayerType.BLACK, 5);
+//        TimeManager timeManager = new TimeManager();
+//        var tt = new TimerThread(timeManager, 10000 * 1000);
+//        tt.start();
+//        Move res = player.alphabeta(state, timeManager, 0);
+//        tt.interrupt();
+//        System.out.println(res);
+
+        Minimax player = new Minimax(PlayerType.WHITE, 5);
+        TimeManager timeManager = new TimeManager();
+        var tt = new TimerThread(timeManager, 10000 * 1000);
+        tt.start();
+        Move res = player.alphabeta(state, timeManager, 0);
+        tt.interrupt();
+        System.out.println(res);
     }
 }
