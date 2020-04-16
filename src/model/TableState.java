@@ -201,7 +201,7 @@ public class TableState {
                             || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY()) ) )) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
                         newTS.blackPiecesEaten++;
 
                     }
@@ -219,7 +219,7 @@ public class TableState {
                             || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        //System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
                         newTS.whitePiecesEaten++;
                     }
                 }
