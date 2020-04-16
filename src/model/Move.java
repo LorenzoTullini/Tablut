@@ -25,6 +25,15 @@ public class Move {
         return to;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Move move = (Move) o;
+        return from.equals(move.from) &&
+                to.equals(move.to);
+    }
+
 
     @Override
     public String toString() {
