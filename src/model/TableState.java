@@ -26,8 +26,9 @@ public class TableState {
     private Utils utils = new Utils();
     private boolean whiteWon = false;
     private boolean blackWon = false;
-    private int blackPiecesEaten = 0;
-    private int whitePiecesEaten = 0;
+    private int blackPieces = 16;
+    private int whitePieces = 9;
+    private Coord kingCoord = new Coord (4,4);
 
     public TableState() {
         this.state = new int[][]{
@@ -54,8 +55,8 @@ public class TableState {
 
     static public TableState getAClone (TableState ts){
         TableState newTS = new TableState();
-        for(int i =0; i <9; i++)
-            for (int j = 0 ; j<9; j++)
+        for(int i =0; i <9; ++i)
+            for (int j = 0 ; j<9; ++j)
                 newTS.getState()[i][j]=ts.getState()[i][j];
         return newTS;
     }
@@ -79,8 +80,8 @@ public class TableState {
 
     public List<Move> getAllMovesFor(PlayerType player) {
         List<Move> moves = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
+        for (int i = 0; i < 9; ++i) {
+            for (int j = 0; j < 9; ++j) {
                 if ( (utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
                         || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)) )
                     moves.addAll(getMovesFor(i, j, player));
@@ -172,6 +173,9 @@ public class TableState {
         int piece = this.state[i.getX()][i.getY()];
 
         TableState newTS = getAClone(this);
+        newTS.blackPieces = this.blackPieces;
+        newTS.whitePieces = this.whitePieces;
+        newTS.kingCoord = this.kingCoord;
 
         //Se il pezzo nero lascia la sua parte non ci deve piu' rientrare.
         //Viene quindi trasformato in B, ovvero, in base alle regole definite sopra, non potra' piu' andare nei campi CA e CB
@@ -182,12 +186,22 @@ public class TableState {
         newTS.state[f.getX()][f.getY()] = piece;
 
 
+    /*
         // bianco ha vinto?
         if (piece == K && newTS.getBoard()[f.getX()][f.getY()] == L) {
             newTS.whiteWon = true;
             //System.out.println("Re salvo alle coordinate: " + f.toString());
         }
+     */
 
+        if (piece == K){
+            newTS.kingCoord = f;
+            // bianco ha vinto?
+            if(newTS.getBoard()[f.getX()][f.getY()] == L) {
+                newTS.whiteWon = true;
+                //System.out.println("Re salvo alle coordinate: " + f.toString());
+            }
+        }
 
         // Mappa con chiave i vicini e valore il primo vicino del vicino in direzione nord/est/ovest/sud
         HashMap<Coord, Coord> nMap = utils.getNeighbours(f);
@@ -201,8 +215,8 @@ public class TableState {
                             || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY()) ) )) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
-                        newTS.blackPiecesEaten++;
+                        System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
+                        newTS.blackPieces--;
 
                     }
                 }
@@ -219,8 +233,8 @@ public class TableState {
                             || utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF)) {
                         //pezzo bianco mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
-                        //System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
-                        newTS.whitePiecesEaten++;
+                        System.out.println("Ho mangiato il pezzo bianco che era alle coordinate: " + e.getKey().toString());
+                        newTS.whitePieces--;
                     }
                 }
             }
@@ -303,40 +317,44 @@ public class TableState {
 
 
     private Coord getKingCoord() {
-        for (int i = 0; i < 9; i++)
+        /*for (int i = 0; i < 9; i++)
             for (int j = 0; j < 9; j++) {
                 if (this.state[i][j] == K)
                     return new Coord(i, j);
             }
 
         //System.out.println(this.toString());
-        return new Coord(-1, -1);
+        return new Coord(-1, -1);*/
+        return this.kingCoord;
     }
 
 
     public int getWhitePiecesCount() {
-        int totW = 0;
+        /*int totW = 0;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++)
                 if (this.state[i][j] == W)
                     totW++;
         }
         //aggiungo il re
-        return totW+1;
+        return totW+1;*
+         */
+        return this.whitePieces;
     }
 
     public int getBlackPiecesCount() {
-        int totB = 0;
+      /*  int totB = 0;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++)
                 if (utils.getPiece(this.state[i][j]) == B)
                     totB++;
         }
         return totB;
+        */
+       return this.blackPieces;
     }
 
     //Questo metodo non viene usato: a cosa serve?
-
     public PlayerType getPieceAtCoord(Coord c) {
         if (this.state[c.getX()][c.getY()] == W )
             return PlayerType.WHITE;
@@ -368,15 +386,5 @@ public class TableState {
                 d = kC.manhattanDistance(c);
         return d;
     }
-
-    public int getWhitePiecesEaten(){
-        return this.whitePiecesEaten;
-    }
-
-    public int getBlackPiecesEaten(){
-        return this.blackPiecesEaten;
-    }
-
-
 
 }
