@@ -14,16 +14,18 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 1;
-    static int profonditaMax = 4;
-    static int profonditaMin = 2;
-    static int timeoutSec = 20;
+    static int NUMERO_PARTITE = 30;
+    static int profonditaMax = 5;
+    static int profonditaMin = 4;
+    static int timeoutSec = 57;
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////
     //risultati
     static int vittorieBianchi = 0;
     static int vittorieNeri = 0;
+    static int timerScattatoBianchi = 0;
+    static int timerScattatoNeri = 0;
     static List<Double> numTurni = new ArrayList<>();
     static List<Double> durataTurnoBianco = new ArrayList<>();
     static List<Double> durataTurnoNero = new ArrayList<>();
@@ -41,10 +43,10 @@ public class Test {
     ////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         //Partita
-        //test1();
+        test1();
 
         //Sclta mossa
-        test2();
+        //test2();
     }
 
     public static void test1() {
@@ -82,9 +84,12 @@ public class Test {
                     tt.start();
                     start = System.currentTimeMillis();
                     var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
-                    System.out.println(whiteMove);
+                    //System.out.println(whiteMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
+                    if(timeManager.isEnd()){
+                        timerScattatoBianchi++;
+                    }
                     durataTurnoBianco.add((end - start) / 1000.0);
                     //System.out.println("[B | " + turn + "] " + whiteMove);
                     s = s.performMove(whiteMove);
@@ -111,9 +116,12 @@ public class Test {
                     tt.start();
                     start = System.currentTimeMillis();
                     var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
-                    System.out.println(blackMove);
+                    //System.out.println(blackMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
+                    if(timeManager.isEnd()){
+                        timerScattatoNeri++;
+                    }
                     durataTurnoNero.add((end - start) / 1000.0);
                     //System.out.println("[N | " + turn + "] " + blackMove);
                     s = s.performMove(blackMove);
@@ -143,14 +151,16 @@ public class Test {
             System.out.printf("Durata Test:      \t%.2f s%n", (fineTest - inizioTest) / 1000.0);
             System.out.printf("Vittorie Bianche: \t%d (%.2f%%)%n", vittorieBianchi, (100.0 * vittorieBianchi) / NUMERO_PARTITE);
             System.out.printf("Vittorie Neri:    \t%d (%.2f%%)%n", vittorieNeri, (100.0 * vittorieNeri) / NUMERO_PARTITE);
-            System.out.printf("Durata Turno Bianco  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+            System.out.printf("Durata Turno Bianco  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f\ttimer: %3d%n",
                     durataTurnoBianco.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoBianco.stream().max(Double::compare).orElse(-1.0),
-                    durataTurnoBianco.stream().min(Double::compare).orElse(-1.0));
-            System.out.printf("Durata Turno Nero    \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    durataTurnoBianco.stream().min(Double::compare).orElse(-1.0),
+                    timerScattatoBianchi);
+            System.out.printf("Durata Turno Nero    \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f\ttimer: %3d%n",
                     durataTurnoNero.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoNero.stream().max(Double::compare).orElse(-1.0),
-                    durataTurnoNero.stream().min(Double::compare).orElse(-1.0));
+                    durataTurnoNero.stream().min(Double::compare).orElse(-1.0),
+                    timerScattatoNeri);
             System.out.printf("Numero turni         \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
                     numTurni.stream().reduce(0.0, Double::sum) / (1.0 * numTurni.size()),
                     numTurni.stream().max(Double::compare).orElse(-1.0),
