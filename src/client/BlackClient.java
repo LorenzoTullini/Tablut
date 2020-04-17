@@ -30,7 +30,7 @@ public class BlackClient {
 
     public static void main(String argv[]) {
         playerType = PlayerType.BLACK;
-        ntw = new Network("localhost", 5801);
+        ntw = new Network("192.168.1.247", 5801);
 
         //humanPlayer(playerType);
         aiPlayer(playerType);
@@ -93,21 +93,10 @@ public class BlackClient {
         TableState tableState = serverState.getTableState();
         System.out.println("STATO INIZIALE: ");
         serverState.printStatus();
+
         int turn = 0;
-
-        /*long start = System.currentTimeMillis();
-
-        tt.start();
-        Minimax minimax = new Minimax(playerType, 6, 2);
-        Move bestMove = minimax.alphabeta(new TableState(), timeManager, 0);
-        //Move bestMove = minimax.parallelAlphaBeta(new TableState(), timeManager, 0);
-        tt.interrupt();
-
-        long stop = System.currentTimeMillis();
-        System.out.println("Ci ho messo: "+(stop - start));
-        System.out.println("Ho trovato la mossa: " + bestMove.toString());*/
-
-        Minimax minimax = new Minimax(playerType, 5);
+        double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 8, 1};
+        Minimax minimax = new Minimax(playerType, 5, weights);
 
         while(true) {
             System.out.println("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()) + " turno: " + turn);
@@ -135,7 +124,6 @@ public class BlackClient {
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 System.out.println("Ho trovato la mossa (My): " + bestMove.toString());
-
                 ntw.sendMove(Converter.covertMove(bestMove, playerType));
             }else{
                 System.out.println("Attendo la mossa dell'avversario:");
