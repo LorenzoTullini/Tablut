@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import minimax.Minimax;
 import model.PlayerType;
 import model.TableState;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -31,7 +32,7 @@ public class TestTraining {
         List<Individual> population = new ArrayList<>();
 
         double[][] weights = null;
-        int[] accoppiamenti = new int[NUM_PARTITE];
+
         rndGen = new Random();
         rndGen.setSeed(System.currentTimeMillis());
 
@@ -74,6 +75,7 @@ public class TestTraining {
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
             System.out.println("----------------- GENERAZIONE " + numGen + "  -----------------");
+
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
 
@@ -86,7 +88,7 @@ public class TestTraining {
             int numIndividui = population.size();
             int i = 0;
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
-            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI; idx += 2) {
+            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI + 4; idx += 2) {
                 //Scegli il primo genitore
 
                 while (rndGen.nextInt(100) > (70.0 / i + 1)) {
@@ -135,29 +137,31 @@ public class TestTraining {
                 }
             }
 
-            population = newPopulation;
-
             //2.1 Fai tutte le sfide
             giocaPartite(population);
 
 
-            //2.2 Metti in evidenza i migliori
+            //2.2 Metti in evidenza i migliori ed elimina i peggiori
             population.sort(Individual::compareTo);
-        }
+            population = population.subList(0, NUM_INDIVIDUI);
 
+            try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
+                Gson gson = new Gson();
 
-        try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
-            Gson gson = new Gson();
-            writer.print(gson.toJson(weights));
-        } catch (
-                IOException e) {
-            e.printStackTrace();
+                for (int i1 = 0; i1 < NUM_INDIVIDUI; i1++) {
+                    weights[i1] = population.get(i1).getWeigths();
+                }
+
+                writer.print(gson.toJson(weights));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
     }
 
-    private static void giocaPartite(List<Individual> population) {
+    private static void giocaPartite(@NotNull List<Individual> population) {
         for (int i = 0; i < NUM_PARTITE * population.size(); i++) {
             System.out.println("\t\tPartita: " + i);
             int firstPlayer = i % population.size();
