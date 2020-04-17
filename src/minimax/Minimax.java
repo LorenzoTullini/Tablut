@@ -78,7 +78,11 @@ public class Minimax {
 
             alpha = Math.max(bestCost, alpha);
         }
-        res.setCosto(bestCost);
+        if (res != null) {
+            //Se siamo riusciti a fare una mossa
+            res.setCosto(bestCost);
+        }
+
         return res;
     }
 

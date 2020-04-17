@@ -20,7 +20,7 @@ public class TestTraining {
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 5;
     private static int DIM_PESI = 10;
-    private static int NUM_PARTITE = 10;
+    private static int NUM_PARTITE = 1; //Numero di partite minimo giocate da ogni individuo
     private static int NUM_GENERAZIONI = 5;
     private static int maxDepth = 3;
     private static int timeoutSec = 55;
@@ -66,9 +66,8 @@ public class TestTraining {
         }
 
         //2.1 Fai tutte le sfide
-        for (int i = 0; i < NUM_PARTITE; i++) {
-            giocaPartite(population);
-        }
+        giocaPartite(population);
+
 
         //2.2 Metti in evidenza i migliori
         population.sort(Individual::compareTo);
@@ -85,11 +84,11 @@ public class TestTraining {
             }
 
             int numIndividui = population.size();
-
+            int i = 0;
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
             for (int idx = ELITISIMO; idx < NUM_INDIVIDUI; idx += 2) {
                 //Scegli il primo genitore
-                int i = 0;
+
                 while (rndGen.nextInt(100) > (70.0 / i + 1)) {
                     i = (i + 1) % numIndividui;
                 }
@@ -120,6 +119,8 @@ public class TestTraining {
 
                 newPopulation.add(new Individual(maxDepth, wA));
                 newPopulation.add(new Individual(maxDepth, wB));
+                i++;
+
             }
 
             //3.2 Applica eventuali mutazioni
@@ -137,9 +138,8 @@ public class TestTraining {
             population = newPopulation;
 
             //2.1 Fai tutte le sfide
-            for (int i = 0; i < NUM_PARTITE; i++) {
-                giocaPartite(population);
-            }
+            giocaPartite(population);
+
 
             //2.2 Metti in evidenza i migliori
             population.sort(Individual::compareTo);
@@ -158,9 +158,9 @@ public class TestTraining {
     }
 
     private static void giocaPartite(List<Individual> population) {
-        for (int i = 0; i < NUM_PARTITE; i++) {
+        for (int i = 0; i < NUM_PARTITE * population.size(); i++) {
             System.out.println("\t\tPartita: " + i);
-            int firstPlayer = (NUM_PARTITE <= population.size()) ? i : rndGen.nextInt(population.size());
+            int firstPlayer = i % population.size();
             int secondPlayer = 0;
             while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
 
@@ -185,7 +185,9 @@ public class TestTraining {
                 tt.start();
                 var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
                 tt.interrupt();
-                s = s.performMove(whiteMove);
+                if (whiteMove != null) {
+                    s = s.performMove(whiteMove);
+                }
                 if (s.hasWhiteWon()) {
                     whiteInd.addVictory();
                     whiteInd.addVictoryTurnNumber(turn);
@@ -199,7 +201,7 @@ public class TestTraining {
                     blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
                     blackInd.addLostPawns(16 - s.getBlackPiecesCount());
                     break;
-                } else if (s.hasBlackWon()) {
+                } else if (s.hasBlackWon() || whiteMove == null) {
                     blackInd.addVictory();
                     blackInd.addVictoryTurnNumber(turn);
                     blackInd.addMatchPlayed();
@@ -230,8 +232,10 @@ public class TestTraining {
                 tt.start();
                 var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
                 tt.interrupt();
-                s = s.performMove(blackMove);
-                if (s.hasWhiteWon()) {
+                if (blackMove != null) {
+                    s = s.performMove(blackMove);
+                }
+                if (s.hasWhiteWon() || blackMove == null) {
                     whiteInd.addVictory();
                     whiteInd.addVictoryTurnNumber(turn);
                     whiteInd.addMatchPlayed();
