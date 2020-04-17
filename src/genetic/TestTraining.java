@@ -1,6 +1,11 @@
 package genetic;
 
+import client.TimeManager;
+import client.TimerThread;
 import com.google.gson.Gson;
+import minimax.Minimax;
+import model.PlayerType;
+import model.TableState;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -8,9 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class TestTraining {
     private static int NUM_INDIVIDUI = 20;
@@ -20,6 +23,7 @@ public class TestTraining {
     private static int NUM_PARTITE = 10;
     private static int NUM_GENERAZIONI = 5;
     private static int maxDepth = 5;
+    private static int timeoutSec = 55;
     private static Random rndGen;
 
     public static void main(String[] args) {
@@ -153,6 +157,117 @@ public class TestTraining {
     }
 
     private static void giocaPartite(List<Individual> population) {
+        for (int i = 0; i < NUM_PARTITE; i++) {
+            int firstPlayer = (NUM_PARTITE <= population.size()) ? i : rndGen.nextInt(population.size());
+            int secondPlayer = 0;
+            while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
 
+            Individual whiteInd = population.get(firstPlayer);
+            whiteInd.prepareForNewMatch(PlayerType.WHITE);
+            Minimax whiteMinimax = whiteInd.getPlayer();
+            Individual blackInd = population.get(secondPlayer);
+            blackInd.prepareForNewMatch(PlayerType.BLACK);
+            Minimax blackMinimax = blackInd.getPlayer();
+
+            TableState s = new TableState();
+            Set<Integer> schemi = new HashSet<>();
+            TimeManager timeManager;
+            int turn = 0;
+            TimerThread tt;
+
+            schemi.add(s.hashCode());
+            while (!s.hasWhiteWon() && !s.hasBlackWon()) {
+                //cominciano i bianchi
+                timeManager = new TimeManager();
+                tt = new TimerThread(timeManager, timeoutSec * 1000);
+                tt.start();
+                var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+                tt.interrupt();
+                s = s.performMove(whiteMove);
+                if (s.hasWhiteWon()) {
+                    whiteInd.addVictory();
+                    whiteInd.addVictoryTurnNumber(turn);
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    whiteInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    blackInd.addLoss();
+                    blackInd.addLossesTurnNumber(turn);
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    blackInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                } else if (s.hasBlackWon()) {
+                    blackInd.addVictory();
+                    blackInd.addVictoryTurnNumber(turn);
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    whiteInd.addLoss();
+                    whiteInd.addLossesTurnNumber(turn);
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                } else if (schemi.contains(s.hashCode())) {
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                }
+                schemi.add(s.hashCode());
+                turn++;
+
+                timeManager = new TimeManager();
+                tt = new TimerThread(timeManager, timeoutSec * 1000);
+                tt.start();
+                var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+                tt.interrupt();
+                s = s.performMove(blackMove);
+                if (s.hasWhiteWon()) {
+                    whiteInd.addVictory();
+                    whiteInd.addVictoryTurnNumber(turn);
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    whiteInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    blackInd.addLoss();
+                    blackInd.addLossesTurnNumber(turn);
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    blackInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                } else if (s.hasBlackWon()) {
+                    blackInd.addVictory();
+                    blackInd.addVictoryTurnNumber(turn);
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    whiteInd.addLoss();
+                    whiteInd.addLossesTurnNumber(turn);
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                } else if (schemi.contains(s.hashCode())) {
+                    blackInd.addMatchPlayed();
+                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                    whiteInd.addMatchPlayed();
+                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
+                    break;
+                }
+                schemi.add(s.hashCode());
+                turn++;
+            }
+        }
     }
 }
