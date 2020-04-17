@@ -28,7 +28,7 @@ public class TableState {
     private boolean blackWon = false;
     private int blackPieces = 16;
     private int whitePieces = 9;
-    private Coord kingCoord = new Coord (4,4);
+    private Coord kingCoord = new Coord(4, 4);
 
     public TableState() {
         this.state = new int[][]{
@@ -43,21 +43,38 @@ public class TableState {
                 {E, E, E, BB, BB, BB, E, E, E}
         };
 
-
-
     }
 
-    // Viene usato da ServerState riga 53
+    // Viene usato dai client per creare un nuovo TableState da quello passato dal Server
     public TableState(int[][] status) {
         this.state = status;
+        Coord kC = null;
+        int totW = 1;
+        int totB = 0;
+        for (int i = 0; i < 9; i++)
+            for (int j = 0; j < 9; j++)
+                if (this.state[i][j] == K)
+                    kC = new Coord(i, j);
+
+        for (int i = 0; i < 9; i++)
+            for (int j = 0; j < 9; j++) {
+                if (this.state[i][j] == W)
+                    totW++;
+                if (this.state[i][j] == B)
+                    totB++;
+            }
+
+        this.kingCoord = kC;
+        this.whitePieces = totW;
+        this.blackPieces = totB;
     }
 
 
-    static public TableState getAClone (TableState ts){
+    static public TableState getAClone(TableState ts) {
         TableState newTS = new TableState();
-        for(int i =0; i <9; ++i)
-            for (int j = 0 ; j<9; ++j)
-                newTS.getState()[i][j]=ts.getState()[i][j];
+        for (int i = 0; i < 9; ++i)
+            for (int j = 0; j < 9; ++j)
+                newTS.getState()[i][j] = ts.getState()[i][j];
         newTS.blackPieces = ts.blackPieces;
         newTS.whitePieces = ts.whitePieces;
         newTS.kingCoord = ts.kingCoord;
@@ -85,8 +102,8 @@ public class TableState {
         List<Move> moves = new ArrayList<>();
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
-                if ( (utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
-                        || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)) )
+                if ((utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
+                        || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)))
                     moves.addAll(getMovesFor(i, j, player));
             }
         }
@@ -101,30 +118,34 @@ public class TableState {
         if (player.equals(PlayerType.WHITE)) {
 
             //NORD
-            int xN = x-1;
+            int xN = x - 1;
             while (xN >= 0) {
-                if (!utils.checkWhite(this, xN, y))  break; else moves.add(new Move(i, new Coord(xN, y)));
+                if (!utils.checkWhite(this, xN, y)) break;
+                else moves.add(new Move(i, new Coord(xN, y)));
                 xN--;
             }
 
             //SUD
-            int xS = x+1;
+            int xS = x + 1;
             while (xS < 9) {
-                if (!utils.checkWhite(this, xS, y))  break; else moves.add(new Move(i, new Coord(xS, y)));
+                if (!utils.checkWhite(this, xS, y)) break;
+                else moves.add(new Move(i, new Coord(xS, y)));
                 xS++;
             }
 
             //EST
-            int yE = y+1;
+            int yE = y + 1;
             while (yE < 9) {
-                if (!utils.checkWhite(this, x, yE))  break; else moves.add(new Move(i, new Coord(x, yE)));
+                if (!utils.checkWhite(this, x, yE)) break;
+                else moves.add(new Move(i, new Coord(x, yE)));
                 yE++;
             }
 
             //OVEST
-            int yO = y-1;
+            int yO = y - 1;
             while (yO >= 0) {
-                if (!utils.checkWhite(this, x, yO))  break; else moves.add(new Move(i, new Coord(x, yO)));
+                if (!utils.checkWhite(this, x, yO)) break;
+                else moves.add(new Move(i, new Coord(x, yO)));
                 yO--;
             }
 
@@ -133,29 +154,33 @@ public class TableState {
         if (player.equals(PlayerType.BLACK)) {
 
             //NORD
-            int xN = x-1;
+            int xN = x - 1;
             while (xN >= 0) {
-                if (!utils.checkBlack(this,xN,y,x,y)) break; else moves.add(new Move(i, new Coord(xN, y)));
+                if (!utils.checkBlack(this, xN, y, x, y)) break;
+                else moves.add(new Move(i, new Coord(xN, y)));
                 xN--;
             }
 
             //SUD
-            int xS = x+1;
+            int xS = x + 1;
             while (xS < 9) {
-                if (!utils.checkBlack(this,xS,y,x,y)) break; else moves.add(new Move(i, new Coord(xS, y)));
+                if (!utils.checkBlack(this, xS, y, x, y)) break;
+                else moves.add(new Move(i, new Coord(xS, y)));
                 xS++;
             }
             //EST
-            int yE = y+1;
+            int yE = y + 1;
             while (yE < 9) {
-                if (!utils.checkBlack(this,x,yE,x,y)) break; else moves.add(new Move(i, new Coord(x, yE)));
+                if (!utils.checkBlack(this, x, yE, x, y)) break;
+                else moves.add(new Move(i, new Coord(x, yE)));
                 yE++;
             }
 
             //OVEST
-            int yO = y-1;
+            int yO = y - 1;
             while (yO >= 0) {
-                if (!utils.checkBlack(this,x,yO,x,y)) break; else moves.add(new Move(i, new Coord(x, yO)));
+                if (!utils.checkBlack(this, x, yO, x, y)) break;
+                else moves.add(new Move(i, new Coord(x, yO)));
                 yO--;
             }
 
@@ -194,10 +219,10 @@ public class TableState {
         }
      */
 
-        if (piece == K){
+        if (piece == K) {
             newTS.kingCoord = f;
             // bianco ha vinto?
-            if(newTS.getBoard()[f.getX()][f.getY()] == L) {
+            if (newTS.getBoard()[f.getX()][f.getY()] == L) {
                 newTS.whiteWon = true;
                 //System.out.println("Re salvo alle coordinate: " + f.toString());
             }
@@ -212,7 +237,7 @@ public class TableState {
                 // se il pezzo bianco è gia nel bordo oppure è affiancato da un altro pezzo di colore diverso che è nel bordo, non puo' essere mangiato in quella direzione
                 if (e.getKey().getX() != -1 && e.getValue().getX() != -1) {
                     if (utils.getPiece(newTS.state[e.getKey().getX()][e.getKey().getY()]) == B && (utils.getPiece(newTS.state[e.getValue().getX()][e.getValue().getY()]) == W
-                            || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY()) ) )) {
+                            || (utils.getCampsAndFortress(newTS.getBoard()[e.getValue().getX()][e.getValue().getY()]) == CF && utils.isOK(e.getValue().getX(), e.getValue().getY())))) {
                         //pezzo nero mangiato
                         newTS.state[e.getKey().getX()][e.getKey().getY()] = E;
                         //System.out.println("Ho mangiato il pezzo nero che era alle coordinate: " + e.getKey().toString());
@@ -295,14 +320,14 @@ public class TableState {
 
                     // re circondato a nord-sud
                     if (nord.getX() >= 0 && sud.getX() <= 8 && (utils.getPiece(newTS.state[nord.getX()][nord.getY()]) == B || utils.getCamps(newTS.getBoard()[nord.getX()][nord.getY()]) == C)
-                            && (utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B || utils.getCamps(newTS.getBoard()[sud.getX()][sud.getY()]) == C) ) {
+                            && (utils.getPiece(newTS.state[sud.getX()][sud.getY()]) == B || utils.getCamps(newTS.getBoard()[sud.getX()][sud.getY()]) == C)) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
 
                     // re circondato a ovest-est
                     if (est.getY() <= 8 && ovest.getY() >= 0 && (utils.getPiece(newTS.state[ovest.getX()][ovest.getY()]) == B || utils.getCamps(newTS.getBoard()[ovest.getX()][ovest.getY()]) == C)
-                            && (utils.getPiece(newTS.state[est.getX()][est.getY()]) == B || utils.getCamps(newTS.getBoard()[est.getX()][est.getY()]) == C) ) {
+                            && (utils.getPiece(newTS.state[est.getX()][est.getY()]) == B || utils.getCamps(newTS.getBoard()[est.getX()][est.getY()]) == C)) {
                         newTS.blackWon = true;
                         //System.out.println("Ho circondato il re su 2 lati alle coordinate: " + kC.toString());
                     }
@@ -318,7 +343,6 @@ public class TableState {
 
     public Coord getKingCoord() {
 
-        //VECCHIA
 //       for (int i = 0; i < 9; i++)
 //           for (int j = 0; j < 9; j++) {
 //               if (this.state[i][j] == K)
@@ -328,7 +352,6 @@ public class TableState {
 //        return new Coord(-1, -1);
 
 
-        //NUOVA
         return this.kingCoord;
     }
 
@@ -355,12 +378,12 @@ public class TableState {
         }
         return totB;
         */
-       return this.blackPieces;
+        return this.blackPieces;
     }
 
     //Questo metodo non viene usato: a cosa serve?
     public PlayerType getPieceAtCoord(Coord c) {
-        if (this.state[c.getX()][c.getY()] == W )
+        if (this.state[c.getX()][c.getY()] == W)
             return PlayerType.WHITE;
         if (this.state[c.getX()][c.getY()] == B)
             return PlayerType.BLACK;

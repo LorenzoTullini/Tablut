@@ -30,7 +30,7 @@ public class BlackClient {
 
     public static void main(String argv[]) {
         playerType = PlayerType.BLACK;
-        ntw = new Network("192.168.1.247", 5801);
+        ntw = new Network("localhost", 5801);
 
         //humanPlayer(playerType);
         aiPlayer(playerType);
@@ -95,7 +95,7 @@ public class BlackClient {
         serverState.printStatus();
 
         int turn = 0;
-        double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 8, 1};
+        double[] weights = {1, 1, 1, 1.5, 1, 3, 1, 1, 1, 1};
         Minimax minimax = new Minimax(playerType, 5, weights);
 
         while(true) {
