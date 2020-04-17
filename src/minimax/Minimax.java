@@ -10,7 +10,7 @@ import java.util.*;
 
 
 public class Minimax {
-    private static double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1};
+    private static double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 8, 1};
 
     private final int maxDepth;
     private double[] weights;

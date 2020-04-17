@@ -28,6 +28,7 @@ public class Test {
                 gameState = gameState.performMove(moves.get(x));
                 System.out.println(gameState.toString());
                 System.out.println("Distanza del re dalla salvezza: " +gameState.getKingDistance());
+                System.out.println("Il re si trova alle coordinate" +gameState.getKingCoord().toString());
                 System.out.println("Totale pezzi neri mangiati: " + (16-gameState.getBlackPiecesCount()));
                 System.out.println("Bianco ha vinto: "+ gameState.hasWhiteWon());
             }

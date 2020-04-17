@@ -43,10 +43,10 @@ public class Test {
     ////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         //Partita
-        test1();
+        //test1();
 
-        //Sclta mossa
-        //test2();
+        //Scelta mossa
+        test2();
     }
 
     public static void test1() {
@@ -173,8 +173,8 @@ public class Test {
         int[][] table = new int[][]{
                 {E, E, E, E, E, E, E, E, E},
                 {E, E, E, E, E, E, E, E, E},
-                {E, E, E, E, K, E, B, E, E},
-                {E, E, E, E, E, E, E, E, E},
+                {E, E, E, E, B, E, B, E, E},
+                {E, E, B, E, K, B, E, E, E},
                 {E, E, E, E, E, E, E, E, E},
                 {E, E, E, B, E, E, E, E, E},
                 {E, B, W, E, W, B, E, E, E},
@@ -192,7 +192,7 @@ public class Test {
 //        tt.interrupt();
 //        System.out.println(res);
 
-        Minimax player = new Minimax(PlayerType.WHITE, 5);
+        Minimax player = new Minimax(PlayerType.BLACK, 4);
         TimeManager timeManager = new TimeManager();
         var tt = new TimerThread(timeManager, 10000 * 1000);
         tt.start();

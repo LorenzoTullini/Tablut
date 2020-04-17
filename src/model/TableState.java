@@ -58,6 +58,9 @@ public class TableState {
         for(int i =0; i <9; ++i)
             for (int j = 0 ; j<9; ++j)
                 newTS.getState()[i][j]=ts.getState()[i][j];
+        newTS.blackPieces = ts.blackPieces;
+        newTS.whitePieces = ts.whitePieces;
+        newTS.kingCoord = ts.kingCoord;
         return newTS;
     }
 
@@ -173,9 +176,6 @@ public class TableState {
         int piece = this.state[i.getX()][i.getY()];
 
         TableState newTS = getAClone(this);
-        newTS.blackPieces = this.blackPieces;
-        newTS.whitePieces = this.whitePieces;
-        newTS.kingCoord = this.kingCoord;
 
         //Se il pezzo nero lascia la sua parte non ci deve piu' rientrare.
         //Viene quindi trasformato in B, ovvero, in base alle regole definite sopra, non potra' piu' andare nei campi CA e CB
@@ -316,15 +316,19 @@ public class TableState {
     }
 
 
-    private Coord getKingCoord() {
-        /*for (int i = 0; i < 9; i++)
-            for (int j = 0; j < 9; j++) {
-                if (this.state[i][j] == K)
-                    return new Coord(i, j);
-            }
+    public Coord getKingCoord() {
 
-        //System.out.println(this.toString());
-        return new Coord(-1, -1);*/
+        //VECCHIA
+//       for (int i = 0; i < 9; i++)
+//           for (int j = 0; j < 9; j++) {
+//               if (this.state[i][j] == K)
+//                   return new Coord(i, j);
+//           }
+//
+//        return new Coord(-1, -1);
+
+
+        //NUOVA
         return this.kingCoord;
     }
 
