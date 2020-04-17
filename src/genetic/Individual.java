@@ -1,6 +1,7 @@
 package genetic;
 
 import minimax.Minimax;
+import model.PlayerType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -9,6 +10,7 @@ public class Individual implements Comparator, Comparable {
     private int victories, losses, capturedPawns, lostPawns, totalVictoriesTurnNumber, totalLossesTurnNumber, matchPlayed;
     private Minimax player;
     private double[] weigths;
+    private int maxDepth;
 
 
     public Individual(int maxDepth, double[] weigths) {
@@ -20,8 +22,84 @@ public class Individual implements Comparator, Comparable {
         totalLossesTurnNumber = 0;
         matchPlayed = 0;
         this.weigths = weigths;
+        this.maxDepth = maxDepth;
     }
 
+    void prepareForNewMatch(PlayerType colour) {
+        player = new Minimax(colour, maxDepth, weigths);
+    }
+
+    public int getVictories() {
+        return victories;
+    }
+
+    public void addVictory() {
+        victories++;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public void addLoss() {
+        losses++;
+    }
+
+    public int getCapturedPawns() {
+        return capturedPawns;
+    }
+
+    public void addCapturedPawns(int capturedPawns) {
+        this.capturedPawns += capturedPawns;
+    }
+
+    public int getLostPawns() {
+        return lostPawns;
+    }
+
+    public void addLostPawns(int lostPawns) {
+        this.lostPawns = lostPawns;
+    }
+
+    public int getTotalVictoriesTurnNumber() {
+        return totalVictoriesTurnNumber;
+    }
+
+    public void addVictoryTurnNumber(int turns) {
+        totalVictoriesTurnNumber += turns;
+    }
+
+    public int getTotalLossesTurnNumber() {
+        return totalLossesTurnNumber;
+    }
+
+    public void addLossesTurnNumber(int turns) {
+        totalLossesTurnNumber += turns;
+    }
+
+    public int getMatchPlayed() {
+        return matchPlayed;
+    }
+
+    public void addMatchPlayed() {
+        matchPlayed++;
+    }
+
+    public Minimax getPlayer() {
+        return player;
+    }
+
+    public double[] getWeigths() {
+        return weigths;
+    }
+
+    public void applyMutation(double perc, int geneIdx) {
+        this.weigths[geneIdx] = this.weigths[geneIdx] * (1 + perc);
+    }
+
+    public int getMaxDepth() {
+        return maxDepth;
+    }
 
     @Override
     public int compare(Object o, Object t1) {

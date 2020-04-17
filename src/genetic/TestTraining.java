@@ -1,7 +1,6 @@
 package genetic;
 
 import com.google.gson.Gson;
-import model.PlayerType;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -9,13 +8,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class TestTraining {
     private static int NUM_INDIVIDUI = 20;
-    private static int NUM_SELEZIONE = 4;
-    private static int PROB_SELEZIONE = 95;
+    private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 5;
     private static int DIM_PESI = 10;
     private static int NUM_PARTITE = 10;
@@ -25,7 +24,7 @@ public class TestTraining {
 
     public static void main(String[] args) {
         //genera la popolazione iniziale
-        Individual[] population = new Individual[NUM_INDIVIDUI];
+        List<Individual> population = new ArrayList<>();
 
         double[][] weights = null;
         int[] accoppiamenti = new int[NUM_PARTITE];
@@ -59,21 +58,87 @@ public class TestTraining {
 
         //1.2 Genera la popolazione iniziale
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
-            population[i] = new Individual(maxDepth, weights[i]);
+            population.add(new Individual(maxDepth, weights[i]));
         }
 
-
-        //2.2 Fai tutte le sfide
+        //2.1 Fai tutte le sfide
         for (int i = 0; i < NUM_PARTITE; i++) {
-
+            giocaPartite(population);
         }
-        //3.1 Ordina i partecipanti e seleziona i migliori
-        Arrays.sort(population);
 
+        //2.2 Metti in evidenza i migliori
+        population.sort(Individual::compareTo);
 
-        //3.2 Genera la generazione successiva
-//            WhiteIndividual[] tmpWhite = new WhiteIndividual[NUM_INDIVIDUI];
-//            tmpWhite[0] = new WhiteIndividual();
+        for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
+            //3 Genera la nuova popolazione
+            List<Individual> newPopulation = new ArrayList<>();
+
+            //3.1 Seleziona gli individui da mantenere immutati
+            for (int idx = 0; idx < ELITISIMO; idx++) {
+                //tieni gli individui migliori
+                newPopulation.add(population.get(idx));
+            }
+
+            int numIndividui = population.size();
+
+            //3.2 Seleziona gli individui da ricombinare e ricombina i geni
+            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI; idx += 2) {
+                //Scegli il primo genitore
+                int i = 0;
+                while (rndGen.nextInt(100) > (70.0 / i + 1)) {
+                    i = (i + 1) % numIndividui;
+                }
+
+                //Scegli il secondo genitore
+                int j = i;
+                while (rndGen.nextInt(100) > (70.0 / j + 1) || i == j) {
+                    j = (j + 1) % numIndividui;
+                }
+
+                //Applica il crossover
+                double[] wA = population.get(i).getWeigths();
+                double[] wB = population.get(j).getWeigths();
+
+                double[] newWA = new double[DIM_PESI];
+                double[] newWB = new double[DIM_PESI];
+
+                int crossover = rndGen.nextInt(DIM_PESI);
+                for (int k = 0; k < DIM_PESI; k++) {
+                    if (k < crossover) {
+                        newWA[k] = wA[k];
+                        newWB[k] = wB[k];
+                    } else {
+                        newWA[k] = wB[k];
+                        newWB[k] = wA[k];
+                    }
+                }
+
+                newPopulation.add(new Individual(maxDepth, wA));
+                newPopulation.add(new Individual(maxDepth, wB));
+            }
+
+            //3.2 Applica eventuali mutazioni
+            int probMutazione = rndGen.nextInt(100);
+            if (probMutazione < PROB_MUTAZIONE) {
+                for (int idx = 0; idx < Math.ceil((NUM_INDIVIDUI * probMutazione) / 100.0); idx++) {
+                    //scegli a caso un individuo da mutare
+                    int individuoDaMutare = rndGen.nextInt(NUM_INDIVIDUI);
+                    int geneIdx = rndGen.nextInt(DIM_PESI);
+                    double perc = (rndGen.nextInt(201) - 100) / 100.0;
+                    newPopulation.get(individuoDaMutare).applyMutation(perc, geneIdx);
+                }
+            }
+
+            population = newPopulation;
+
+            //2.1 Fai tutte le sfide
+            for (int i = 0; i < NUM_PARTITE; i++) {
+                giocaPartite(population);
+            }
+
+            //2.2 Metti in evidenza i migliori
+            population.sort(Individual::compareTo);
+        }
 
 
         try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
@@ -87,19 +152,7 @@ public class TestTraining {
 
     }
 
-    private static Individual generaIndividuoCasuale(PlayerType type) {
-        double[] w = new double[DIM_PESI];
+    private static void giocaPartite(List<Individual> population) {
 
-        for (int i = 0; i < DIM_PESI; i++) {
-            w[i] = rndGen.nextInt(101) - 50;
-        }
-
-        return new Individual(maxDepth, w);
     }
-
-    private static Individual generaIndividuo(Individual a, Individual b) {
-        //TODO genera un individuo a partire da altri due
-        return null;
-    }
-
 }
