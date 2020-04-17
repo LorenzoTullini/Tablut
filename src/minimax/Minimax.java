@@ -10,18 +10,26 @@ import java.util.*;
 
 
 public class Minimax {
+    private static double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1};
+
     private final int maxDepth;
-    private double[] weights = {1, 1, 1, 1.5, 1, 2, 1.5, 2.5, 1, 1};
+    private double[] weights;
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
     private final IHeuristic myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
 
-
     private Random rndGen;
 
     public Minimax(PlayerType myColour, int maxDepth) {
+        this(myColour, maxDepth, defaultWeights);
+    }
+
+
+    public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
+        this.weights = weights;
+
 
         //inizializzazione euristiche
         IHeuristic whiteEheuristic = (TableState s, int depth) ->
@@ -50,15 +58,6 @@ public class Minimax {
         this.alreadyVisitedStates = new HashSet<Integer>();
     }
 
-    public double[] getWeights() {
-        return weights;
-    }
-
-    public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
-        this(myColour, maxDepth);
-        this.weights = weights;
-    }
-
 
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         // Il primo livello va separato dagli altri perchè deve ritornare una mossa e non un valore
@@ -83,7 +82,8 @@ public class Minimax {
         return res;
     }
 
-    private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn, int currentDepth, double alpha, double beta) {
+    private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
+                                    int currentDepth, double alpha, double beta) {
         if (alreadyVisitedStates.contains(state.hashCode())) {
             //se mlo stato è già stato visto la partita è patta
             return 0;
@@ -129,5 +129,9 @@ public class Minimax {
         }
 
         return bestCost;
+    }
+
+    public double[] getWeights() {
+        return weights;
     }
 }
