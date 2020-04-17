@@ -22,7 +22,7 @@ public class TestTraining {
     private static int DIM_PESI = 10;
     private static int NUM_PARTITE = 10;
     private static int NUM_GENERAZIONI = 5;
-    private static int maxDepth = 5;
+    private static int maxDepth = 3;
     private static int timeoutSec = 55;
     private static Random rndGen;
 
@@ -54,12 +54,12 @@ public class TestTraining {
             weights = new double[NUM_INDIVIDUI][DIM_PESI];
 
             for (int i = 0; i < NUM_INDIVIDUI; i++) {
-                for (int j = 0; j < NUM_INDIVIDUI; j++) {
+                for (int j = 0; j < DIM_PESI; j++) {
                     weights[i][j] = rndGen.nextInt(101) - 50;
                 }
             }
         }
-
+        System.out.println("----------------- GENERAZIONE 0 -----------------");
         //1.2 Genera la popolazione iniziale
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
             population.add(new Individual(maxDepth, weights[i]));
@@ -74,6 +74,7 @@ public class TestTraining {
         population.sort(Individual::compareTo);
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
+            System.out.println("----------------- GENERAZIONE " + numGen + "  -----------------");
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
 
@@ -158,6 +159,7 @@ public class TestTraining {
 
     private static void giocaPartite(List<Individual> population) {
         for (int i = 0; i < NUM_PARTITE; i++) {
+            System.out.println("\t\tPartita: " + i);
             int firstPlayer = (NUM_PARTITE <= population.size()) ? i : rndGen.nextInt(population.size());
             int secondPlayer = 0;
             while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
