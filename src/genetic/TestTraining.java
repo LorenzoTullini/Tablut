@@ -56,7 +56,7 @@ public class TestTraining {
 
             for (int i = 0; i < NUM_INDIVIDUI; i++) {
                 for (int j = 0; j < DIM_PESI; j++) {
-                    weights[i][j] = rndGen.nextInt(101) - 50;
+                    weights[i][j] = rndGen.nextInt(5) - 4;
                 }
             }
         }
@@ -74,7 +74,7 @@ public class TestTraining {
         population.sort(Individual::compareTo);
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
-            System.out.println("----------------- GENERAZIONE " + numGen + "  -----------------");
+            System.out.println("----------------- GENERAZIONE " + (numGen + 1) + "  -----------------");
 
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
@@ -88,7 +88,7 @@ public class TestTraining {
             int numIndividui = population.size();
             int i = 0;
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
-            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI + 4; idx += 2) {
+            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI + 6; idx += 2) {
                 //Scegli il primo genitore
 
                 while (rndGen.nextInt(100) > (70.0 / i + 1)) {
@@ -130,21 +130,23 @@ public class TestTraining {
             if (probMutazione < PROB_MUTAZIONE) {
                 for (int idx = 0; idx < Math.ceil((NUM_INDIVIDUI * probMutazione) / 100.0); idx++) {
                     //scegli a caso un individuo da mutare
-                    int individuoDaMutare = rndGen.nextInt(NUM_INDIVIDUI);
+                    int individuoDaMutare = rndGen.nextInt(newPopulation.size());
                     int geneIdx = rndGen.nextInt(DIM_PESI);
                     double perc = (rndGen.nextInt(201) - 100) / 100.0;
                     newPopulation.get(individuoDaMutare).applyMutation(perc, geneIdx);
                 }
             }
 
+
             //2.1 Fai tutte le sfide
-            giocaPartite(population);
+            giocaPartite(newPopulation);
 
 
             //2.2 Metti in evidenza i migliori ed elimina i peggiori
-            population.sort(Individual::compareTo);
+            newPopulation.sort(Individual::compareTo);
             population = population.subList(0, NUM_INDIVIDUI);
 
+            System.out.println("\tDati salvati");
             try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
                 Gson gson = new Gson();
 
@@ -162,6 +164,7 @@ public class TestTraining {
     }
 
     private static void giocaPartite(@NotNull List<Individual> population) {
+        System.out.println("\tVoglio fare un gioco con te");
         for (int i = 0; i < NUM_PARTITE * population.size(); i++) {
             System.out.println("\t\tPartita: " + i);
             int firstPlayer = i % population.size();
@@ -171,6 +174,7 @@ public class TestTraining {
             Individual whiteInd = population.get(firstPlayer);
             whiteInd.prepareForNewMatch(PlayerType.WHITE);
             Minimax whiteMinimax = whiteInd.getPlayer();
+
             Individual blackInd = population.get(secondPlayer);
             blackInd.prepareForNewMatch(PlayerType.BLACK);
             Minimax blackMinimax = blackInd.getPlayer();
