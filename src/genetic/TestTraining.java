@@ -17,11 +17,15 @@ import java.nio.file.Path;
 import java.util.*;
 
 public class TestTraining {
+    /////////////////////////////////////////
+    //NON MODIFICARE
+    private static int DIM_PESI = 10;
+    /////////////////////////////////////////
+
     private static int NUM_INDIVIDUI = 20;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 5;
-    private static int DIM_PESI = 10;
-    private static int NUM_PARTITE = 1; //Numero di partite minimo giocate da ogni individuo
+    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 5;
     private static int maxDepth = 3;
     private static int timeoutSec = 55;
@@ -60,7 +64,7 @@ public class TestTraining {
                 }
             }
         }
-        System.out.println("----------------- GENERAZIONE 0 -----------------");
+        System.out.println("---------------------------------------------------------------------\nGenerazione 0");
         //1.2 Genera la popolazione iniziale
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
             population.add(new Individual(maxDepth, weights[i]));
@@ -74,7 +78,7 @@ public class TestTraining {
         population.sort(Individual::compareTo);
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
-            System.out.println("----------------- GENERAZIONE " + (numGen + 1) + "  -----------------");
+            System.out.println("---------------------------------------------------------------------\nGENERAZIONE " + (numGen + 1));
 
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
@@ -158,6 +162,22 @@ public class TestTraining {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            //Stampa statistiche
+            System.out.printf("\tPedine mangiate  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).min(Double::compare).orElse(-1.0));
+            System.out.printf("\tPedine perse     \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getLostPawns()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getLostPawns()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getLostPawns()).min(Double::compare).orElse(-1.0));
+            System.out.printf("\tTurni vittoria   \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).min(Double::compare).orElse(-1.0));
+            System.out.println("---------------------------------------------------------------------");
+
         }
 
 
@@ -166,7 +186,7 @@ public class TestTraining {
     private static void giocaPartite(@NotNull List<Individual> population) {
         System.out.println("\tVoglio fare un gioco con te");
         for (int i = 0; i < NUM_PARTITE * population.size(); i++) {
-            System.out.println("\t\tPartita: " + i);
+            System.out.println("\t\tPartita: " + (i + 1));
             int firstPlayer = i % population.size();
             int secondPlayer = 0;
             while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
