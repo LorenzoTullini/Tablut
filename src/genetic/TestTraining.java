@@ -22,12 +22,12 @@ public class TestTraining {
     private static int DIM_PESI = 10;
     /////////////////////////////////////////
 
-    private static int NUM_INDIVIDUI = 20;
+    private static int NUM_INDIVIDUI = 10;
     private static int ELITISIMO = 4;
-    private static int PROB_MUTAZIONE = 5;
-    private static int NUM_PARTITE = 10; //Numero minimo di partite giocate da ogni individuo
+    private static int PROB_MUTAZIONE = 7;
+    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 5;
-    private static int maxDepth = 4;
+    private static int maxDepth = 3;
     private static int timeoutSec = 55;
     private static Random rndGen;
 
@@ -41,7 +41,7 @@ public class TestTraining {
         rndGen.setSeed(System.currentTimeMillis());
 
         //1.1 Ottieni il vettore dei pesi da cui partire
-        Path salvataggi = Path.of("weights.json");
+        Path salvataggi = Path.of("./weights.json");
         if (Files.exists(salvataggi)) {
             //carica i dati dal file
             Gson gson = new Gson();
@@ -60,7 +60,7 @@ public class TestTraining {
 
             for (int i = 0; i < NUM_INDIVIDUI; i++) {
                 for (int j = 0; j < DIM_PESI; j++) {
-                    weights[i][j] = Math.min(rndGen.nextDouble(), 5) - 4;
+                    weights[i][j] = rndGen.nextDouble() * 10;
 
                 }
             }
@@ -109,13 +109,13 @@ public class TestTraining {
             for (int idx = ELITISIMO; idx < NUM_INDIVIDUI + 6; idx += 2) {
                 //Scegli il primo genitore
 
-                while (rndGen.nextInt(100) > (70.0 / i + 1)) {
+                while (rndGen.nextInt(100) > (60.0 / i + 1)) {
                     i = (i + 1) % numIndividui;
                 }
 
                 //Scegli il secondo genitore
                 int j = i;
-                while (rndGen.nextInt(100) > (70.0 / j + 1) || i == j) {
+                while (rndGen.nextInt(100) > (60.0 / j + 1) || i == j) {
                     j = (j + 1) % numIndividui;
                 }
 
@@ -164,7 +164,6 @@ public class TestTraining {
             newPopulation.sort(Individual::compareTo);
             population = population.subList(0, NUM_INDIVIDUI);
 
-            System.out.println("--> Dati salvati");
             try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
                 Gson gson = new Gson();
 
@@ -176,6 +175,7 @@ public class TestTraining {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println("--> Dati salvati");
 
             //Stampa statistiche
             System.out.printf("--> Pedine mangiate  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
@@ -204,117 +204,122 @@ public class TestTraining {
             int secondPlayer = 0;
             while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
 
-            Individual whiteInd = population.get(firstPlayer);
-            whiteInd.prepareForNewMatch(PlayerType.WHITE);
-            Minimax whiteMinimax = whiteInd.getPlayer();
+            Individual indA = population.get(firstPlayer);
+            Individual indB = population.get(secondPlayer);
 
-            Individual blackInd = population.get(secondPlayer);
-            blackInd.prepareForNewMatch(PlayerType.BLACK);
-            Minimax blackMinimax = blackInd.getPlayer();
+            gioca(indA, indB);
+            gioca(indB, indA);
+        }
+    }
 
-            TableState s = new TableState();
-            Set<Integer> schemi = new HashSet<>();
-            TimeManager timeManager;
-            int turn = 0;
-            TimerThread tt;
+    private static void gioca(Individual fisrtInd, Individual secondInd) {
+        fisrtInd.prepareForNewMatch(PlayerType.WHITE);
+        secondInd.prepareForNewMatch(PlayerType.BLACK);
+        Minimax whiteMinimax = fisrtInd.getPlayer();
+        Minimax blackMinimax = secondInd.getPlayer();
 
-            schemi.add(s.hashCode());
-            while (!s.hasWhiteWon() && !s.hasBlackWon()) {
-                //cominciano i bianchi
-                timeManager = new TimeManager();
-                tt = new TimerThread(timeManager, timeoutSec * 1000);
-                tt.start();
-                var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
-                tt.interrupt();
-                if (whiteMove != null) {
-                    s = s.performMove(whiteMove);
-                }
-                if (s.hasWhiteWon()) {
-                    whiteInd.addVictory();
-                    whiteInd.addVictoryTurnNumber(turn);
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    whiteInd.addLostPawns(9 - s.getWhitePiecesCount());
+        TableState s = new TableState();
+        Set<Integer> schemi = new HashSet<>();
+        TimeManager timeManager;
+        int turn = 0;
+        TimerThread tt;
 
-                    blackInd.addLoss();
-                    blackInd.addLossesTurnNumber(turn);
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    blackInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                } else if (s.hasBlackWon() || whiteMove == null) {
-                    blackInd.addVictory();
-                    blackInd.addVictoryTurnNumber(turn);
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                    whiteInd.addLoss();
-                    whiteInd.addLossesTurnNumber(turn);
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                } else if (schemi.contains(s.hashCode())) {
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                }
-                schemi.add(s.hashCode());
-                turn++;
-
-                timeManager = new TimeManager();
-                tt = new TimerThread(timeManager, timeoutSec * 1000);
-                tt.start();
-                var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
-                tt.interrupt();
-                if (blackMove != null) {
-                    s = s.performMove(blackMove);
-                }
-                if (s.hasWhiteWon() || blackMove == null) {
-                    whiteInd.addVictory();
-                    whiteInd.addVictoryTurnNumber(turn);
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    whiteInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                    blackInd.addLoss();
-                    blackInd.addLossesTurnNumber(turn);
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    blackInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                } else if (s.hasBlackWon()) {
-                    blackInd.addVictory();
-                    blackInd.addVictoryTurnNumber(turn);
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                    whiteInd.addLoss();
-                    whiteInd.addLossesTurnNumber(turn);
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                } else if (schemi.contains(s.hashCode())) {
-                    blackInd.addMatchPlayed();
-                    blackInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                    blackInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                    whiteInd.addMatchPlayed();
-                    whiteInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                    whiteInd.addLostPawns(16 - s.getBlackPiecesCount());
-                    break;
-                }
-                schemi.add(s.hashCode());
-                turn++;
+        schemi.add(s.hashCode());
+        while (!s.hasWhiteWon() && !s.hasBlackWon()) {
+            //cominciano i bianchi
+            timeManager = new TimeManager();
+            tt = new TimerThread(timeManager, timeoutSec * 1000);
+            tt.start();
+            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+            tt.interrupt();
+            if (whiteMove != null) {
+                s = s.performMove(whiteMove);
             }
+            if (s.hasWhiteWon()) {
+                fisrtInd.addVictory();
+                fisrtInd.addVictoryTurnNumber(turn);
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                fisrtInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                secondInd.addLoss();
+                secondInd.addLossesTurnNumber(turn);
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                secondInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            } else if (s.hasBlackWon() || whiteMove == null) {
+                secondInd.addVictory();
+                secondInd.addVictoryTurnNumber(turn);
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                fisrtInd.addLoss();
+                fisrtInd.addLossesTurnNumber(turn);
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            } else if (schemi.contains(s.hashCode())) {
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            }
+            schemi.add(s.hashCode());
+            turn++;
+
+            timeManager = new TimeManager();
+            tt = new TimerThread(timeManager, timeoutSec * 1000);
+            tt.start();
+            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+            tt.interrupt();
+            if (blackMove != null) {
+                s = s.performMove(blackMove);
+            }
+            if (s.hasWhiteWon() || blackMove == null) {
+                fisrtInd.addVictory();
+                fisrtInd.addVictoryTurnNumber(turn);
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                fisrtInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                secondInd.addLoss();
+                secondInd.addLossesTurnNumber(turn);
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                secondInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            } else if (s.hasBlackWon()) {
+                secondInd.addVictory();
+                secondInd.addVictoryTurnNumber(turn);
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                fisrtInd.addLoss();
+                fisrtInd.addLossesTurnNumber(turn);
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            } else if (schemi.contains(s.hashCode())) {
+                secondInd.addMatchPlayed();
+                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
+
+                fisrtInd.addMatchPlayed();
+                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                break;
+            }
+            schemi.add(s.hashCode());
+            turn++;
         }
     }
 }
