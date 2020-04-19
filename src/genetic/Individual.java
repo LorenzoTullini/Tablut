@@ -119,9 +119,9 @@ public class Individual implements Comparator, Comparable {
                 } else if (a.losses > b.losses) {
                     return 1;
                 } else {
-                    if (a.totalVictoriesTurnNumber / a.victories < b.totalVictoriesTurnNumber / b.victories) {
+                    if (a.victories > 0 && a.totalVictoriesTurnNumber / a.victories < b.totalVictoriesTurnNumber / b.victories) {
                         return -1;
-                    } else if (a.totalVictoriesTurnNumber / a.victories > b.totalVictoriesTurnNumber / b.victories) {
+                    } else if (a.victories > 0 && a.totalVictoriesTurnNumber / a.victories > b.totalVictoriesTurnNumber / b.victories) {
                         return 1;
                     } else {
                         if (a.capturedPawns > b.capturedPawns) {
