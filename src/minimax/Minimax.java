@@ -8,24 +8,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 //import org.jetbrains.annotations.NotNull;
 
 
 public class Minimax {
-    private static double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
+    private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
 
     private final int maxDepth;
-    private double[] weights;
+    private final double[] weights;
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
     private final IHeuristic myHeuristic, opponentHeuristic;
     private final Set<Integer> alreadyVisitedStates;
-
-    private Random rndGen;
 
     public Minimax(PlayerType myColour, int maxDepth) {
         this(myColour, maxDepth, defaultWeights);
@@ -60,7 +57,7 @@ public class Minimax {
         this.myHeuristic = (myColour == PlayerType.WHITE) ? whiteEheuristic : blackEheuristic;
         this.opponentHeuristic = (myColour == PlayerType.WHITE) ? blackEheuristic : whiteEheuristic;
 
-        this.alreadyVisitedStates = new HashSet<Integer>();
+        this.alreadyVisitedStates = new HashSet<>();
     }
 
 
@@ -148,7 +145,7 @@ public class Minimax {
         }
 
         double bestCost;
-        TableState newState = null;
+        TableState newState;
         if (isMaxTurn) {
             bestCost = Double.NEGATIVE_INFINITY;
 
@@ -226,7 +223,7 @@ public class Minimax {
         }
 
         double bestCost;
-        TableState newState = null;
+        TableState newState;
         if (isMaxTurn) {
             bestCost = Double.NEGATIVE_INFINITY;
 
