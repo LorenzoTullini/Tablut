@@ -124,17 +124,23 @@ public class Individual implements Comparator, Comparable {
                     } else if (a.victories > 0 && (a.totalVictoriesTurnNumber / a.victories > b.totalVictoriesTurnNumber / b.victories)) {
                         return 1;
                     } else {
-                        if (a.capturedPawns > b.capturedPawns) {
+                        if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses > b.totalLossesTurnNumber / b.losses)) {
                             return -1;
-                        } else if (a.capturedPawns < b.capturedPawns) {
+                        } else if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses < b.totalLossesTurnNumber / b.losses)) {
                             return 1;
                         } else {
-                            if (a.lostPawns < b.lostPawns) {
+                            if (a.capturedPawns > b.capturedPawns) {
                                 return -1;
-                            } else if (a.lostPawns > b.lostPawns) {
+                            } else if (a.capturedPawns < b.capturedPawns) {
                                 return 1;
                             } else {
-                                return 0;
+                                if (a.lostPawns < b.lostPawns) {
+                                    return -1;
+                                } else if (a.lostPawns > b.lostPawns) {
+                                    return 1;
+                                } else {
+                                    return 0;
+                                }
                             }
                         }
                     }

@@ -197,8 +197,10 @@ public class Minimax {
 
             if (isMaxTurn) {
                 if (myColour == PlayerType.WHITE) {
+                    //se max gioca come bianco
                     res += (6 - state.getKingDistance());
                 } else {
+                    //se max gioca come nero
                     res += (state.getKingDistance());
                 }
 
@@ -207,22 +209,20 @@ public class Minimax {
                 } else {
                     res -= weights[5] * (100 + maxDepth - currentDepth);
                 }
-                return res;
             } else {
-                if (myColour == PlayerType.WHITE) {
-                    res -= (6 - state.getKingDistance());
+                if (opponentColour == PlayerType.WHITE) {
+                    res -= (6-state.getKingDistance());
                 } else {
                     res -= (state.getKingDistance());
                 }
 
-                if (myColour == PlayerType.WHITE && state.hasBlackWon() || myColour == PlayerType.BLACK && state.hasWhiteWon()) {
-                    res += weights[6] * (100 + maxDepth - currentDepth);
+                if (opponentColour == PlayerType.WHITE && state.hasWhiteWon() || opponentColour == PlayerType.BLACK && state.hasBlackWon()) {
+                    res -= weights[6] * (100 + maxDepth - currentDepth);
                 } else {
-                    res -= weights[7] * (100 + maxDepth - currentDepth);
+                    res += weights[7] * (100 + maxDepth - currentDepth);
                 }
-
-                return -res;
             }
+            return res;
         }
 
         double bestCost;

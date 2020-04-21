@@ -25,10 +25,12 @@ public class TestTraining {
     private static int NUM_INDIVIDUI = 10;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 7;
-    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
+    private static int NUM_PARTITE = 2; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 5;
-    private static int maxDepth = 3;
+    private static int maxDepth = 5;
     private static int timeoutSec = 55;
+    private static int limiteTurni = 2000;
+    private static int limiteTurniSenzaPedineMangiate = 500;
     private static Random rndGen;
 
     public static void main(String[] args) {
@@ -79,17 +81,7 @@ public class TestTraining {
         //2.2 Metti in evidenza i migliori
         population.sort(Individual::compareTo);
 
-        try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
-            Gson gson = new Gson();
-
-            for (int i1 = 0; i1 < NUM_INDIVIDUI; i1++) {
-                weights[i1] = population.get(i1).getWeigths();
-            }
-
-            writer.print(gson.toJson(weights));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        saveSate(population, salvataggi);
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
             System.out.println("---------------------------------------------------------------------\nGENERAZIONE " + (numGen + 1));
@@ -155,26 +147,14 @@ public class TestTraining {
                 }
             }
 
-
             //2.1 Fai tutte le sfide
             giocaPartite(newPopulation);
-
 
             //2.2 Metti in evidenza i migliori ed elimina i peggiori
             newPopulation.sort(Individual::compareTo);
             population = population.subList(0, NUM_INDIVIDUI);
 
-            try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
-                Gson gson = new Gson();
-
-                for (int i1 = 0; i1 < NUM_INDIVIDUI; i1++) {
-                    weights[i1] = population.get(i1).getWeigths();
-                }
-
-                writer.print(gson.toJson(weights));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            saveSate(population, salvataggi);
             System.out.println("--> Dati salvati");
 
             //Stampa statistiche
@@ -195,27 +175,78 @@ public class TestTraining {
 
     }
 
-    private static void giocaPartite(@NotNull List<Individual> population) {
-        System.out.println("--> Inizio partite");
-        for (int i = 0; i < NUM_PARTITE * population.size(); i++) {
-            System.out.println("--> --> Partita: " + (i + 1));
-            int firstPlayer = i % population.size();
-            int secondPlayer = 0;
-            while ((secondPlayer = rndGen.nextInt(population.size())) == firstPlayer) ;
+    private static void saveSate(List<Individual> population, Path salvataggi) {
+        double[][] weights = new double[NUM_INDIVIDUI][DIM_PESI];
+        try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
+            Gson gson = new Gson();
 
+            for (int i1 = 0; i1 < NUM_INDIVIDUI; i1++) {
+                weights[i1] = population.get(i1).getWeigths();
+            }
+
+            writer.print(gson.toJson(weights));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void giocaPartite(@NotNull List<Individual> population) {
+        System.out.println("--> Generazione accoppiamenti");
+        int giocatori = population.size();
+
+        //Genera accoppiamenti partita
+        int[][] accoppiamenti = new int[NUM_PARTITE * giocatori][2];
+
+        for (int i = 0; i < NUM_PARTITE * giocatori; i++) {
+            accoppiamenti[i][0] = i % giocatori;
+            accoppiamenti[i][1] = i % giocatori;
+        }
+
+
+        rndGen.setSeed(System.currentTimeMillis());
+        int a, b, temp;
+        for (int i = 0; i < giocatori * 5; i++) {
+            a = rndGen.nextInt(giocatori);
+            b = rndGen.nextInt(giocatori);
+
+            temp = accoppiamenti[a][0];
+            accoppiamenti[a][0] = accoppiamenti[b][0];
+            accoppiamenti[b][0] = temp;
+
+            a = rndGen.nextInt(giocatori);
+            b = rndGen.nextInt(giocatori);
+
+            temp = accoppiamenti[a][1];
+            accoppiamenti[a][1] = accoppiamenti[b][1];
+            accoppiamenti[b][1] = temp;
+        }
+
+        System.out.println("--> Inizio partite");
+
+        for (int i = 0; i < NUM_PARTITE * giocatori; i++) {
+            int firstPlayer = accoppiamenti[i][0];
+            int secondPlayer = accoppiamenti[i][1];
+
+            System.out.println("--> --> Partita: " + (i + 1));
             Individual indA = population.get(firstPlayer);
             Individual indB = population.get(secondPlayer);
 
+            System.out.println("--> --> --> Andata");
             gioca(indA, indB);
+            System.out.println("--> --> --> Ritorno");
             gioca(indB, indA);
         }
     }
 
-    private static void gioca(Individual fisrtInd, Individual secondInd) {
-        fisrtInd.prepareForNewMatch(PlayerType.WHITE);
-        secondInd.prepareForNewMatch(PlayerType.BLACK);
-        Minimax whiteMinimax = fisrtInd.getPlayer();
-        Minimax blackMinimax = secondInd.getPlayer();
+    private static void gioca(Individual whiteInd, Individual blackInd) {
+        whiteInd.prepareForNewMatch(PlayerType.WHITE);
+        blackInd.prepareForNewMatch(PlayerType.BLACK);
+        Minimax whiteMinimax = whiteInd.getPlayer();
+        Minimax blackMinimax = blackInd.getPlayer();
+
+        int lastEatTurn = 0;
+        int lastWhiteCount = 9;
+        int lastBlackCount = 16;
 
         TableState s = new TableState();
         Set<Integer> schemi = new HashSet<>();
@@ -229,45 +260,25 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+//            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+            var whiteMove = whiteMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (whiteMove != null) {
                 s = s.performMove(whiteMove);
+                if (lastBlackCount != s.getBlackPiecesCount() || lastWhiteCount != s.getWhitePiecesCount()) {
+                    lastBlackCount = s.getBlackPiecesCount();
+                    lastWhiteCount = s.getWhitePiecesCount();
+                    lastEatTurn = turn;
+                }
             }
             if (s.hasWhiteWon()) {
-                fisrtInd.addVictory();
-                fisrtInd.addVictoryTurnNumber(turn);
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                fisrtInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                secondInd.addLoss();
-                secondInd.addLossesTurnNumber(turn);
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                secondInd.addLostPawns(16 - s.getBlackPiecesCount());
+                vittoriaBianco(whiteInd, blackInd, s, turn);
                 break;
             } else if (s.hasBlackWon() || whiteMove == null) {
-                secondInd.addVictory();
-                secondInd.addVictoryTurnNumber(turn);
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                fisrtInd.addLoss();
-                fisrtInd.addLossesTurnNumber(turn);
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                vittoriaNero(whiteInd, blackInd, s, turn);
                 break;
             } else if (schemi.contains(s.hashCode())) {
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                risoluzionePatta(whiteInd, blackInd, s);
                 break;
             }
             schemi.add(s.hashCode());
@@ -276,49 +287,72 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+//            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+            var blackMove = blackMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (blackMove != null) {
                 s = s.performMove(blackMove);
+                if (lastBlackCount != s.getBlackPiecesCount() || lastWhiteCount != s.getWhitePiecesCount()) {
+                    lastBlackCount = s.getBlackPiecesCount();
+                    lastWhiteCount = s.getWhitePiecesCount();
+                    lastEatTurn = turn;
+                }
             }
             if (s.hasWhiteWon() || blackMove == null) {
-                fisrtInd.addVictory();
-                fisrtInd.addVictoryTurnNumber(turn);
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                fisrtInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                secondInd.addLoss();
-                secondInd.addLossesTurnNumber(turn);
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                secondInd.addLostPawns(16 - s.getBlackPiecesCount());
+                vittoriaBianco(whiteInd, blackInd, s, turn);
                 break;
             } else if (s.hasBlackWon()) {
-                secondInd.addVictory();
-                secondInd.addVictoryTurnNumber(turn);
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                fisrtInd.addLoss();
-                fisrtInd.addLossesTurnNumber(turn);
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                vittoriaNero(whiteInd, blackInd, s, turn);
                 break;
             } else if (schemi.contains(s.hashCode())) {
-                secondInd.addMatchPlayed();
-                secondInd.addCapturedPawns(16 - s.getBlackPiecesCount());
-                secondInd.addLostPawns(9 - s.getWhitePiecesCount());
-
-                fisrtInd.addMatchPlayed();
-                fisrtInd.addCapturedPawns(9 - s.getWhitePiecesCount());
-                fisrtInd.addLostPawns(16 - s.getBlackPiecesCount());
+                risoluzionePatta(whiteInd, blackInd, s);
                 break;
             }
             schemi.add(s.hashCode());
             turn++;
+
+            if (turn >= limiteTurni) {
+                risoluzionePatta(whiteInd, blackInd, s);
+                System.out.println("--> --> --> --> Superato limite turni [" + limiteTurni + "]");
+                break;
+            }
+
+            if (turn - lastEatTurn > limiteTurniSenzaPedineMangiate) {
+                risoluzionePatta(whiteInd, blackInd, s);
+                System.out.println("--> --> --> --> Nessuna pedina mangiata per troppi turni [" + limiteTurniSenzaPedineMangiate + "]");
+                break;
+            }
         }
+    }
+
+    private static void vittoriaBianco(Individual whiteInd, Individual blackInd, TableState s, int turn) {
+        whiteInd.addVictory();
+        whiteInd.addVictoryTurnNumber(turn);
+        blackInd.addLoss();
+        blackInd.addLossesTurnNumber(turn);
+
+        risoluzionePartita(whiteInd, blackInd, s);
+    }
+
+    private static void vittoriaNero(Individual whiteInd, Individual blackInd, TableState s, int turn) {
+        whiteInd.addLoss();
+        whiteInd.addLossesTurnNumber(turn);
+        blackInd.addVictory();
+        blackInd.addVictoryTurnNumber(turn);
+
+        risoluzionePartita(whiteInd, blackInd, s);
+    }
+
+    private static void risoluzionePatta(Individual fisrtInd, Individual secondInd, TableState s) {
+        risoluzionePartita(secondInd, fisrtInd, s);
+    }
+
+    private static void risoluzionePartita(Individual whiteInd, Individual blackInd, TableState s) {
+        whiteInd.addMatchPlayed();
+        whiteInd.addCapturedPawns(16 - s.getBlackPiecesCount());
+        whiteInd.addLostPawns(9 - s.getWhitePiecesCount());
+        blackInd.addMatchPlayed();
+        blackInd.addCapturedPawns(9 - s.getWhitePiecesCount());
+        blackInd.addLostPawns(16 - s.getBlackPiecesCount());
     }
 }
