@@ -58,7 +58,7 @@ public class Individual implements Comparator, Comparable {
     }
 
     public void addLostPawns(int lostPawns) {
-        this.lostPawns = lostPawns;
+        this.lostPawns += lostPawns;
     }
 
     public int getTotalVictoriesTurnNumber() {
@@ -129,14 +129,14 @@ public class Individual implements Comparator, Comparable {
                         } else if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses < b.totalLossesTurnNumber / b.losses)) {
                             return 1;
                         } else {
-                            if (a.capturedPawns > b.capturedPawns) {
+                            if (a.capturedPawns / ((double) a.matchPlayed) > b.capturedPawns / ((double) b.matchPlayed)) {
                                 return -1;
-                            } else if (a.capturedPawns < b.capturedPawns) {
+                            } else if (a.capturedPawns / ((double) a.matchPlayed) < b.capturedPawns / ((double) b.matchPlayed)) {
                                 return 1;
                             } else {
-                                if (a.lostPawns < b.lostPawns) {
+                                if (a.lostPawns / ((double) a.matchPlayed) < b.lostPawns / ((double) b.matchPlayed)) {
                                     return -1;
-                                } else if (a.lostPawns > b.lostPawns) {
+                                } else if (a.lostPawns / ((double) a.matchPlayed) > b.lostPawns / ((double) b.matchPlayed)) {
                                     return 1;
                                 } else {
                                     return 0;

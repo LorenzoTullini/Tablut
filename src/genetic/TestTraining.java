@@ -22,12 +22,12 @@ public class TestTraining {
     private static int DIM_PESI = 10;
     /////////////////////////////////////////
 
-    private static int NUM_INDIVIDUI = 10;
+    private static int NUM_INDIVIDUI = 5;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 7;
-    private static int NUM_PARTITE = 2; //Numero minimo di partite giocate da ogni individuo
+    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 5;
-    private static int maxDepth = 5;
+    private static int maxDepth = 3;
     private static int timeoutSec = 55;
     private static int limiteTurni = 2000;
     private static int limiteTurniSenzaPedineMangiate = 500;
@@ -69,22 +69,39 @@ public class TestTraining {
         }
         System.out.println("Voglio fare un gioco con te\n\n");
 
-        System.out.println("---------------------------------------------------------------------\nGenerazione 0");
+
         //1.2 Genera la popolazione iniziale
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
             population.add(new Individual(maxDepth, weights[i]));
         }
 
-        //2.1 Fai tutte le sfide
-        giocaPartite(population);
 
-        //2.2 Metti in evidenza i migliori
-        population.sort(Individual::compareTo);
-
-        saveSate(population, salvataggi);
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
             System.out.println("---------------------------------------------------------------------\nGENERAZIONE " + (numGen + 1));
+            //2.1 Fai tutte le sfide
+            giocaPartite(population);
+
+            //2.2 Metti in evidenza i migliori
+            population.sort(Individual::compareTo);
+            population = population.subList(0, NUM_INDIVIDUI);
+
+            saveSate(population, salvataggi);
+            System.out.println("--> Dati salvati");
+
+            //Stampa statistiche
+            System.out.printf("--> Pedine mangiate  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getCapturedPawns()).min(Double::compare).orElse(-1.0));
+            System.out.printf("--> Pedine perse     \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getLostPawns()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getLostPawns()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getLostPawns()).min(Double::compare).orElse(-1.0));
+            System.out.printf("--> Turni vittoria   \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).max(Double::compare).orElse(-1.0),
+                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).min(Double::compare).orElse(-1.0));
 
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
@@ -146,33 +163,7 @@ public class TestTraining {
                     newPopulation.get(individuoDaMutare).applyMutation(perc, geneIdx);
                 }
             }
-
-            //2.1 Fai tutte le sfide
-            giocaPartite(newPopulation);
-
-            //2.2 Metti in evidenza i migliori ed elimina i peggiori
-            newPopulation.sort(Individual::compareTo);
-            population = population.subList(0, NUM_INDIVIDUI);
-
-            saveSate(population, salvataggi);
-            System.out.println("--> Dati salvati");
-
-            //Stampa statistiche
-            System.out.printf("--> Pedine mangiate  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).min(Double::compare).orElse(-1.0));
-            System.out.printf("--> Pedine perse     \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getLostPawns()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getLostPawns()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getLostPawns()).min(Double::compare).orElse(-1.0));
-            System.out.printf("--> Turni vittoria   \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).min(Double::compare).orElse(-1.0));
         }
-
-
     }
 
     private static void saveSate(List<Individual> population, Path salvataggi) {
