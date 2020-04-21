@@ -181,13 +181,13 @@ public class Minimax {
     }
 
     private double performAlphabetaTest(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
-                                        int currentDepth, double alpha, double beta, int maxPawnVariation, int minPawnVariation, int baseValue) {
+                                        int currentDepth, double alpha, double beta, int maxPawnVariation, int minPawnVariation, double baseValue) {
         if (alreadyVisitedStates.contains(state.hashCode())) {
             //se mlo stato è già stato visto la partita è patta
             return 0;
         }
 
-        baseValue += (maxPawnVariation * weights[0] - minPawnVariation * weights[1]) * weights[2];
+        baseValue = baseValue * weights[0] + (maxPawnVariation * weights[1] - minPawnVariation * weights[2]) * weights[3];
 
         List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
@@ -197,16 +197,16 @@ public class Minimax {
 
             if (isMaxTurn) {
                 if (myColour == PlayerType.WHITE && state.hasWhiteWon() || myColour == PlayerType.BLACK && state.hasBlackWon()) {
-                    res += weights[3] * (100 + maxDepth - currentDepth);
+                    res += weights[4] * (100 + maxDepth - currentDepth);
                 } else {
-                    res -= weights[4] * (100 + maxDepth - currentDepth);
+                    res -= weights[5] * (100 + maxDepth - currentDepth);
                 }
                 return res;
             } else {
                 if (myColour == PlayerType.WHITE && state.hasBlackWon() || myColour == PlayerType.BLACK && state.hasWhiteWon()) {
-                    res += weights[5] * (100 + maxDepth - currentDepth);
+                    res += weights[6] * (100 + maxDepth - currentDepth);
                 } else {
-                    res -= weights[6] * (100 + maxDepth - currentDepth);
+                    res -= weights[7] * (100 + maxDepth - currentDepth);
                 }
 
                 return -res;
@@ -226,7 +226,8 @@ public class Minimax {
                 int newMinPawnVariation = (myColour == PlayerType.WHITE) ?
                         state.getBlackPiecesCount() - newState.getBlackPiecesCount() :
                         state.getWhitePiecesCount() - newState.getWhitePiecesCount();
-                bestCost = Math.max(bestCost, performAlphabetaTest(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, newMaxPawnVariation, newMinPawnVariation, baseValue));
+                bestCost = Math.max(bestCost,
+                        performAlphabetaTest(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta, newMaxPawnVariation, newMinPawnVariation, baseValue));
 
                 alpha = Math.max(alpha, bestCost);
                 if (alpha >= beta) {

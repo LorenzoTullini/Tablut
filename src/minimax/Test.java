@@ -2,7 +2,6 @@ package minimax;
 
 import client.TimeManager;
 import client.TimerThread;
-import model.Move;
 import model.PlayerType;
 import model.TableState;
 
@@ -14,9 +13,9 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 30;
-    static int profonditaMax = 5;
-    static int profonditaMin = 4;
+    static int NUMERO_PARTITE = 40;
+    static int profonditaMax = 3;
+    static int profonditaMin = 2;
     static int timeoutSec = 57;
     ////////////////////////////////////////////////////////////
 
@@ -43,10 +42,10 @@ public class Test {
     ////////////////////////////////////////////////////////////
     public static void main(String[] args) {
         //Partita
-        //test1();
+        test1();
 
         //Scelta mossa
-        test2();
+        //test2();
     }
 
     public static void test1() {
@@ -87,7 +86,7 @@ public class Test {
                     //System.out.println(whiteMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
-                    if(timeManager.isEnd()){
+                    if (timeManager.isEnd()) {
                         timerScattatoBianchi++;
                     }
                     durataTurnoBianco.add((end - start) / 1000.0);
@@ -119,7 +118,7 @@ public class Test {
                     //System.out.println(blackMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
-                    if(timeManager.isEnd()){
+                    if (timeManager.isEnd()) {
                         timerScattatoNeri++;
                     }
                     durataTurnoNero.add((end - start) / 1000.0);
@@ -170,19 +169,19 @@ public class Test {
     }
 
     public static void test2() {
-        int[][] table = new int[][]{
-                {E, E, E, E, E, E, E, E, E},
-                {E, E, E, E, E, E, E, E, E},
-                {E, E, E, E, B, E, B, E, E},
-                {E, E, B, E, K, B, E, E, E},
-                {E, E, E, E, E, E, E, E, E},
-                {E, E, E, B, E, E, E, E, E},
-                {E, B, W, E, W, B, E, E, E},
-                {E, E, E, E, E, E, E, E, E},
-                {E, E, E, E, E, E, E, E, E}
-        };
-
-        TableState state = new TableState(table);
+//        int[][] table = new int[][]{
+//                {E, E, E, E, E, E, E, E, E},
+//                {E, E, E, E, E, E, E, E, E},
+//                {E, E, E, E, B, E, B, E, E},
+//                {E, E, B, E, K, B, E, E, E},
+//                {E, E, E, E, E, E, E, E, E},
+//                {E, E, E, B, E, E, E, E, E},
+//                {E, B, W, E, W, B, E, E, E},
+//                {E, E, E, E, E, E, E, E, E},
+//                {E, E, E, E, E, E, E, E, E}
+//        };
+//
+//        TableState state = new TableState(table);
 
 //        Minimax player = new Minimax(PlayerType.BLACK, 5);
 //        TimeManager timeManager = new TimeManager();
@@ -192,12 +191,16 @@ public class Test {
 //        tt.interrupt();
 //        System.out.println(res);
 
-        Minimax player = new Minimax(PlayerType.BLACK, 4);
-        TimeManager timeManager = new TimeManager();
-        var tt = new TimerThread(timeManager, 10000 * 1000);
-        tt.start();
-        Move res = player.alphabeta(state, timeManager, 0);
-        tt.interrupt();
-        System.out.println(res);
+//        Minimax player = new Minimax(PlayerType.BLACK, 4);
+//        TimeManager timeManager = new TimeManager();
+//        var tt = new TimerThread(timeManager, 10000 * 1000);
+//        tt.start();
+//        Move res = player.alphabeta(state, timeManager, 0);
+//        tt.interrupt();
+//        System.out.println(res);
+
+        TableState s = new TableState();
+        var moves = s.getAllMovesFor(PlayerType.WHITE);
+        System.out.println("");
     }
 }
