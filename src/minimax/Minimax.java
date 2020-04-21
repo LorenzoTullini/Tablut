@@ -196,6 +196,12 @@ public class Minimax {
             double res = baseValue;
 
             if (isMaxTurn) {
+                if (myColour == PlayerType.WHITE) {
+                    res += (6 - state.getKingDistance());
+                } else {
+                    res += (state.getKingDistance());
+                }
+
                 if (myColour == PlayerType.WHITE && state.hasWhiteWon() || myColour == PlayerType.BLACK && state.hasBlackWon()) {
                     res += weights[4] * (100 + maxDepth - currentDepth);
                 } else {
@@ -203,6 +209,12 @@ public class Minimax {
                 }
                 return res;
             } else {
+                if (myColour == PlayerType.WHITE) {
+                    res -= (6 - state.getKingDistance());
+                } else {
+                    res -= (state.getKingDistance());
+                }
+
                 if (myColour == PlayerType.WHITE && state.hasBlackWon() || myColour == PlayerType.BLACK && state.hasWhiteWon()) {
                     res += weights[6] * (100 + maxDepth - currentDepth);
                 } else {
