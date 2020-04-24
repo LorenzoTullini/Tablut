@@ -313,7 +313,7 @@ public class TestTraining {
             int numIndividui = population.size();
             int i = 0;
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
-            for (int idx = ELITISIMO; idx < NUM_INDIVIDUI + 6; idx += 2) {
+            for (int idx = ELITISIMO; idx < numIndividui + 6; idx += 2) {
                 //Scegli il primo genitore
 
                 while (rndGen.nextInt(100) > (60.0 / i + 1)) {
@@ -346,8 +346,8 @@ public class TestTraining {
 
                 newPopulation.add(new Individual(maxDepth, wA));
                 newPopulation.add(new Individual(maxDepth, wB));
-                i++;
 
+                i = (i + 1) % numIndividui;
             }
 
             //3.2 Applica eventuali mutazioni
