@@ -10,8 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//import org.jetbrains.annotations.NotNull;
-
 
 public class Minimax {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
@@ -208,7 +206,7 @@ public class Minimax {
                 }
             } else {
                 if (opponentColour == PlayerType.WHITE) {
-                    res -= (6-state.getKingDistance());
+                    res -= (6 - state.getKingDistance());
                 } else {
                     res -= (state.getKingDistance());
                 }

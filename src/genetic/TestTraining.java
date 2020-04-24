@@ -22,18 +22,27 @@ public class TestTraining {
     private static int DIM_PESI = 10;
     /////////////////////////////////////////
 
-    private static int NUM_INDIVIDUI = 5;
+    private static int NUM_INDIVIDUI = 20;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 7;
-    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
-    private static int NUM_GENERAZIONI = 5;
-    private static int maxDepth = 3;
+    private static int NUM_PARTITE = 4; //Numero minimo di partite giocate da ogni individuo
+    private static int NUM_GENERAZIONI = 10;
+    private static int maxDepth = 4;
     private static int timeoutSec = 55;
-    private static int limiteTurni = 2000;
-    private static int limiteTurniSenzaPedineMangiate = 500;
+    private static int limiteTurni = 500;
+    private static int limiteTurniSenzaPedineMangiate = 50;
     private static Random rndGen;
 
     public static void main(String[] args) {
+        System.out.println("#####################################");
+        System.out.println("Popolazione: " + NUM_INDIVIDUI);
+        System.out.println("Elitismo: " + ELITISIMO);
+        System.out.println("Probabilità mutazioni: " + PROB_MUTAZIONE);
+        System.out.println("Numeri partite: " + NUM_PARTITE);
+        System.out.println("Numero generazioni: " + NUM_GENERAZIONI);
+        System.out.println("Profondità massima: " + maxDepth);
+        System.out.println("#####################################");
+
         //genera la popolazione iniziale
         List<Individual> population = new ArrayList<>();
 
@@ -74,7 +83,6 @@ public class TestTraining {
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
             population.add(new Individual(maxDepth, weights[i]));
         }
-
 
 
         for (int numGen = 0; numGen < NUM_GENERAZIONI; numGen++) {
