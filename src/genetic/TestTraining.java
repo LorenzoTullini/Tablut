@@ -24,7 +24,7 @@ public class TestTraining {
 
     private static int NUM_INDIVIDUI = 20;
     private static int ELITISIMO = 4;
-    private static int PROB_MUTAZIONE = 7;
+    private static int PROB_MUTAZIONE = 5;
     private static int NUM_PARTITE = 4; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 10;
     private static int maxDepth = 5;
@@ -81,7 +81,7 @@ public class TestTraining {
                 }
                 case "--num-individui": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             NUM_INDIVIDUI = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -92,10 +92,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--elitismo": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             ELITISIMO = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -106,10 +107,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--prob-mutazioni": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             PROB_MUTAZIONE = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -120,10 +122,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--num-partite": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             NUM_PARTITE = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -134,10 +137,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--num-generazioni": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             NUM_GENERAZIONI = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -148,10 +152,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--max-depth": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             maxDepth = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -162,10 +167,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--timeout": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             timeoutSec = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -176,10 +182,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--limite-turni": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             limiteTurni = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -190,10 +197,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
                 }
                 case "--turni-senza-mangiare": {
                     i++;
-                    if (i + 1 < args.length) {
+                    if (i < args.length) {
                         try {
                             limiteTurniSenzaPedineMangiate = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
@@ -204,6 +212,11 @@ public class TestTraining {
                         System.err.println("Numero di argomenti errato");
                         System.exit(-1);
                     }
+                    break;
+                }
+                default: {
+                    System.err.println("Opzione non riconosciuta. Scrivi bene pataca");
+                    System.exit(-1);
                 }
 
             }
@@ -216,6 +229,8 @@ public class TestTraining {
         System.out.println("Numeri partite: " + NUM_PARTITE);
         System.out.println("Numero generazioni: " + NUM_GENERAZIONI);
         System.out.println("Profondità massima: " + maxDepth);
+        System.out.println("Limite turni: " + limiteTurni);
+        System.out.println("Limite turni senza mangiare pedine: " + limiteTurniSenzaPedineMangiate);
         System.out.println("#####################################");
 
         //genera la popolazione iniziale
