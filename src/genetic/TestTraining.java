@@ -259,8 +259,8 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-//            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
-            var whiteMove = whiteMinimax.alphabetaTest(s, timeManager, turn);
+            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+//            var whiteMove = whiteMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (whiteMove != null) {
                 s = s.performMove(whiteMove);
@@ -286,8 +286,8 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-//            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
-            var blackMove = blackMinimax.alphabetaTest(s, timeManager, turn);
+            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+//            var blackMove = blackMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (blackMove != null) {
                 s = s.performMove(blackMove);
