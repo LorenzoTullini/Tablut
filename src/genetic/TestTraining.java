@@ -255,6 +255,8 @@ public class TestTraining {
                 System.err.println("Errore durante la lettura del file di salvataggio");
                 System.exit(-2);
             }
+
+            System.out.println("Caricato salvataggio precedente");
         } else {
             //è la prima generazione crea dati casuali
             weights = new double[NUM_INDIVIDUI][DIM_PESI];
@@ -265,6 +267,7 @@ public class TestTraining {
 
                 }
             }
+            System.out.println("Genrati pesi casuali");
         }
         System.out.println("Voglio fare un gioco con te\n\n");
 
