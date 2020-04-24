@@ -75,6 +75,8 @@ public class TestTraining {
                     System.out.println("\t\tImposta il numero massimo di turni consecutivi per cui nessuna");
                     System.out.println("\t\tdelle due parti può non mangiare");
                     System.out.println("\t\tDi default il valore è 50");
+
+                    System.exit(0);
                     break;
                 }
                 case "--num-individui": {
