@@ -25,7 +25,7 @@ public class TestTraining {
     private static int NUM_INDIVIDUI = 20;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 5;
-    private static int NUM_PARTITE = 4; //Numero minimo di partite giocate da ogni individuo
+    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 10;
     private static int maxDepth = 5;
     private static int timeoutSec = 55;
@@ -226,7 +226,7 @@ public class TestTraining {
         System.out.println("Popolazione: " + NUM_INDIVIDUI);
         System.out.println("Elitismo: " + ELITISIMO);
         System.out.println("Probabilità mutazioni: " + PROB_MUTAZIONE);
-        System.out.println("Numeri partite: " + NUM_PARTITE);
+        System.out.println("Numero partite: " + NUM_PARTITE);
         System.out.println("Numero generazioni: " + NUM_GENERAZIONI);
         System.out.println("Profondità massima: " + maxDepth);
         System.out.println("Limite turni: " + limiteTurni);
@@ -288,18 +288,18 @@ public class TestTraining {
             System.out.println("--> Dati salvati");
 
             //Stampa statistiche
-            System.out.printf("--> Pedine mangiate  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getCapturedPawns()).min(Double::compare).orElse(-1.0));
-            System.out.printf("--> Pedine perse     \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getLostPawns()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getLostPawns()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getLostPawns()).min(Double::compare).orElse(-1.0));
-            System.out.printf("--> Turni vittoria   \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).reduce(0.0, Double::sum) / population.size(),
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).max(Double::compare).orElse(-1.0),
-                    population.stream().map(ind -> (double) ind.getTotalVictoriesTurnNumber()).min(Double::compare).orElse(-1.0));
+            System.out.printf("--> Pedine mangiate per partita  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(Individual::getMeanCapturedPawns).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(Individual::getMeanCapturedPawns).max(Double::compare).orElse(-1.0),
+                    population.stream().map(Individual::getMeanCapturedPawns).min(Double::compare).orElse(-1.0));
+            System.out.printf("--> Pedine perse per partita     \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(Individual::getMeanLostPawns).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(Individual::getMeanLostPawns).max(Double::compare).orElse(-1.0),
+                    population.stream().map(Individual::getMeanLostPawns).min(Double::compare).orElse(-1.0));
+            System.out.printf("--> Turni vittoria               \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+                    population.stream().map(Individual::getMeanVictoriesTurnNumber).reduce(0.0, Double::sum) / population.size(),
+                    population.stream().map(Individual::getMeanVictoriesTurnNumber).max(Double::compare).orElse(-1.0),
+                    population.stream().map(Individual::getMeanVictoriesTurnNumber).min(Double::compare).orElse(-1.0));
 
             //3 Genera la nuova popolazione
             List<Individual> newPopulation = new ArrayList<>();
@@ -361,6 +361,8 @@ public class TestTraining {
                     newPopulation.get(individuoDaMutare).applyMutation(perc, geneIdx);
                 }
             }
+
+            population = newPopulation;
         }
     }
 

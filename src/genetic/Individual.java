@@ -46,7 +46,13 @@ public class Individual implements Comparator, Comparable {
     }
 
     public int getCapturedPawns() {
+
         return capturedPawns;
+    }
+
+    public double getMeanCapturedPawns() {
+
+        return ((double) capturedPawns) / matchPlayed;
     }
 
     public void addCapturedPawns(int capturedPawns) {
@@ -57,12 +63,21 @@ public class Individual implements Comparator, Comparable {
         return lostPawns;
     }
 
+    public double getMeanLostPawns() {
+        return ((double) lostPawns) / matchPlayed;
+    }
+
     public void addLostPawns(int lostPawns) {
+
         this.lostPawns += lostPawns;
     }
 
     public int getTotalVictoriesTurnNumber() {
         return totalVictoriesTurnNumber;
+    }
+
+    public double getMeanVictoriesTurnNumber() {
+        return (victories > 0) ? ((double) totalVictoriesTurnNumber) / victories : 0;
     }
 
     public void addVictoryTurnNumber(int turns) {
@@ -74,6 +89,7 @@ public class Individual implements Comparator, Comparable {
     }
 
     public void addLossesTurnNumber(int turns) {
+
         totalLossesTurnNumber += turns;
     }
 
@@ -82,6 +98,7 @@ public class Individual implements Comparator, Comparable {
     }
 
     public void addMatchPlayed() {
+
         matchPlayed++;
     }
 
