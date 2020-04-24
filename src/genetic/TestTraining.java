@@ -27,13 +27,186 @@ public class TestTraining {
     private static int PROB_MUTAZIONE = 7;
     private static int NUM_PARTITE = 4; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 10;
-    private static int maxDepth = 4;
+    private static int maxDepth = 5;
     private static int timeoutSec = 55;
     private static int limiteTurni = 500;
     private static int limiteTurniSenzaPedineMangiate = 50;
     private static Random rndGen;
 
     public static void main(String[] args) {
+        //controllo argomenti
+
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--help":
+                case "-h": {
+                    System.out.println("Benvenuto a Narnia, amico");
+                    System.out.println("tablut <options>");
+                    System.out.println("");
+                    System.out.println("Opzioni:");
+                    System.out.println("\t-h, --help:");
+                    System.out.println("\t\tVisualizza questa guida");
+                    System.out.println("\t--num-individui:");
+                    System.out.println("\t\tImposta il numero di individui che compongono la popolazione");
+                    System.out.println("\t\tDi default sono impostati 20 individui");
+                    System.out.println("\t--elitismo:");
+                    System.out.println("\t\tImposta il numero di individui matenuti tra una generazione e l'altra");
+                    System.out.println("\t\tDi default il valore è 4");
+                    System.out.println("\t--prob-mutazioni:");
+                    System.out.println("\t\tImposta la probabilità complessiva di mutazione di un individuo");
+                    System.out.println("\t\tDi default il valore è 5 (5%)");
+                    System.out.println("\t--num-partite:");
+                    System.out.println("\t\tImposta il numero di partite che ogni individuo deve giocare.");
+                    System.out.println("\t\tOgni partita è composta da un andata e da un ritorno.");
+                    System.out.println("\t\tDi default il valore è 4");
+                    System.out.println("\t--num-generazioni:");
+                    System.out.println("\t\tImposta il numero di generazioni");
+                    System.out.println("\t\tDi default il valore è 10");
+                    System.out.println("\t--max-depth:");
+                    System.out.println("\t\tImposta la profondità massima di esplorazione dell'albero");
+                    System.out.println("\t\tDi default il valore è 5");
+                    System.out.println("\t--timeout:");
+                    System.out.println("\t\tImposta il timeout del server");
+                    System.out.println("\t\tDi default il valore è 55 secondi");
+                    System.out.println("\t--limite-turni:");
+                    System.out.println("\t\tImposta la durata massima di una partita");
+                    System.out.println("\t\tDi default il valore è 500");
+                    System.out.println("\t--turni-senza-mangiare:");
+                    System.out.println("\t\tImposta il numero massimo di turni consecutivi per cui nessuna");
+                    System.out.println("\t\tdelle due parti può non mangiare");
+                    System.out.println("\t\tDi default il valore è 50");
+                    break;
+                }
+                case "--num-individui": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            NUM_INDIVIDUI = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--elitismo": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            ELITISIMO = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--prob-mutazioni": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            PROB_MUTAZIONE = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--num-partite": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            NUM_PARTITE = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--num-generazioni": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            NUM_GENERAZIONI = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--max-depth": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            maxDepth = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--timeout": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            timeoutSec = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--limite-turni": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            limiteTurni = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+                case "--turni-senza-mangiare": {
+                    i++;
+                    if (i + 1 < args.length) {
+                        try {
+                            limiteTurniSenzaPedineMangiate = Integer.parseInt(args[i]);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Formato numerico errato");
+                            System.exit(-1);
+                        }
+                    } else {
+                        System.err.println("Numero di argomenti errato");
+                        System.exit(-1);
+                    }
+                }
+
+            }
+        }
+
         System.out.println("#####################################");
         System.out.println("Popolazione: " + NUM_INDIVIDUI);
         System.out.println("Elitismo: " + ELITISIMO);
