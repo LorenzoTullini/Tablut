@@ -25,7 +25,7 @@ public class TestTraining {
     private static int NUM_INDIVIDUI = 20;
     private static int ELITISIMO = 4;
     private static int PROB_MUTAZIONE = 5;
-    private static int NUM_PARTITE = 1; //Numero minimo di partite giocate da ogni individuo
+    private static int NUM_PARTITE = 4; //Numero minimo di partite giocate da ogni individuo
     private static int NUM_GENERAZIONI = 10;
     private static int maxDepth = 5;
     private static int timeoutSec = 55;
