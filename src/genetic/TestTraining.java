@@ -269,8 +269,6 @@ public class TestTraining {
             }
             System.out.println("Genrati pesi casuali");
         }
-        System.out.println("Voglio fare un gioco con te\n\n");
-
 
         //1.2 Genera la popolazione iniziale
         for (int i = 0; i < NUM_INDIVIDUI; i++) {
@@ -310,7 +308,7 @@ public class TestTraining {
             //3.1 Seleziona gli individui da mantenere immutati
             for (int idx = 0; idx < ELITISIMO; idx++) {
                 //tieni gli individui migliori
-                newPopulation.add(population.get(idx));
+                newPopulation.add(new Individual(maxDepth, population.get(idx).getWeigths()));
             }
 
             int numIndividui = population.size();
@@ -318,7 +316,6 @@ public class TestTraining {
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
             for (int idx = ELITISIMO; idx < numIndividui + 6; idx += 2) {
                 //Scegli il primo genitore
-
                 while (rndGen.nextInt(100) > (60.0 / i + 1)) {
                     i = (i + 1) % numIndividui;
                 }
@@ -336,7 +333,7 @@ public class TestTraining {
                 double[] newWA = new double[DIM_PESI];
                 double[] newWB = new double[DIM_PESI];
 
-                int crossover = rndGen.nextInt(DIM_PESI);
+                int crossover = rndGen.nextInt(DIM_PESI - 2) + 1;
                 for (int k = 0; k < DIM_PESI; k++) {
                     if (k < crossover) {
                         newWA[k] = wA[k];
