@@ -215,7 +215,7 @@ public class TestTraining {
                     break;
                 }
                 default: {
-                    System.err.println("Opzione non riconosciuta. Scrivi bene pataca");
+                    System.err.println("Opzione non riconosciuta");
                     System.exit(-1);
                 }
 
