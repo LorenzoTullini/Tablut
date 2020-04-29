@@ -6,8 +6,8 @@ import model.PlayerType;
 import model.TableState;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Deque;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -133,7 +133,7 @@ public class Minimax {
             return 0;
         }
 
-        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
+        Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
@@ -184,7 +184,7 @@ public class Minimax {
 
         baseValue = baseValue * weights[0] + (maxPawnVariation * weights[1] - minPawnVariation * weights[2]) * weights[3];
 
-        List<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
+        Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente

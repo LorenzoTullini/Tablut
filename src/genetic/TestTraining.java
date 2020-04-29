@@ -238,6 +238,21 @@ public class TestTraining {
 
         double[][] weights = null;
 
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("NUM_INDIVIDUI: ");
+        NUM_INDIVIDUI = scanner.nextInt();
+
+        System.out.println("NUM_PARTITE: ");
+        NUM_PARTITE = scanner.nextInt();
+
+        System.out.println("NUM_GENERAZIONI: ");
+        NUM_GENERAZIONI = scanner.nextInt();
+
+        System.out.println("maxDepth: ");
+        maxDepth = scanner.nextInt();
+
+        System.out.println("");
+
         rndGen = new Random();
         rndGen.setSeed(System.currentTimeMillis());
 

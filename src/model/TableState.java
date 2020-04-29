@@ -97,96 +97,187 @@ public class TableState {
     public int[][] getState() {
         return this.state;
     }
+//
+//    public List<Move> getAllMovesFor(PlayerType player) {
+//        List<Move> moves = new ArrayList<>();
+//        for (int i = 0; i < 9; ++i) {
+//            for (int j = 0; j < 9; ++j) {
+//                if ((utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
+//                        || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)))
+//                    moves.addAll(getMovesFor(i, j, player));
+//            }
+//        }
+//        Collections.shuffle(moves);
+//        return moves;
+//    }
 
-    public List<Move> getAllMovesFor(PlayerType player) {
-        List<Move> moves = new ArrayList<>();
-        for (int i = 0; i < 9; ++i) {
-            for (int j = 0; j < 9; ++j) {
-                if ((utils.getPiece(this.getState()[i][j]) == W && player.equals(PlayerType.WHITE))
-                        || (utils.getPiece(this.getState()[i][j]) == B && player.equals(PlayerType.BLACK)))
-                    moves.addAll(getMovesFor(i, j, player));
+    public Deque<Move> getAllMovesFor(PlayerType player) {
+        Deque<Move> dequeMoves = new LinkedList<>();
+        for (int x = 0; x < 9; ++x) {
+            for (int y = 0; y < 9; ++y) {
+                if ((utils.getPiece(this.getState()[x][y]) == W && player.equals(PlayerType.WHITE))
+                        || (utils.getPiece(this.getState()[x][y]) == B && player.equals(PlayerType.BLACK))) {
+
+                    Coord i = new Coord(x, y); // coordinata iniziale
+
+                    if (player.equals(PlayerType.WHITE)) {
+
+                        //NORD
+                        int xN = x - 1;
+                        while (xN >= 0) {
+                            if (!utils.checkWhite(this, xN, y)) break;
+
+                            if ((xN - 1 >= 0 && utils.getPiece(this.getState()[xN - 1][y])==B) ||
+                                    (xN + 1 < 9 && utils.getPiece(this.getState()[xN + 1][y])==B) ||
+                                    (y - 1 >= 0 && utils.getPiece(this.getState()[xN][y - 1])==B) ||
+                                    (y + 1 < 9 && utils.getPiece(this.getState()[xN][y + 1])==B)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(xN, y)));
+                            } else {
+                                dequeMoves.addLast(new Move(i, new Coord(xN, y)));
+                            }
+
+                            xN--;
+                        }
+
+                        //SUD
+                        int xS = x + 1;
+                        while (xS < 9) {
+                            if (!utils.checkWhite(this, xS, y)) break;
+
+                            if ((xS - 1 >= 0 && utils.getPiece(this.getState()[xS - 1][y])==B) ||
+                                    (xS + 1 < 9 && utils.getPiece(this.getState()[xS + 1][y])==B) ||
+                                    (y - 1 >= 0 && utils.getPiece(this.getState()[xS][y - 1])==B) ||
+                                    (y + 1 < 9 && utils.getPiece(this.getState()[xS][y + 1])==B)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(xS, y)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(xS, y)));
+                            }
+
+                            xS++;
+                        }
+
+                        //EST
+                        int yE = y + 1;
+                        while (yE < 9) {
+                            if (!utils.checkWhite(this, x, yE)) break;
+
+                            if ((x - 1 >= 0 && utils.getPiece(this.getState()[x - 1][yE])==B) ||
+                                    (x + 1 < 9 && utils.getPiece(this.getState()[x + 1][yE])==B) ||
+                                    (yE - 1 >= 0 && utils.getPiece(this.getState()[x][yE-1])==B) ||
+                                    (yE + 1 < 9 && utils.getPiece(this.getState()[x][yE + 1])==B)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(x, yE)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(x, yE)));
+                            }
+
+                            yE++;
+                        }
+
+                        //OVEST
+                        int yO = y - 1;
+                        while (yO >= 0) {
+                            if (!utils.checkWhite(this, x, yO)) break;
+
+                            if ((x - 1 >= 0 && utils.getPiece(this.getState()[x - 1][yO])==B) ||
+                                    (x + 1 < 9 && utils.getPiece(this.getState()[x + 1][yO])==B) ||
+                                    (yO - 1 >= 0 && utils.getPiece(this.getState()[x][yO - 1])==B) ||
+                                    (yO + 1 < 9 && utils.getPiece(this.getState()[x][yO + 1])==B)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(x, yO)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(x, yO)));
+                            }
+
+                            yO--;
+                        }
+
+                    } // end if white
+
+                    if (player.equals(PlayerType.BLACK)) {
+
+                        //NORD
+                        int xN = x - 1;
+                        while (xN >= 0) {
+                            if (!utils.checkBlack(this, xN, y, x, y)) break;
+
+                            if ((xN - 1 >= 0 && utils.getPiece(this.getState()[xN - 1][y])==W) ||
+                                    (xN + 1 < 9 && utils.getPiece(this.getState()[xN + 1][y])==W) ||
+                                    (y - 1 >= 0 && utils.getPiece(this.getState()[xN][y - 1])==W) ||
+                                    (y + 1 < 9 && utils.getPiece(this.getState()[xN][y + 1])==W)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(xN, y)));
+                            } else {
+                                dequeMoves.addLast(new Move(i, new Coord(xN, y)));
+                            }
+
+                            
+                            xN--;
+                        }
+
+                        //SUD
+                        int xS = x + 1;
+                        while (xS < 9) {
+                            if (!utils.checkBlack(this, xS, y, x, y)) break;
+
+                            if ((xS - 1 >= 0 && utils.getPiece(this.getState()[xS - 1][y])==W) ||
+                                    (xS + 1 < 9 && utils.getPiece(this.getState()[xS + 1][y])==W) ||
+                                    (y - 1 >= 0 && utils.getPiece(this.getState()[xS][y - 1])==W) ||
+                                    (y + 1 < 9 && utils.getPiece(this.getState()[xS][y + 1])==W)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(xS, y)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(xS, y)));
+                            }
+
+                            
+                            
+                            xS++;
+                        }
+                        //EST
+                        int yE = y + 1;
+                        while (yE < 9) {
+                            if (!utils.checkBlack(this, x, yE, x, y)) break;
+
+                            if ((x - 1 >= 0 && utils.getPiece(this.getState()[x - 1][yE])==W) ||
+                                    (x + 1 < 9 && utils.getPiece(this.getState()[x + 1][yE])==W) ||
+                                    (yE - 1 >= 0 && utils.getPiece(this.getState()[x][yE-1])==W) ||
+                                    (yE + 1 < 9 && utils.getPiece(this.getState()[x][yE + 1])==W)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(x, yE)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(x, yE)));
+                            }
+                            
+                            yE++;
+                        }
+
+                        //OVEST
+                        int yO = y - 1;
+                        while (yO >= 0) {
+                            if (!utils.checkBlack(this, x, yO, x, y)) break;
+
+                            if ((x - 1 >= 0 && utils.getPiece(this.getState()[x - 1][yO])==W) ||
+                                    (x + 1 < 9 && utils.getPiece(this.getState()[x + 1][yO])==W) ||
+                                    (yO - 1 >= 0 && utils.getPiece(this.getState()[x][yO - 1])==W) ||
+                                    (yO + 1 < 9 && utils.getPiece(this.getState()[x][yO + 1])==W)) {
+
+                                dequeMoves.addFirst(new Move(i,new Coord(x, yO)));
+                            } else {
+                                dequeMoves.addLast(new Move(i,new Coord(x, yO)));
+                            }
+                            
+                            yO--;
+                        }
+
+                    } // end if black
+                }
             }
         }
-        Collections.shuffle(moves);
-        return moves;
-    }
 
-    private Collection<? extends Move> getMovesFor(int x, int y, PlayerType player) {
-        List<Move> moves = new ArrayList<>();
-        Coord i = new Coord(x, y); // coordinata iniziale
-
-        if (player.equals(PlayerType.WHITE)) {
-
-            //NORD
-            int xN = x - 1;
-            while (xN >= 0) {
-                if (!utils.checkWhite(this, xN, y)) break;
-                else moves.add(new Move(i, new Coord(xN, y)));
-                xN--;
-            }
-
-            //SUD
-            int xS = x + 1;
-            while (xS < 9) {
-                if (!utils.checkWhite(this, xS, y)) break;
-                else moves.add(new Move(i, new Coord(xS, y)));
-                xS++;
-            }
-
-            //EST
-            int yE = y + 1;
-            while (yE < 9) {
-                if (!utils.checkWhite(this, x, yE)) break;
-                else moves.add(new Move(i, new Coord(x, yE)));
-                yE++;
-            }
-
-            //OVEST
-            int yO = y - 1;
-            while (yO >= 0) {
-                if (!utils.checkWhite(this, x, yO)) break;
-                else moves.add(new Move(i, new Coord(x, yO)));
-                yO--;
-            }
-
-        } // end if white
-
-        if (player.equals(PlayerType.BLACK)) {
-
-            //NORD
-            int xN = x - 1;
-            while (xN >= 0) {
-                if (!utils.checkBlack(this, xN, y, x, y)) break;
-                else moves.add(new Move(i, new Coord(xN, y)));
-                xN--;
-            }
-
-            //SUD
-            int xS = x + 1;
-            while (xS < 9) {
-                if (!utils.checkBlack(this, xS, y, x, y)) break;
-                else moves.add(new Move(i, new Coord(xS, y)));
-                xS++;
-            }
-            //EST
-            int yE = y + 1;
-            while (yE < 9) {
-                if (!utils.checkBlack(this, x, yE, x, y)) break;
-                else moves.add(new Move(i, new Coord(x, yE)));
-                yE++;
-            }
-
-            //OVEST
-            int yO = y - 1;
-            while (yO >= 0) {
-                if (!utils.checkBlack(this, x, yO, x, y)) break;
-                else moves.add(new Move(i, new Coord(x, yO)));
-                yO--;
-            }
-
-        } // end if black
-
-        return moves;
+        return dequeMoves;
     }
 
 
