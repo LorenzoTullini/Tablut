@@ -376,6 +376,17 @@ public class TestTraining {
                     newPopulation.get(individuoDaMutare).applyMutation(perc, geneIdx);
                 }
             }
+            //aggiorna il numero massimo di turni per fornire condizioni più stringenti
+            if (numGen % 5 == 0) {
+                var turniMedio = population.stream().map(Individual::getMeanVictoriesTurnNumber).reduce(0.0, Double::sum) / population.size();
+                var turniMax = population.stream().map(Individual::getMeanVictoriesTurnNumber).max(Double::compare).orElse(-1.0);
+
+                if (turniMax > 0 && turniMedio > 0) {
+                    limiteTurni = (int) (turniMedio + ((turniMax - turniMedio) / 3));
+                    limiteTurniSenzaPedineMangiate = Math.max(30, Math.min(500, (int) (limiteTurni * 0.9)));
+                }
+            }
+
 
             population = newPopulation;
         }
