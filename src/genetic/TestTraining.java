@@ -22,7 +22,7 @@ public class TestTraining {
     private static int DIM_PESI = 10;
     /////////////////////////////////////////
 
-    private static int numIndividui = 20;
+    private static int maxNumIndividui = 20;
     private static int elitismo = 4;
     private static int probMutazione = 5;
     private static int numPartite = 4; //Numero minimo di partite giocate da ogni individuo
@@ -86,7 +86,7 @@ public class TestTraining {
                     i++;
                     if (i < args.length) {
                         try {
-                            numIndividui = Integer.parseInt(args[i]);
+                            maxNumIndividui = Integer.parseInt(args[i]);
                         } catch (NumberFormatException e) {
                             System.err.println("Formato numerico errato");
                             System.exit(-1);
@@ -224,12 +224,12 @@ public class TestTraining {
             }
         }
 
-        if (numIndividui <= elitismo) {
+        if (maxNumIndividui <= elitismo) {
             System.err.println("La cardinalità della popolazione deve essere maggiore del valore di elitismo");
             System.exit(-1);
         }
 
-        if (numIndividui <= 0) {
+        if (maxNumIndividui <= 0) {
             System.err.println("Il numero di individui deve essere un intero positivo");
             System.exit(-1);
         }
@@ -275,7 +275,7 @@ public class TestTraining {
         }
 
         System.out.println("#####################################");
-        System.out.println("Popolazione: " + numIndividui);
+        System.out.println("Popolazione: " + maxNumIndividui);
         System.out.println("Elitismo: " + elitismo);
         System.out.println("Probabilità mutazioni: " + probMutazione);
         System.out.println("Numero partite: " + numPartite);
@@ -307,22 +307,21 @@ public class TestTraining {
                 System.exit(-2);
             }
 
-            for (int i = 0; i < numIndividui; i++) {
+            for (int i = 0; i < maxNumIndividui; i++) {
                 population.add(new Individual(maxDepth, weights[i]));
             }
 
             System.out.println("Caricato salvataggio precedente");
         } else {
             //è la prima generazione, crea dati casuali
-            for (int i = 0; i < numIndividui; i++) {
+            for (int i = 0; i < maxNumIndividui; i++) {
                 population.add(generaIndivisuoCasuale());
             }
             System.out.println("Genrati pesi casuali");
         }
 
-        //1.2 Genera la popolazione iniziale
 
-
+        //Comincia a giocare
         for (int numGen = 0; numGen < numGenerazioni; numGen++) {
             System.out.println("---------------------------------------------------------------------\nGENERAZIONE " + (numGen + 1));
             //2.1 Fai tutte le sfide
@@ -330,7 +329,7 @@ public class TestTraining {
 
             //2.2 Metti in evidenza i migliori
             population.sort(Individual::compareTo);
-            population = population.subList(0, numIndividui);
+            population = population.subList(0, maxNumIndividui);
 
             saveSate(population, salvataggi);
             System.out.println("--> Dati salvati");
@@ -358,19 +357,18 @@ public class TestTraining {
                 newPopulation.add(new Individual(maxDepth, population.get(idx).getWeigths()));
             }
 
-            int numIndividui = population.size();
             int i = 0;
             //3.2 Seleziona gli individui da ricombinare e ricombina i geni
-            for (int idx = elitismo; idx < numIndividui + surplusIndividuals - randomSurplusIndividuals; idx += 2) {
+            for (int idx = elitismo; idx < maxNumIndividui + surplusIndividuals - randomSurplusIndividuals; idx += 2) {
                 //Scegli il primo genitore
                 while (rndGen.nextInt(100) > (60.0 / i + 1)) {
-                    i = (i + 1) % numIndividui;
+                    i = (i + 1) % maxNumIndividui;
                 }
 
                 //Scegli il secondo genitore
                 int j = i;
                 while (rndGen.nextInt(100) > (60.0 / j + 1) || i == j) {
-                    j = (j + 1) % numIndividui;
+                    j = (j + 1) % maxNumIndividui;
                 }
 
                 //Applica il crossover
@@ -394,7 +392,7 @@ public class TestTraining {
                 newPopulation.add(new Individual(maxDepth, newWA));
                 newPopulation.add(new Individual(maxDepth, newWB));
 
-                i = (i + 1) % numIndividui;
+                i = (i + 1) % maxNumIndividui;
             }
 
             for (int idx = 0; idx < randomSurplusIndividuals; idx++) {
@@ -405,7 +403,7 @@ public class TestTraining {
             //3.2 Applica eventuali mutazioni
             int probMutazione = rndGen.nextInt(100);
             if (probMutazione < TestTraining.probMutazione) {
-                for (int idx = 0; idx < Math.ceil((TestTraining.numIndividui * probMutazione) / 100.0); idx++) {
+                for (int idx = 0; idx < Math.ceil((maxNumIndividui * probMutazione) / 100.0); idx++) {
                     //scegli a caso un individuo da mutare
                     int individuoDaMutare = rndGen.nextInt(newPopulation.size());
                     int geneIdx = rndGen.nextInt(DIM_PESI);
@@ -434,11 +432,11 @@ public class TestTraining {
     }
 
     private static void saveSate(List<Individual> population, Path salvataggi) {
-        double[][] weights = new double[numIndividui][DIM_PESI];
+        double[][] weights = new double[maxNumIndividui][DIM_PESI];
         try (PrintWriter writer = new PrintWriter(salvataggi.toFile())) {
             Gson gson = new Gson();
 
-            for (int i1 = 0; i1 < numIndividui; i1++) {
+            for (int i1 = 0; i1 < maxNumIndividui; i1++) {
                 weights[i1] = population.get(i1).getWeigths();
             }
 
