@@ -16,7 +16,7 @@ public class Test {
     static int NUMERO_PARTITE = 40;
     static int profonditaMax = 5;
     static int profonditaMin = 4;
-    static int timeoutSec = 57;
+    static int timeoutSec = 55;
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////

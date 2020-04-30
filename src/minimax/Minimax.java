@@ -16,7 +16,7 @@ public class Minimax {
 
     private int recordDepth = 0;
 
-    private final int maxDepth;
+    private int maxDepth;
     private final double[] weights;
 
     //L'avversario gioca sempre come min
@@ -61,9 +61,14 @@ public class Minimax {
     }
 
 
+    public void setMaxDepth(int newMaxDepth) {
+        maxDepth = newMaxDepth;
+    }
+
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
         // Il primo livello va separato dagli altri perchè deve ritornare una mossa e non un valore
         Move res = null;
+        recordDepth = 0;
         double bestCost = Double.NEGATIVE_INFINITY;
         double val;
         double alpha = Double.NEGATIVE_INFINITY, beta = Double.POSITIVE_INFINITY;
@@ -73,7 +78,7 @@ public class Minimax {
         for (Move m : initialState.getAllMovesFor(myColour)) {
             //parte con il turno di min perché questo qua è già il turno di max
             TableState newState = initialState.performMove(m);
-            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
+            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta, new HashSet<>(alreadyVisitedStates));
 
             if (val > bestCost) {
                 res = m;
@@ -92,10 +97,12 @@ public class Minimax {
     }
 
     private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
-                                    int currentDepth, double alpha, double beta) {
-        if (alreadyVisitedStates.contains(state.hashCode())) {
+                                    int currentDepth, double alpha, double beta, Set<Integer> updatedVisitedStatesSet) {
+        if (updatedVisitedStatesSet.contains(state.hashCode())) {
             //se lo stato è già stato visto la partita è patta
             return 0;
+        } else {
+            updatedVisitedStatesSet.add(state.hashCode());
         }
 
         Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
@@ -121,7 +128,9 @@ public class Minimax {
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
 
-                bestCost = Math.max(bestCost, performAlphabeta(newState, timeManager, false, turn + 1, currentDepth + 1, alpha, beta));
+                bestCost = Math.max(bestCost,
+                        performAlphabeta(newState, timeManager, false, turn + 1,
+                                currentDepth + 1, alpha, beta, new HashSet<>(updatedVisitedStatesSet)));
 
                 alpha = Math.max(alpha, bestCost);
                 if (alpha >= beta) {
@@ -133,8 +142,10 @@ public class Minimax {
 
             for (Move m : allPossibleMoves) {
                 newState = state.performMove(m);
-                var val = performAlphabeta(newState, timeManager, true, turn + 1, currentDepth + 1, alpha, beta);
-                bestCost = Math.min(bestCost, val);
+
+                bestCost = Math.min(bestCost,
+                        performAlphabeta(newState, timeManager, true, turn + 1,
+                                currentDepth + 1, alpha, beta, new HashSet<>(updatedVisitedStatesSet)));
 
                 beta = Math.min(beta, bestCost);
                 if (alpha >= beta) {
