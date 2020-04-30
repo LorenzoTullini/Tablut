@@ -14,9 +14,9 @@ public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
     static int NUMERO_PARTITE = 40;
-    static int profonditaMax = 5;
-    static int profonditaMin = 4;
-    static int timeoutSec = 55;
+    static int profonditaMax = 7;
+    static int profonditaMin = 7;
+    static int timeoutSec = 500;
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////

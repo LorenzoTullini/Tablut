@@ -13,6 +13,8 @@ import java.util.Set;
 
 public class Minimax {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
+    private static final int changeTurn = 5;
+    private static double quiescenceFactor = 5;
 
     private int recordDepth = 0;
 
@@ -78,7 +80,7 @@ public class Minimax {
         for (Move m : initialState.getAllMovesFor(myColour)) {
             //parte con il turno di min perché questo qua è già il turno di max
             TableState newState = initialState.performMove(m);
-            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta, new HashSet<>(alreadyVisitedStates));
+            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta, 0, 0);
 
             if (val > bestCost) {
                 res = m;
@@ -97,61 +99,67 @@ public class Minimax {
     }
 
     private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
-                                    int currentDepth, double alpha, double beta, Set<Integer> updatedVisitedStatesSet) {
-        if (updatedVisitedStatesSet.contains(state.hashCode())) {
-            //se lo stato è già stato visto la partita è patta
-            return 0;
-        } else {
-            updatedVisitedStatesSet.add(state.hashCode());
-        }
-
-        Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
-
-        if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
-            //valuta il nodo corrente
-
-            if (currentDepth > recordDepth) {
-                System.out.println("[" + myColour + "] Raggiunta nuova profondità record: " + currentDepth);
-                recordDepth = currentDepth;
-            }
-
-            return isMaxTurn ?
-                    myHeuristic.evaluate(state, currentDepth) :
-                    -opponentHeuristic.evaluate(state, currentDepth);
-        }
-
+                                    int currentDepth, double alpha, double beta, double lastCost, double lastLastCost) {
         double bestCost;
         TableState newState;
-        if (isMaxTurn) {
-            bestCost = Double.NEGATIVE_INFINITY;
-
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
-
-                bestCost = Math.max(bestCost,
-                        performAlphabeta(newState, timeManager, false, turn + 1,
-                                currentDepth + 1, alpha, beta, new HashSet<>(updatedVisitedStatesSet)));
-
-                alpha = Math.max(alpha, bestCost);
-                if (alpha >= beta) {
-                    break;
-                }
-            }
+        int currentHash = state.hashCode();
+        if (alreadyVisitedStates.contains(currentHash)) {
+            //se lo stato è già stato visto la partita è patta
+            bestCost = 0;
         } else {
-            bestCost = Double.POSITIVE_INFINITY;
+            alreadyVisitedStates.add(currentHash);
 
-            for (Move m : allPossibleMoves) {
-                newState = state.performMove(m);
+            Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
+            double currentCost = myHeuristic.evaluate(state, currentDepth);
 
-                bestCost = Math.min(bestCost,
-                        performAlphabeta(newState, timeManager, true, turn + 1,
-                                currentDepth + 1, alpha, beta, new HashSet<>(updatedVisitedStatesSet)));
+            if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() ||
+                    state.hasWhiteWon() || (turn >= changeTurn && Math.abs(lastLastCost - currentCost) < quiescenceFactor)) {
+                //valuta il nodo corrente
 
-                beta = Math.min(beta, bestCost);
-                if (alpha >= beta) {
-                    break;
+                if (currentDepth > recordDepth) {
+                    System.out.println("[" + myColour + "] Raggiunta nuova profondità record: " + currentDepth);
+                    recordDepth = currentDepth;
+                }
+
+                return isMaxTurn ?
+                        myHeuristic.evaluate(state, currentDepth) :
+                        -opponentHeuristic.evaluate(state, currentDepth);
+            }
+
+
+            if (isMaxTurn) {
+                bestCost = Double.NEGATIVE_INFINITY;
+
+                for (Move m : allPossibleMoves) {
+                    newState = state.performMove(m);
+
+                    bestCost = Math.max(bestCost,
+                            performAlphabeta(newState, timeManager, false, turn + 1,
+                                    currentDepth + 1, alpha, beta, currentCost, lastCost));
+
+                    alpha = Math.max(alpha, bestCost);
+                    if (alpha >= beta) {
+                        break;
+                    }
+                }
+            } else {
+                bestCost = Double.POSITIVE_INFINITY;
+
+                for (Move m : allPossibleMoves) {
+                    newState = state.performMove(m);
+
+                    bestCost = Math.min(bestCost,
+                            performAlphabeta(newState, timeManager, true, turn + 1,
+                                    currentDepth + 1, alpha, beta, currentCost, lastCost));
+
+                    beta = Math.min(beta, bestCost);
+                    if (alpha >= beta) {
+                        break;
+                    }
                 }
             }
+
+            alreadyVisitedStates.remove(currentHash);
         }
 
         return bestCost;
