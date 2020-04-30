@@ -14,6 +14,8 @@ import java.util.Set;
 public class Minimax {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
 
+    private int recordDepth = 0;
+
     private final int maxDepth;
     private final double[] weights;
 
@@ -100,6 +102,12 @@ public class Minimax {
 
         if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() || state.hasWhiteWon()) {
             //valuta il nodo corrente
+
+            if (currentDepth > recordDepth) {
+                System.out.println("[" + myColour + "] Raggiunta nuova profondità record: " + currentDepth);
+                recordDepth = currentDepth;
+            }
+
             return isMaxTurn ?
                     myHeuristic.evaluate(state, currentDepth) :
                     -opponentHeuristic.evaluate(state, currentDepth);
