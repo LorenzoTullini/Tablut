@@ -123,7 +123,7 @@ public class Minimax {
              */
             if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() ||
                     state.hasWhiteWon() || (turn >= changeTurn && currentDepth % 2 == maxDepth % 2 &&
-                    Math.abs(lastLastLastCost - currentCost) < 1.2 * quiescenceFactor &&
+                    //Math.abs(lastLastLastCost - currentCost) < 1.2 * quiescenceFactor &&
                     Math.abs(lastLastCost - currentCost) < 1.1 * quiescenceFactor &&
                     Math.abs(lastCost - currentCost) < quiescenceFactor)) {
                 //Raggiunto un nodo foglia
