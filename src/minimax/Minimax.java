@@ -65,7 +65,7 @@ public class Minimax {
     }
 
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        // Il primo livello va separato dagli altri perchè deve ritornare una mossa e non un valore
+        // Il primo livello va separato dagli altri perchè deve restituire una mossa e non un valore
         Move res = null;
         double bestCost = Double.NEGATIVE_INFINITY;
         double val;
@@ -89,7 +89,7 @@ public class Minimax {
             //Se siamo riusciti a fare una mossa
             res.setCosto(bestCost);
             alreadyVisitedStates.add(initialState.performMove(res).hashCode());
-        }else{
+        } else {
             System.err.println("Nessuna mossa trovata");
         }
 
@@ -123,7 +123,7 @@ public class Minimax {
              */
             if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() ||
                     state.hasWhiteWon() || (turn >= changeTurn && currentDepth % 2 == maxDepth % 2 &&
-                    //Math.abs(lastLastLastCost - currentCost) < 1.2 * quiescenceFactor &&
+                    Math.abs(lastLastLastCost - currentCost) < 1.2 * quiescenceFactor &&
                     Math.abs(lastLastCost - currentCost) < 1.1 * quiescenceFactor &&
                     Math.abs(lastCost - currentCost) < quiescenceFactor)) {
                 //Raggiunto un nodo foglia
