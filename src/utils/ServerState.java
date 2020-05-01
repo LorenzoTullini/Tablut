@@ -21,14 +21,52 @@ public class ServerState {
         return status;
     }
 
-    //DEBUG
     public void printStatus() {
-        for (int row = 0; row < status.length; row++) {
-            for (int col = 0; col < status[row].length; col++) {
-                System.out.printf("%4d", status[row][col]);
-            }
-            System.out.println();
+        int i, j, cell;
+
+        System.out.printf("\n\n      ");
+        for (i = 0; i < 9; i++) {
+            System.out.printf(" %d  ", i+1);
         }
+        System.out.printf("\n      ");
+        for (i = 0; i < 9; i++) {
+            System.out.printf("----");
+        }
+        System.out.printf("\n");
+
+        for (i = 0; i < 9; i++) {
+            for (j = 0; j < 9; j++) {
+                if (j == 0)
+                    System.out.printf("%d  |   ", i+1);
+
+                switch(status[i][j]) {
+                    case 4: System.out.printf("▹   "); break;
+                    case 1: System.out.printf("○   "); break;
+                    case 2: System.out.printf("○   "); break;
+                    case 3: System.out.printf("○   "); break;
+                    case 5: System.out.printf("◉   "); break;
+                    case 0: System.out.printf("●   "); break;
+                    default: System.out.printf("▹   "); break;
+                }
+
+                if (j == 8)
+                    System.out.printf("|  %d", i+1);
+            }
+            System.out.printf("\n");
+            if (i < 8)
+                System.out.printf("\n");
+        }
+
+        System.out.printf("      ");
+        for (i = 0; i < 9; i++) {
+            System.out.printf("----");
+        }
+        System.out.printf("\n      ");
+        for (i = 0; i < 9; i++) {
+            System.out.printf(" %d  ", i+1);
+        }
+        System.out.printf("\n");
+        System.out.printf("\n\n");
     }
 
     public boolean isMyTurn(PlayerType type) {
