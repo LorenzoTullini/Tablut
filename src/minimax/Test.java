@@ -13,10 +13,10 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 40;
-    static int profonditaMax = 7;
-    static int profonditaMin = 7;
-    static int timeoutSec = 500;
+    static int NUMERO_PARTITE = 1;
+    static int profonditaMax = 6;
+    static int profonditaMin = 6;
+    static int timeoutSec = 55;
     ////////////////////////////////////////////////////////////
 
     ////////////////////////////////////////////////////////////
@@ -41,11 +41,14 @@ public class Test {
 
     ////////////////////////////////////////////////////////////
     public static void main(String[] args) {
-        //Partita
+        //Partite con la stessa profondità
         test1();
 
         //Scelta mossa
         //test2();
+
+        //Partita singola a livelli diversi
+//        test3();
     }
 
     public static void test1() {
@@ -90,7 +93,7 @@ public class Test {
                         timerScattatoBianchi++;
                     }
                     durataTurnoBianco.add((end - start) / 1000.0);
-                    //System.out.println("[B | " + turn + "] " + whiteMove);
+                    System.out.println("[B | " + turn + "] " + whiteMove);
                     s = s.performMove(whiteMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
@@ -122,7 +125,7 @@ public class Test {
                         timerScattatoNeri++;
                     }
                     durataTurnoNero.add((end - start) / 1000.0);
-                    //System.out.println("[N | " + turn + "] " + blackMove);
+                    System.out.println("[N | " + turn + "] " + blackMove);
                     s = s.performMove(blackMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
@@ -198,9 +201,77 @@ public class Test {
 //        Move res = player.alphabeta(state, timeManager, 0);
 //        tt.interrupt();
 //        System.out.println(res);
+//
+//        TableState s = new TableState();
+//        var moves = s.getAllMovesFor(PlayerType.WHITE);
+//        System.out.println("");
+    }
 
+    private static void test3() {
+        TimeManager timeManager = new TimeManager();
+        long start, end;
         TableState s = new TableState();
-        var moves = s.getAllMovesFor(PlayerType.WHITE);
-        System.out.println("");
+        Set<Integer> schemi = new HashSet<>();
+
+        int turn = 0;
+        Minimax whiteMinimax = new Minimax(PlayerType.WHITE, 7);
+        Minimax blackMinimax = new Minimax(PlayerType.BLACK, 5);
+        TimerThread tt;
+
+        schemi.add(s.hashCode());
+        while (!s.hasWhiteWon() && !s.hasBlackWon()) {
+            //cominciano i bianchi
+            timeManager = new TimeManager();
+            tt = new TimerThread(timeManager, timeoutSec * 1000);
+            tt.start();
+            start = System.currentTimeMillis();
+            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+            //System.out.println(whiteMove);
+            end = System.currentTimeMillis();
+            tt.interrupt();
+            if (timeManager.isEnd()) {
+                timerScattatoBianchi++;
+            }
+
+            System.out.println("[B | " + turn + "] " + whiteMove + "  -  (" + (end - start) / 1000.0 + ")");
+            s = s.performMove(whiteMove);
+            if (s.hasWhiteWon()) {
+                System.out.println("  --> Bianchi");
+                break;
+            } else if (s.hasBlackWon()) {
+                System.out.println("  --> Neri");
+                break;
+            } else if (schemi.contains(s.hashCode())) {
+                System.out.println("  --> Patta");
+                break;
+            }
+            schemi.add(s.hashCode());
+            turn++;
+
+            timeManager = new TimeManager();
+            tt = new TimerThread(timeManager, timeoutSec * 1000);
+            tt.start();
+            start = System.currentTimeMillis();
+            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+            //System.out.println(blackMove);
+            end = System.currentTimeMillis();
+            tt.interrupt();
+
+
+            System.out.println("[N | " + turn + "] " + blackMove + "  -  (" + (end - start) / 1000.0 + ")");
+            s = s.performMove(blackMove);
+            if (s.hasWhiteWon()) {
+                System.out.println("  --> Bianchi");
+                break;
+            } else if (s.hasBlackWon()) {
+                System.out.println("  --> Neri");
+                break;
+            } else if (schemi.contains(s.hashCode())) {
+                System.out.println("  --> Patta");
+                break;
+            }
+            schemi.add(s.hashCode());
+            turn++;
+        }
     }
 }

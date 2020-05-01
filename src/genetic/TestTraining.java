@@ -33,7 +33,7 @@ public class TestTraining {
     private static int limiteTurniSenzaPedineMangiate = 50;
     private static final int upperLimitWeight = 10;
     private static final int surplusIndividuals = 6;
-    private static final int randomSurplusIndividuals = 3;
+    private static final int randomSurplusIndividuals = 4;
     private static Random rndGen;
 
     public static void main(String[] args) {
@@ -43,9 +43,9 @@ public class TestTraining {
             switch (args[i]) {
                 case "--help":
                 case "-h": {
-                    System.out.println("Benvenuto a Narnia, amico");
+                    System.out.println("Sono Batman!");
                     System.out.println("tablut <options>");
-                    System.out.println("");
+                    System.out.println();
                     System.out.println("Opzioni:");
                     System.out.println("\t-h, --help:");
                     System.out.println("\t\tVisualizza questa guida");
@@ -401,8 +401,8 @@ public class TestTraining {
 
 
             //3.2 Applica eventuali mutazioni
-            int probMutazione = rndGen.nextInt(100);
-            if (probMutazione < TestTraining.probMutazione) {
+            int prob = rndGen.nextInt(100);
+            if (prob < probMutazione) {
                 for (int idx = 0; idx < Math.ceil((maxNumIndividui * probMutazione) / 100.0); idx++) {
                     //scegli a caso un individuo da mutare
                     int individuoDaMutare = rndGen.nextInt(newPopulation.size());
@@ -412,7 +412,7 @@ public class TestTraining {
                 }
             }
             //aggiorna il numero massimo di turni per fornire condizioni più stringenti
-            if (numGen % 20 == 0) {
+            if (numGen % 20 == 0 && numGen != 0) {
                 double turniMedio = population.stream().map(Individual::getMeanVictoriesTurnNumber).reduce(0.0, Double::sum) / population.size();
                 double turniMax = population.stream().map(Individual::getMeanVictoriesTurnNumber).max(Double::compare).orElse(-1.0);
 
@@ -458,8 +458,6 @@ public class TestTraining {
             accoppiamenti[i][1] = i % giocatori;
         }
 
-
-        rndGen.setSeed(System.currentTimeMillis());
         int a, b, temp;
         for (int i = 0; i < giocatori * 5; i++) {
             a = rndGen.nextInt(giocatori);
