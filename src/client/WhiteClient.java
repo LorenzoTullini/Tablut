@@ -10,10 +10,4 @@ public class WhiteClient extends Client{
         ntw = new Network(serverAddress, whitePort);
         aiPlayer(playerType);
     }
-
-    public static void runAsWhite() {
-        playerType = PlayerType.WHITE;
-        ntw = new Network(serverAddress, whitePort);
-        aiPlayer(playerType);
-    }
 }
