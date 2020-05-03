@@ -13,9 +13,9 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 1;
-    static int profonditaMax = 6;
-    static int profonditaMin = 6;
+    static int NUMERO_PARTITE = 3;
+    static int profonditaMax = 7;
+    static int profonditaMin = 3;
     static int timeoutSec = 55;
     ////////////////////////////////////////////////////////////
 
@@ -74,8 +74,10 @@ public class Test {
                 Set<Integer> schemi = new HashSet<>();
 
                 int turn = 0;
-                Minimax whiteMinimax = new Minimax(PlayerType.WHITE, profMax);
-                Minimax blackMinimax = new Minimax(PlayerType.BLACK, profMax);
+                double[] whiteWeight = {9.445331073776009, 8.670812658531949, 8.12921127090503, 1.8868417746983779, 8.637273420997074, 6.574100859946532, 7.716411965121014, 4.083149421565183, 4.970152789660535, 3.665129527693962};
+                double[] blackWeight = {5.414040062028535, 0.06408644334610303, 0.06859883511475595, 8.102063972782604, 1.7644592171299067, 0.6864202948751519, 6.680715182359252, 1.9847345796833815, 4.232931236749085, 2.598971847125399};
+                Minimax whiteMinimax = new Minimax(PlayerType.WHITE, profMax, whiteWeight);
+                Minimax blackMinimax = new Minimax(PlayerType.BLACK, profMax, blackWeight);
                 TimerThread tt;
 
                 schemi.add(s.hashCode());
@@ -93,7 +95,7 @@ public class Test {
                         timerScattatoBianchi++;
                     }
                     durataTurnoBianco.add((end - start) / 1000.0);
-                    System.out.println("[B | " + turn + "] " + whiteMove);
+//                    System.out.println("[B | " + turn + "] " + whiteMove);
                     s = s.performMove(whiteMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
@@ -125,7 +127,7 @@ public class Test {
                         timerScattatoNeri++;
                     }
                     durataTurnoNero.add((end - start) / 1000.0);
-                    System.out.println("[N | " + turn + "] " + blackMove);
+//                    System.out.println("[N | " + turn + "] " + blackMove);
                     s = s.performMove(blackMove);
                     if (s.hasWhiteWon()) {
                         vittorieBianchi++;
@@ -148,22 +150,22 @@ public class Test {
             }
             fineTest = System.currentTimeMillis();
             for (int i = 0; i < NUMERO_PARTITE; i++) {
-                System.out.printf("\b");
+                System.out.print("\b");
             }
             System.out.printf("Durata Test:      \t%.2f s%n", (fineTest - inizioTest) / 1000.0);
             System.out.printf("Vittorie Bianche: \t%d (%.2f%%)%n", vittorieBianchi, (100.0 * vittorieBianchi) / NUMERO_PARTITE);
             System.out.printf("Vittorie Neri:    \t%d (%.2f%%)%n", vittorieNeri, (100.0 * vittorieNeri) / NUMERO_PARTITE);
-            System.out.printf("Durata Turno Bianco  \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f\ttimer: %3d%n",
+            System.out.printf("Durata Turno Bianco  \tmed: %6.2f  |  max: %6.2f  |  min: %6.2f  |  timer: %3d%n",
                     durataTurnoBianco.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoBianco.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoBianco.stream().min(Double::compare).orElse(-1.0),
                     timerScattatoBianchi);
-            System.out.printf("Durata Turno Nero    \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f\ttimer: %3d%n",
+            System.out.printf("Durata Turno Nero    \tmed: %6.2f  |  max: %6.2f  |  min: %6.2f  |  timer: %3d%n",
                     durataTurnoNero.stream().reduce(0.0, Double::sum) / (1.0 * durataTurnoBianco.size()),
                     durataTurnoNero.stream().max(Double::compare).orElse(-1.0),
                     durataTurnoNero.stream().min(Double::compare).orElse(-1.0),
                     timerScattatoNeri);
-            System.out.printf("Numero turni         \tmed: %6.2f\tmax: %6.2f\tmin: %6.2f%n",
+            System.out.printf("Numero turni         \tmed: %6.2f  |  max: %6.2f  |  min: %6.2f%n",
                     numTurni.stream().reduce(0.0, Double::sum) / (1.0 * numTurni.size()),
                     numTurni.stream().max(Double::compare).orElse(-1.0),
                     numTurni.stream().min(Double::compare).orElse(-1.0));

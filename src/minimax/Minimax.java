@@ -13,8 +13,6 @@ import java.util.Set;
 
 public class Minimax {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
-    private static final int changeTurn = 0;
-    private static final double quiescenceFactor = 1;
 
     private int maxDepth;
     private final double[] weights;
@@ -76,7 +74,7 @@ public class Minimax {
         for (Move m : initialState.getAllMovesFor(myColour)) {
             //parte con il turno di min perché questo qua è già il turno di max
             TableState newState = initialState.performMove(m);
-            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta, 0, 0, 0);
+            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
 
             if (val > bestCost) {
                 res = m;
@@ -97,7 +95,7 @@ public class Minimax {
     }
 
     private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
-                                    int currentDepth, double alpha, double beta, double lastCost, double lastLastCost, double lastLastLastCost) {
+                                    int currentDepth, double alpha, double beta) {
         double bestCost;
         TableState newState;
         int currentHash = state.hashCode();
@@ -108,7 +106,6 @@ public class Minimax {
             alreadyVisitedStates.add(currentHash);
 
             Deque<Move> allPossibleMoves = state.getAllMovesFor((isMaxTurn) ? myColour : opponentColour);
-            double currentCost = myHeuristic.evaluate(state, currentDepth);
 
             /*
              * Condizioni di valutazione:
@@ -116,16 +113,9 @@ public class Minimax {
              *   - tempo scaduto
              *   - nessuna mossa disponiile
              *   - vittoria di uno dei due giocatori
-             *   - è stato raggiunto il turno limite e non ci sono state variazioni significative nel punteggio
-             *     per gli ultimi quattro turni (suppone di fermarsi ad una profondità pari o dispari a seconda
-             *     del fatto che la profondità massima sia pari o dispari per fornire una valutazione il più
-             *     coerente possibile)
              */
             if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() ||
-                    state.hasWhiteWon() || (turn >= changeTurn && currentDepth % 2 == maxDepth % 2 &&
-                    //Math.abs(lastLastLastCost - currentCost) < 1.2 * quiescenceFactor &&
-                    Math.abs(lastLastCost - currentCost) < 1.1 * quiescenceFactor &&
-                    Math.abs(lastCost - currentCost) < quiescenceFactor)) {
+                    state.hasWhiteWon()) {
                 //Raggiunto un nodo foglia
 
                 bestCost = isMaxTurn ?
@@ -141,7 +131,7 @@ public class Minimax {
 
                         bestCost = Math.max(bestCost,
                                 performAlphabeta(newState, timeManager, false, turn + 1,
-                                        currentDepth + 1, alpha, beta, currentCost, lastCost, lastLastCost));
+                                        currentDepth + 1, alpha, beta));
 
                         alpha = Math.max(alpha, bestCost);
                         if (alpha >= beta) {
@@ -156,7 +146,7 @@ public class Minimax {
 
                         bestCost = Math.min(bestCost,
                                 performAlphabeta(newState, timeManager, true, turn + 1,
-                                        currentDepth + 1, alpha, beta, currentCost, lastCost, lastLastCost));
+                                        currentDepth + 1, alpha, beta));
 
                         beta = Math.min(beta, bestCost);
                         if (alpha >= beta) {
