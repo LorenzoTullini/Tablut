@@ -27,21 +27,22 @@ public class Client implements Callable<Integer> {
     //protected static double[] weights = {4.70939710036113,8.731825529736884,7.257774900748454,7.221486991804536,4.6863836669851775,1.6587869381073184,5.070584122170242,3.0495995771240048,0.24045106209754752,8.70597677586224};
     //protected static double[] weights = {4.448338617446707,0.742233413226656,2.27705129510672,0.6185061255260171,6.719671599763579,4.896041045740383,6.835278141504425,0.45642664127451377,4.3449547688259695,3.9538584161218338};
     //protected static double[] weights = {4.33390619023233,5.298118218820553,8.58779261794399,2.9439039170482495,6.569481687056326,2.9158311744799525,7.580389872569201,8.175775867806239,8.630962464757433,4.245366951962528};
-    protected static double[] weights ={4.584377743927578,7.079483277270357,3.192965225478226,1.480581092631288,8.960026173394068,1.857562360010182,7.08287614389612,14.634985264738383,1.8401194488825734,4.030292506538813};
+    //protected static double[] weights ={4.584377743927578,7.079483277270357,3.192965225478226,1.480581092631288,8.960026173394068,1.857562360010182,7.08287614389612,14.634985264738383,1.8401194488825734,4.030292506538813};
     //protected static double[] weights = {7.609734594562109,8.123747815463352,3.431904481529693,5.407894927330962,2.5234346798602947,1.9179947349067827,3.9697450276791937,7.975120185285592,3.2507008402266866,8.187762207546722};
     //protected static double[] weights = {5.414040062028535,0.06408644334610303,0.06859883511475595,8.102063972782604,1.7644592171299067,0.6864202948751519,6.680715182359252,1.9847345796833815,4.232931236749085,2.598971847125399};
     //protected static double[] weights = {9.445331073776009,8.670812658531949,8.12921127090503,1.8868417746983779,8.637273420997074,6.574100859946532,7.716411965121014,4.083149421565183,4.970152789660535,3.665129527693962};
-    //protected static double[] weights = {9.389776654558158,0.10574026884115462,2.0755798976385176,4.403229726133028,3.571539782776829,0.12944669674123999,7.044605336888342,0.5114350076553287,3.7401740227408142,3.352876193998066};
-
-    @CommandLine.Parameters(index = "0", description = "color of ai player")
-    private String color;
-    protected static int deadline = 56;
+    protected static double[] weights = {9.389776654558158,0.10574026884115462,2.0755798976385176,4.403229726133028,3.571539782776829,0.12944669674123999,7.044605336888342,0.5114350076553287,3.7401740227408142,3.352876193998066};
+    //protected static double[] weights ={3.1301721620969025,9.16554180720929,3.9774668634507715,9.269123965711122,5.841269998856399,3.687072763859925,7.133994411268187,5.62716847375469,3.7401740227408142,3.352876193998066};
+    @CommandLine.Option(names = {"-c", "--color"}, required = true, description = "player color")
+    private String color = null;
+    @CommandLine.Option(names = {"-t", "--timer"}, required = true, description = "move max time")
+    protected static int timer = -1;
     @CommandLine.Option(names = {"-d", "--deapth"}, required = false, description = "max search deapth (default 5)")
     protected static int maxDepth = 5;
     protected static int whitePort = 5800;
     protected static int blackPort = 5801;
     private static int port = 0;
-    @CommandLine.Option(names = {"-s", "--serverIp"}, required = false, description = "game server ip (default localhost)")
+    @CommandLine.Option(names = {"-s", "--serverIp"}, required = true, description = "game server ip (default localhost)")
     protected static String serverAddress = "localhost";
     protected static String nome = "JavaBeneCosi";
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "print this help")
@@ -51,6 +52,7 @@ public class Client implements Callable<Integer> {
 
     public static void main(String... args) {
         int exitCode = new CommandLine(new Client()).execute(args);
+        if (exitCode != 0) System.exit(exitCode);
         ntw = new Network(serverAddress, port);
         aiPlayer(playerType);
         System.exit(exitCode);
@@ -63,6 +65,8 @@ public class Client implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         color = color.toLowerCase();
+        if (color == null) return -1;
+        if(timer == -1) return -1;
         if(color.equals("black")){
             playerType = PlayerType.BLACK;
             port = blackPort;
@@ -92,7 +96,8 @@ public class Client implements Callable<Integer> {
         Minimax minimax = new Minimax(playerType, maxDepth, weights);
 
         while(true) {
-            printVerbose("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()) + " turno: " + turn);
+            printVerbose("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()));
+            System.out.println("Turno: " + turn);
             //Controllo se lo stato ricevuto rappresenta una partita in corso
             if(serverState.haveIWin(playerType)){
                 System.out.println("Ho vinto !!");
@@ -107,7 +112,7 @@ public class Client implements Callable<Integer> {
 
             if(serverState.isMyTurn(playerType)){
                 timeManager = new TimeManager();
-                tt = new TimerThread(timeManager, deadline*1000);
+                tt = new TimerThread(timeManager, (timer-3)*1000);
 
                 tt.start();
                 Move bestMove = minimax.alphabeta(tableState, timeManager, turn);
