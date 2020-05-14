@@ -6,28 +6,30 @@ import model.PlayerType;
 import model.TableState;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.Semaphore;
 
 
-public class Minimax {
-    private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
-
+public class Minimax extends Thread {
     private int maxDepth;
     private final double[] weights;
 
     //L'avversario gioca sempre come min
     private final PlayerType myColour, opponentColour;
     private final IHeuristic myHeuristic, opponentHeuristic;
-    private final Set<Integer> alreadyVisitedStates;
-
-    public Minimax(PlayerType myColour, int maxDepth) {
-        this(myColour, maxDepth, defaultWeights);
-    }
-
+    private Set<Integer> alreadyVisitedStates;
+    private final Semaphore sem;
+    private final SearchStatus searchStatus;
+    private final int idx;
 
     public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
+        this(myColour, maxDepth, weights, null, 0, null);
+    }
+
+    public Minimax(PlayerType myColour, int maxDepth, double[] weights, Semaphore sem, int idx, SearchStatus status) {
+        this.sem = sem;
+        this.idx = idx;
+        this.searchStatus = status;
         this.weights = weights;
 
         //inizializzazione euristiche
@@ -63,35 +65,48 @@ public class Minimax {
     }
 
     public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        // Il primo livello va separato dagli altri perchè deve restituire una mossa e non un valore
-        Move res = null;
-        double bestCost = Double.NEGATIVE_INFINITY;
-        double val;
-        double alpha = Double.NEGATIVE_INFINITY, beta = Double.POSITIVE_INFINITY;
+        return null;
+    }
 
-        alreadyVisitedStates.add(initialState.hashCode());
-
-        for (Move m : initialState.getAllMovesFor(myColour)) {
-            //parte con il turno di min perché questo qua è già il turno di max
-            TableState newState = initialState.performMove(m);
-            val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
-
-            if (val > bestCost) {
-                res = m;
-                bestCost = val;
+    @Override
+    public void run() {
+        TableState initialState = null;
+        TimeManager timeManager = null;
+        int turn = 0;
+        while (true) {
+            try {
+                sem.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
-            alpha = Math.max(bestCost, alpha);
-        }
-        if (res != null) {
-            //Se siamo riusciti a fare una mossa
-            res.setCosto(bestCost);
-            alreadyVisitedStates.add(initialState.performMove(res).hashCode());
-        } else {
-            System.err.println("Nessuna mossa trovata");
-        }
+            if (searchStatus.isStop()) {
+                return;
+            }
+            //Ottieni le condizioni iniziali
+            initialState = searchStatus.getInitialState();
+            timeManager = searchStatus.getTimeManager();
+            turn = searchStatus.getTurn();
+            alreadyVisitedStates = new HashSet<>(searchStatus.getAlreadyVisitedStates());
 
-        return res;
+            // Il primo livello va separato dagli altri perchè deve restituire una mossa e non un valore
+            Move res = null;
+            double val;
+            double alpha = Double.NEGATIVE_INFINITY, beta = Double.POSITIVE_INFINITY;
+
+            List<Move> allMoves = (LinkedList<Move>) initialState.getAllMovesFor(myColour);
+            for (int i = idx; i < allMoves.size(); i += 4) {
+                //parte con il turno di min perché questo qua è già il turno di max
+                //System.out.println("Turno " + turn + "\t\tMossa " + i);
+                Move m = allMoves.get(i);
+                TableState newState = initialState.performMove(m);
+                val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
+
+                alpha = searchStatus.updateBestVal(val, m);
+            }
+
+            searchStatus.done();
+        }
     }
 
     private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
