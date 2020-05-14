@@ -11,10 +11,12 @@ import java.util.concurrent.Semaphore;
 public class SearchManager {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
 
-    private Thread[] workers;
+    private Minimax[] workers;
     private Semaphore sem, barrier;
 
     private SearchStatus status;
+
+    private boolean depthChanged = false;
 
     public SearchManager(PlayerType myColour, int maxDepth) {
         this(myColour, maxDepth, defaultWeights);
@@ -36,22 +38,34 @@ public class SearchManager {
     }
 
     public Move search(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        System.out.println("Turno " + turn);
+        //System.out.println("Turno " + turn);
         status.updateVisitedStates(initialState.hashCode());
         status.setInitialConditions(initialState, timeManager, turn);
         sem.release(4);
-        System.out.println("Lanciati Thread");
+        //System.out.println("Lanciati Thread");
 
         try {
             barrier.acquire();
-            System.out.println("Barriera oltrepassata");
+            //System.out.println("Barriera oltrepassata");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         Move bestMove = status.getBestMove();
-        status.updateVisitedStates(initialState.performMove(bestMove).hashCode());
-        status.reset();
+        if (bestMove != null) {
+            TableState newState = initialState.performMove(bestMove);
+            status.updateVisitedStates(newState.hashCode());
+            status.reset();
+
+            if (!depthChanged && newState.getBlackPiecesCount() < 8 && newState.getWhitePiecesCount() < 8) {
+                for (int i = 0; i < 4; i++) {
+                    workers[i].setMaxDepth(7);
+                }
+                depthChanged = true;
+                System.out.println("Profondità cambiata------------------------------------------");
+            }
+        }
+
         return bestMove;
     }
 

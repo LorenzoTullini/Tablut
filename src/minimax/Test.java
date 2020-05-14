@@ -13,9 +13,9 @@ import java.util.Set;
 public class Test {
     ////////////////////////////////////////////////////////////
     //parametri test
-    static int NUMERO_PARTITE = 1;
-    static int profonditaMax = 7;
-    static int profonditaMin = 7;
+    static int NUMERO_PARTITE = 10;
+    static int profonditaMax = 5;
+    static int profonditaMin = 5;
     static int timeoutSec = 57;
     ////////////////////////////////////////////////////////////
 
@@ -149,6 +149,9 @@ public class Test {
                     schemi.add(s.hashCode());
                     turn++;
                 }
+
+                whitePlayer.stop();
+                blackPlayer.stop();
             }
             fineTest = System.currentTimeMillis();
             for (int i = 0; i < NUMERO_PARTITE; i++) {

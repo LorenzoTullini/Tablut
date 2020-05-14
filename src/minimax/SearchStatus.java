@@ -81,7 +81,7 @@ public class SearchStatus {
 
     public synchronized void done() {
         done++;
-        System.out.println("Fatto!!");
+        //System.out.println("Fatto!!");
         if (done == 4) {
             barrier.release();
         }
