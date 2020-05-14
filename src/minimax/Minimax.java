@@ -22,10 +22,6 @@ public class Minimax extends Thread {
     private final SearchStatus searchStatus;
     private final int idx;
 
-    public Minimax(PlayerType myColour, int maxDepth, double[] weights) {
-        this(myColour, maxDepth, weights, null, 0, null);
-    }
-
     public Minimax(PlayerType myColour, int maxDepth, double[] weights, Semaphore sem, int idx, SearchStatus status) {
         this.sem = sem;
         this.idx = idx;
@@ -62,10 +58,6 @@ public class Minimax extends Thread {
 
     public void setMaxDepth(int newMaxDepth) {
         maxDepth = newMaxDepth;
-    }
-
-    public Move alphabeta(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        return null;
     }
 
     @Override
