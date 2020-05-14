@@ -1,6 +1,7 @@
 package client;
 
 import minimax.Minimax;
+import minimax.SearchManager;
 import model.Move;
 import model.PlayerType;
 import model.TableState;
@@ -93,7 +94,7 @@ public class Client implements Callable<Integer> {
         serverState.printStatus();
 
         int turn = 0;
-        Minimax minimax = new Minimax(playerType, maxDepth, weights);
+        SearchManager searchManager = new SearchManager(playerType, maxDepth, weights);
 
         while(true) {
             printVerbose("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()));
@@ -115,7 +116,7 @@ public class Client implements Callable<Integer> {
                 tt = new TimerThread(timeManager, (timer-3)*1000);
 
                 tt.start();
-                Move bestMove = minimax.alphabeta(tableState, timeManager, turn);
+                Move bestMove = searchManager.search(tableState, timeManager, turn);
                 tt.interrupt(); tt = null;
 
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
@@ -136,6 +137,7 @@ public class Client implements Callable<Integer> {
 
             turn+=1;
         }
+        searchManager.stop();
         ntw.distroyNetwork();
     }
     protected static void humanPlayer(PlayerType playerType){
