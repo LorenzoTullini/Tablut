@@ -57,7 +57,7 @@ public class SearchManager {
             status.updateVisitedStates(newState.hashCode());
             status.reset();
 
-            if (!depthChanged && newState.getBlackPiecesCount() < 8 && newState.getWhitePiecesCount() < 8) {
+            if (!depthChanged && newState.getBlackPiecesCount() < 4 && newState.getWhitePiecesCount() < 4) {
                 for (int i = 0; i < 4; i++) {
                     workers[i].setMaxDepth(7);
                 }
@@ -65,7 +65,6 @@ public class SearchManager {
                 System.out.println("Profondità cambiata------------------------------------------");
             }
         }
-
         return bestMove;
     }
 
