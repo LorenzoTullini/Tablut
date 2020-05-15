@@ -1,6 +1,6 @@
 package genetic;
 
-import minimax.Minimax;
+import minimax.SearchManager;
 import model.PlayerType;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 public class Individual implements Comparator, Comparable {
     private int victories, losses, capturedPawns, lostPawns, totalVictoriesTurnNumber, totalLossesTurnNumber, matchPlayed;
-    private Minimax player;
+    private SearchManager player;
     private double[] weigths;
     private int maxDepth;
 
@@ -26,7 +26,7 @@ public class Individual implements Comparator, Comparable {
     }
 
     void prepareForNewMatch(PlayerType colour) {
-        player = new Minimax(colour, maxDepth, weigths);
+        player = new SearchManager(colour, maxDepth, weigths);
     }
 
     public int getVictories() {
@@ -102,7 +102,7 @@ public class Individual implements Comparator, Comparable {
         matchPlayed++;
     }
 
-    public Minimax getPlayer() {
+    public SearchManager getPlayer() {
         return player;
     }
 

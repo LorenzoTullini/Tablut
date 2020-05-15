@@ -38,15 +38,15 @@ public class SearchManager {
     }
 
     public Move search(@NotNull TableState initialState, TimeManager timeManager, int turn) {
-        //System.out.println("Turno " + turn);
+        //System.out.println("--> Turno: " + turn);
         status.updateVisitedStates(initialState.hashCode());
         status.setInitialConditions(initialState, timeManager, turn);
         sem.release(4);
-        //System.out.println("Lanciati Thread");
+        //System.out.println("--> Ricerca iniziata");
 
         try {
             barrier.acquire();
-            //System.out.println("Barriera oltrepassata");
+            //System.out.println("--> Dati acquisiti");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -62,7 +62,7 @@ public class SearchManager {
                     workers[i].setMaxDepth(7);
                 }
                 depthChanged = true;
-                System.out.println("Profondità cambiata------------------------------------------");
+                //System.out.println("--> Profondità cambiata");
             }
         }
         return bestMove;
@@ -75,7 +75,6 @@ public class SearchManager {
         }
 
         for (int i = 0; i < 4; i++) {
-
             try {
                 workers[i].join();
             } catch (InterruptedException e) {

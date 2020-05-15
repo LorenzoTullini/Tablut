@@ -75,6 +75,7 @@ public class Minimax extends Thread {
             if (searchStatus.isStop()) {
                 return;
             }
+
             //Ottieni le condizioni iniziali
             initialState = searchStatus.getInitialState();
             timeManager = searchStatus.getTimeManager();
@@ -89,7 +90,6 @@ public class Minimax extends Thread {
             List<Move> allMoves = (LinkedList<Move>) initialState.getAllMovesFor(myColour);
             for (int i = idx; i < allMoves.size(); i += 4) {
                 //parte con il turno di min perché questo qua è già il turno di max
-                //System.out.println("Turno " + turn + "\t\tMossa " + i);
                 Move m = allMoves.get(i);
                 TableState newState = initialState.performMove(m);
                 val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
