@@ -3,7 +3,7 @@ package genetic;
 import client.TimeManager;
 import client.TimerThread;
 import com.google.gson.Gson;
-import minimax.Minimax;
+import minimax.SearchManager;
 import model.PlayerType;
 import model.TableState;
 import org.jetbrains.annotations.NotNull;
@@ -495,8 +495,8 @@ public class TestTraining {
     private static void gioca(Individual whiteInd, Individual blackInd) {
         whiteInd.prepareForNewMatch(PlayerType.WHITE);
         blackInd.prepareForNewMatch(PlayerType.BLACK);
-        Minimax whiteMinimax = whiteInd.getPlayer();
-        Minimax blackMinimax = blackInd.getPlayer();
+        SearchManager whitePlayer = whiteInd.getPlayer();
+        SearchManager blackPlayer = blackInd.getPlayer();
 
         int lastEatTurn = 0;
         int lastWhiteCount = 9;
@@ -514,7 +514,7 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var whiteMove = whiteMinimax.alphabeta(s, timeManager, turn);
+            var whiteMove = whitePlayer.search(s, timeManager, turn);
 //            var whiteMove = whiteMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (whiteMove != null) {
@@ -541,7 +541,7 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var blackMove = blackMinimax.alphabeta(s, timeManager, turn);
+            var blackMove = blackPlayer.search(s, timeManager, turn);
 //            var blackMove = blackMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (blackMove != null) {
@@ -577,6 +577,9 @@ public class TestTraining {
                 break;
             }
         }
+
+        whitePlayer.stop();
+        blackPlayer.stop();
     }
 
     private static void vittoriaBianco(Individual whiteInd, Individual blackInd, TableState s, int turn) {
