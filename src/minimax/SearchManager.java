@@ -17,19 +17,27 @@ public class SearchManager {
     private SearchStatus status;
 
     private boolean depthChanged = false;
+    private int threadNumber;
 
     public SearchManager(PlayerType myColour, int maxDepth) {
         this(myColour, maxDepth, defaultWeights);
     }
 
     public SearchManager(PlayerType myColour, int maxDepth, double[] weights) {
+        this(myColour, maxDepth, weights, Runtime.getRuntime().availableProcessors());
+    }
+
+
+    public SearchManager(PlayerType myColour, int maxDepth, double[] weights, int threadNumber) {
+        this.threadNumber = threadNumber;
+
         barrier = new Semaphore(0);
         sem = new Semaphore(0);
 
         status = new SearchStatus(barrier);
-        workers = new Minimax[4];
+        workers = new Minimax[threadNumber];
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             workers[i] = new Minimax(myColour, maxDepth, weights, sem, i, status);
             workers[i].start();
         }
@@ -41,14 +49,14 @@ public class SearchManager {
         //System.out.println("--> Turno: " + turn);
         status.updateVisitedStates(initialState.hashCode());
         status.setInitialConditions(initialState, timeManager, turn);
-        sem.release(4);
+        sem.release(threadNumber);
         //System.out.println("--> Ricerca iniziata");
 
         try {
             barrier.acquire();
             //System.out.println("--> Dati acquisiti");
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.err.println("Il manager è stato interrotto durante l'attesa del completamento della ricerca");
         }
 
         Move bestMove = status.getBestMove();
@@ -57,8 +65,8 @@ public class SearchManager {
             status.updateVisitedStates(newState.hashCode());
             status.reset();
 
-            if (!depthChanged && newState.getBlackPiecesCount() < 4 && newState.getWhitePiecesCount() < 4) {
-                for (int i = 0; i < 4; i++) {
+            if (!depthChanged && (newState.getBlackPiecesCount() + newState.getWhitePiecesCount() < 8)) {
+                for (int i = 0; i < threadNumber; i++) {
                     workers[i].setMaxDepth(7);
                 }
                 depthChanged = true;
@@ -70,15 +78,13 @@ public class SearchManager {
 
     public void stop() {
         status.setStop(true);
-        for (int i = 0; i < 4; i++) {
-            sem.release(4);
-        }
+        sem.release(threadNumber);
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < threadNumber; i++) {
             try {
                 workers[i].join();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("Il manager è stato interrotto durante l'attesa degli altri thread");
             }
 
         }

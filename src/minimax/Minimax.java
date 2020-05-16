@@ -55,11 +55,6 @@ public class Minimax extends Thread {
         this.alreadyVisitedStates = new HashSet<>();
     }
 
-
-    public void setMaxDepth(int newMaxDepth) {
-        maxDepth = newMaxDepth;
-    }
-
     @Override
     public void run() {
         TableState initialState = null;
@@ -69,7 +64,7 @@ public class Minimax extends Thread {
             try {
                 sem.acquire();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("Thread interroto durante l'attesa di un nuovo turno");
             }
 
             if (searchStatus.isStop()) {
@@ -167,6 +162,10 @@ public class Minimax extends Thread {
         }
 
         return bestCost;
+    }
+
+    public void setMaxDepth(int newMaxDepth) {
+        maxDepth = newMaxDepth;
     }
 
     public double[] getWeights() {
