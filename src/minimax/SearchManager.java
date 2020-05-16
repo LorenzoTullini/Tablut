@@ -65,7 +65,7 @@ public class SearchManager {
             status.updateVisitedStates(newState.hashCode());
             status.reset();
 
-            if (!depthChanged && (newState.getBlackPiecesCount() + newState.getWhitePiecesCount() < 8)) {
+            if (!depthChanged && newState.getBlackPiecesCount() < 4 && newState.getWhitePiecesCount() < 4) {
                 for (int i = 0; i < threadNumber; i++) {
                     workers[i].setMaxDepth(7);
                 }
