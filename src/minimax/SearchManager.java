@@ -79,8 +79,7 @@ public class SearchManager {
                 }
                 currentDepth += 2;
             } else {
-                System.out.println("--> Tempo scaduto");
-                System.out.println("--> Uso la mossa trovata precedentemente: " + bestMove);
+                System.out.println("--> Tempo scaduto. Uso la mossa trovata precedentemente");
             }
         } while (!timeManager.isEnd() && bestMove != null);
 

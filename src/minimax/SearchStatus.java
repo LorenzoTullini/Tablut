@@ -91,8 +91,7 @@ class SearchStatus {
             barrier.release();
 
             orderedMoves.sort((m1, m2) -> Double.compare(m2.getCosto(), m1.getCosto()));
-
-            allMoves = orderedMoves;
+            allMoves = new LinkedList<>(orderedMoves.subList(0, orderedMoves.size() / 2));
         }
     }
 
