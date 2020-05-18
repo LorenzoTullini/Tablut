@@ -5,18 +5,21 @@ import model.Move;
 import model.TableState;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
-public class SearchStatus {
+class SearchStatus {
     private double alpha, bestVal;
     private Move bestMove;
     private boolean stop;
     private final Set<Integer> alreadyVisitedStates;
-    private Semaphore barrier;
+    private final Semaphore barrier;
     private int done;
 
+    private LinkedList<Move> allMoves;
+    private LinkedList<Move> orderedMoves;
     private TableState initialState;
     private TimeManager timeManager;
     private int turn;
@@ -30,6 +33,7 @@ public class SearchStatus {
         alreadyVisitedStates = new HashSet<>();
         barrier = b;
         done = 0;
+        orderedMoves = new LinkedList<>();
     }
 
     public double getAlpha() {
@@ -44,9 +48,10 @@ public class SearchStatus {
         if (val > bestVal) {
             bestVal = val;
             bestMove = move;
-            bestMove.setCosto(bestVal);
             alpha = Math.max(alpha, bestVal);
         }
+
+        orderedMoves.add(move);
 
         return alpha;
     }
@@ -84,6 +89,10 @@ public class SearchStatus {
         //System.out.println("Fatto!!");
         if (done == 4) {
             barrier.release();
+
+            orderedMoves.sort((m1, m2) -> Double.compare(m2.getCosto(), m1.getCosto()));
+
+            allMoves = orderedMoves;
         }
     }
 
@@ -94,10 +103,15 @@ public class SearchStatus {
         done = 0;
     }
 
-    public void setInitialConditions(TableState initialState, TimeManager timeManager, int turn) {
-        this.initialState = initialState;
+    public void setInitialConditions(LinkedList<Move> moves, TableState state, TimeManager timeManager) {
+        this.initialState = state;
+        this.allMoves = moves;
         this.timeManager = timeManager;
-        this.turn = turn;
+        orderedMoves = new LinkedList<>();
+    }
+
+    public LinkedList<Move> getMoves() {
+        return allMoves;
     }
 
     public TableState getInitialState() {
@@ -106,9 +120,5 @@ public class SearchStatus {
 
     public TimeManager getTimeManager() {
         return timeManager;
-    }
-
-    public int getTurn() {
-        return turn;
     }
 }

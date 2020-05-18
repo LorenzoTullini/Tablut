@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 
-public class Individual implements Comparator, Comparable {
+class Individual implements Comparator<Individual>, Comparable<Individual> {
     private int victories, losses, capturedPawns, lostPawns, totalVictoriesTurnNumber, totalLossesTurnNumber, matchPlayed;
     private SearchManager player;
     private double[] weigths;
@@ -119,56 +119,50 @@ public class Individual implements Comparator, Comparable {
     }
 
     @Override
-    public int compare(Object o, Object t1) {
+    public int compare(Individual a, Individual b) {
         //Prima vengono gli individui più forti
-        if (o instanceof Individual && t1 instanceof Individual) {
-            Individual a = (Individual) o;
-            Individual b = (Individual) t1;
-
-            //vengono prima gli individui che vincono di più ed in meno mosse
-            if (a.victories > b.victories) {
+        //vengono prima gli individui che vincono di più ed in meno mosse
+        if (a.victories > b.victories) {
+            return -1;
+        } else if (a.victories < b.victories) {
+            return 1;
+        } else {
+            if (a.losses < b.losses) {
                 return -1;
-            } else if (a.victories < b.victories) {
+            } else if (a.losses > b.losses) {
                 return 1;
             } else {
-                if (a.losses < b.losses) {
+                if (a.victories > 0 && (a.totalVictoriesTurnNumber / a.victories < b.totalVictoriesTurnNumber / b.victories)) {
                     return -1;
-                } else if (a.losses > b.losses) {
+                } else if (a.victories > 0 && (a.totalVictoriesTurnNumber / a.victories > b.totalVictoriesTurnNumber / b.victories)) {
                     return 1;
                 } else {
-                    if (a.victories > 0 && (a.totalVictoriesTurnNumber / a.victories < b.totalVictoriesTurnNumber / b.victories)) {
+                    if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses > b.totalLossesTurnNumber / b.losses)) {
                         return -1;
-                    } else if (a.victories > 0 && (a.totalVictoriesTurnNumber / a.victories > b.totalVictoriesTurnNumber / b.victories)) {
+                    } else if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses < b.totalLossesTurnNumber / b.losses)) {
                         return 1;
                     } else {
-                        if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses > b.totalLossesTurnNumber / b.losses)) {
+                        if (a.capturedPawns / ((double) a.matchPlayed) > b.capturedPawns / ((double) b.matchPlayed)) {
                             return -1;
-                        } else if (a.losses > 0 && (a.totalLossesTurnNumber / a.losses < b.totalLossesTurnNumber / b.losses)) {
+                        } else if (a.capturedPawns / ((double) a.matchPlayed) < b.capturedPawns / ((double) b.matchPlayed)) {
                             return 1;
                         } else {
-                            if (a.capturedPawns / ((double) a.matchPlayed) > b.capturedPawns / ((double) b.matchPlayed)) {
+                            if (a.lostPawns / ((double) a.matchPlayed) < b.lostPawns / ((double) b.matchPlayed)) {
                                 return -1;
-                            } else if (a.capturedPawns / ((double) a.matchPlayed) < b.capturedPawns / ((double) b.matchPlayed)) {
+                            } else if (a.lostPawns / ((double) a.matchPlayed) > b.lostPawns / ((double) b.matchPlayed)) {
                                 return 1;
                             } else {
-                                if (a.lostPawns / ((double) a.matchPlayed) < b.lostPawns / ((double) b.matchPlayed)) {
-                                    return -1;
-                                } else if (a.lostPawns / ((double) a.matchPlayed) > b.lostPawns / ((double) b.matchPlayed)) {
-                                    return 1;
-                                } else {
-                                    return 0;
-                                }
+                                return 0;
                             }
                         }
                     }
                 }
             }
         }
-        return 0;
     }
 
     @Override
-    public int compareTo(@NotNull Object o) {
+    public int compareTo(@NotNull Individual o) {
         return compare(this, o);
     }
 }

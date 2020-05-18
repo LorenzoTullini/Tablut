@@ -89,7 +89,7 @@ public class Test {
                     tt = new TimerThread(timeManager, timeoutSec * 1000);
                     tt.start();
                     start = System.currentTimeMillis();
-                    var whiteMove = whitePlayer.search(s, timeManager, turn);
+                    var whiteMove = whitePlayer.search(s, timeManager);
                     //System.out.println(whiteMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();
@@ -121,7 +121,7 @@ public class Test {
                     tt = new TimerThread(timeManager, timeoutSec * 1000);
                     tt.start();
                     start = System.currentTimeMillis();
-                    var blackMove = blackPlayer.search(s, timeManager, turn);
+                    var blackMove = blackPlayer.search(s, timeManager);
                     //System.out.println(blackMove);
                     end = System.currentTimeMillis();
                     tt.interrupt();

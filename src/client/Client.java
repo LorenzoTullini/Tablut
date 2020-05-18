@@ -1,6 +1,6 @@
 package client;
 
-import minimax.Minimax;
+
 import minimax.SearchManager;
 import model.Move;
 import model.PlayerType;
@@ -27,9 +27,9 @@ public class Client implements Callable<Integer> {
     //protected static double[] weights = {8.021916181985366,1.0069419102736366,7.975680540770171,0.25510797785825434,5.093328241658882,4.729064241052356,4.171856197640489,2.041449275011095,8.590423109877092,1.6352226689530092};
     //protected static double[] weights = {4.70939710036113,8.731825529736884,7.257774900748454,7.221486991804536,4.6863836669851775,1.6587869381073184,5.070584122170242,3.0495995771240048,0.24045106209754752,8.70597677586224};
     //protected static double[] weights = {4.448338617446707,0.742233413226656,2.27705129510672,0.6185061255260171,6.719671599763579,4.896041045740383,6.835278141504425,0.45642664127451377,4.3449547688259695,3.9538584161218338};
-    protected static double[] weightsWhite = {4.33390619023233,5.298118218820553,8.58779261794399,2.9439039170482495,6.569481687056326,2.9158311744799525,7.580389872569201,8.175775867806239,8.630962464757433,4.245366951962528};
+    protected static double[] weightsWhite = {4.33390619023233, 5.298118218820553, 8.58779261794399, 2.9439039170482495, 6.569481687056326, 2.9158311744799525, 7.580389872569201, 8.175775867806239, 8.630962464757433, 4.245366951962528};
     //protected static double[] weights ={4.584377743927578,7.079483277270357,3.192965225478226,1.480581092631288,8.960026173394068,1.857562360010182,7.08287614389612,14.634985264738383,1.8401194488825734,4.030292506538813};
-    protected static double[] weightsBlack = {7.609734594562109,8.123747815463352,3.431904481529693,5.407894927330962,2.5234346798602947,1.9179947349067827,3.9697450276791937,7.975120185285592,3.2507008402266866,8.187762207546722};
+    protected static double[] weightsBlack = {7.609734594562109, 8.123747815463352, 3.431904481529693, 5.407894927330962, 2.5234346798602947, 1.9179947349067827, 3.9697450276791937, 7.975120185285592, 3.2507008402266866, 8.187762207546722};
     //protected static double[] weightsBlack = {5.414040062028535,0.06408644334610303,0.06859883511475595,8.102063972782604,1.7644592171299067,0.6864202948751519,6.680715182359252,1.9847345796833815,4.232931236749085,2.598971847125399};
     //protected static double[] weights = {9.445331073776009,8.670812658531949,8.12921127090503,1.8868417746983779,8.637273420997074,6.574100859946532,7.716411965121014,4.083149421565183,4.970152789660535,3.665129527693962};
     //protected static double[] weightsBlack = {9.389776654558158,0.10574026884115462,2.0755798976385176,4.403229726133028,3.571539782776829,0.12944669674123999,7.044605336888342,0.5114350076553287,3.7401740227408142,3.352876193998066};
@@ -61,38 +61,38 @@ public class Client implements Callable<Integer> {
         System.exit(exitCode);
     }
 
-    private static void printVerbose(String out){
-        if(verbose) System.out.println(out);
+    private static void printVerbose(String out) {
+        if (verbose) System.out.println(out);
     }
 
     @Override
     public Integer call() throws Exception {
         color = color.toLowerCase();
         if (color == null) return -1;
-        if(timer == -1) return -1;
-        if(color.equals("black")){
+        if (timer == -1) return -1;
+        if (color.equals("black")) {
             playerType = PlayerType.BLACK;
             port = blackPort;
-        }else if(color.equals("white")){
+        } else if (color.equals("white")) {
             playerType = PlayerType.WHITE;
             port = whitePort;
-        }else{
-            System.err.println("Player: "+color+" is not valid (black/white)");
+        } else {
+            System.err.println("Player: " + color + " is not valid (black/white)");
             CommandLine.usage(this, System.err);
             return -1;
         }
         return 0;
     }
 
-    protected static void aiPlayer(PlayerType playerType){
-        if(playerType.equals(PlayerType.BLACK)) weights = weightsBlack;
+    protected static void aiPlayer(PlayerType playerType) {
+        if (playerType.equals(PlayerType.BLACK)) weights = weightsBlack;
         else weights = weightsWhite;
         ntw.sendPlayerName(nome);
         String stateJson;
 
         //Ricevo stato iniziale
         stateJson = ntw.getState();
-        ServerState serverState =new ServerState(stateJson);
+        ServerState serverState = new ServerState(stateJson);
         TableState tableState = serverState.getTableState();
         System.out.println("STATO INIZIALE: ");
         serverState.printStatus();
@@ -100,35 +100,36 @@ public class Client implements Callable<Integer> {
         int turn = 0;
         SearchManager searchManager = new SearchManager(playerType, maxDepth, weights);
 
-        while(true) {
+        while (true) {
             printVerbose("Hashcode dello stato: " + Arrays.deepHashCode(tableState.getState()));
             System.out.println("Turno: " + turn);
             //Controllo se lo stato ricevuto rappresenta una partita in corso
-            if(serverState.haveIWin(playerType)){
+            if (serverState.haveIWin(playerType)) {
                 System.out.println("Ho vinto !!");
                 break;
-            }else if(serverState.haveILost(playerType)){
+            } else if (serverState.haveILost(playerType)) {
                 System.out.println("Ho perso !!");
                 break;
-            }else if(serverState.isDraw()){
+            } else if (serverState.isDraw()) {
                 System.out.println("Partita terminata in pareggio");
                 break;
             }
 
-            if(serverState.isMyTurn(playerType)){
+            if (serverState.isMyTurn(playerType)) {
                 timeManager = new TimeManager();
-                tt = new TimerThread(timeManager, (timer-3)*1000);
+                tt = new TimerThread(timeManager, (timer - 3) * 1000);
 
                 tt.start();
-                Move bestMove = searchManager.search(tableState, timeManager, turn);
-                tt.interrupt(); tt = null;
+                Move bestMove = searchManager.search(tableState, timeManager);
+                tt.interrupt();
+                tt = null;
 
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 printVerbose("Ho trovato la mossa (My): " + bestMove.toString());
 
                 ntw.sendMove(Converter.covertMove(bestMove, playerType));
-            }else{
+            } else {
                 System.out.println("Attendo la mossa dell'avversario:");
             }
 
@@ -139,33 +140,34 @@ public class Client implements Callable<Integer> {
             System.out.println("NUOVO STATO: ");
             serverState.printStatus();
 
-            turn+=1;
+            turn += 1;
         }
         searchManager.stop();
         ntw.distroyNetwork();
     }
-    protected static void humanPlayer(PlayerType playerType){
+
+    protected static void humanPlayer(PlayerType playerType) {
         ntw.sendPlayerName(nome);
         String stateJson;
 
         //Ricevo stato iniziale
         stateJson = ntw.getState();
-        ServerState serverState =new ServerState(stateJson);
+        ServerState serverState = new ServerState(stateJson);
         TableState tableState = serverState.getTableState();
         System.out.println(tableState.toString());
         int turn = 0;
 
-        while(true) {
+        while (true) {
             //Controllo se lo stato ricevuto rappresenta una partita in corso
-            if(serverState.haveIWin(playerType)){
+            if (serverState.haveIWin(playerType)) {
                 System.out.println("Ho vinto !!");
                 break;
-            }else if(serverState.haveILost(playerType)){
+            } else if (serverState.haveILost(playerType)) {
                 System.out.println("Ho perso !!");
                 break;
             }
 
-            if(serverState.isMyTurn(playerType)){
+            if (serverState.isMyTurn(playerType)) {
                 System.out.print("Scegli pedina: ");
                 Scanner scanner = new Scanner(System.in);
                 String from = scanner.nextLine();
@@ -174,7 +176,7 @@ public class Client implements Callable<Integer> {
 
                 ServerMove serverMove = new ServerMove(from, to, Converter.typeConverter(playerType));
                 ntw.sendMove(serverMove);
-            }else{
+            } else {
                 System.out.println("Attendo la mossa dell'avversario:");
             }
 

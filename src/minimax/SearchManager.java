@@ -11,13 +11,15 @@ import java.util.concurrent.Semaphore;
 public class SearchManager {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
 
-    private Minimax[] workers;
-    private Semaphore sem, barrier;
+    private final Minimax[] workers;
+    private final Semaphore sem;
+    private final Semaphore barrier;
 
-    private SearchStatus status;
+    private final SearchStatus status;
 
-    private boolean depthChanged = false;
-    private int threadNumber;
+    private final int threadNumber;
+    private final int maxDepth;
+    private final PlayerType myColour;
 
     public SearchManager(PlayerType myColour, int maxDepth) {
         this(myColour, maxDepth, defaultWeights);
@@ -30,6 +32,8 @@ public class SearchManager {
 
     public SearchManager(PlayerType myColour, int maxDepth, double[] weights, int threadNumber) {
         this.threadNumber = threadNumber;
+        this.myColour = myColour;
+        this.maxDepth = maxDepth;
 
         barrier = new Semaphore(0);
         sem = new Semaphore(0);
@@ -45,34 +49,50 @@ public class SearchManager {
         status.reset();
     }
 
-    public Move search(@NotNull TableState initialState, TimeManager timeManager, int turn) {
+    public Move search(@NotNull TableState initialState, TimeManager timeManager) {
         //System.out.println("--> Turno: " + turn);
         status.updateVisitedStates(initialState.hashCode());
-        status.setInitialConditions(initialState, timeManager, turn);
-        sem.release(threadNumber);
-        //System.out.println("--> Ricerca iniziata");
+        status.setInitialConditions(initialState.getAllMovesFor(myColour), initialState, timeManager);
 
-        try {
-            barrier.acquire();
-            //System.out.println("--> Dati acquisiti");
-        } catch (InterruptedException e) {
-            System.err.println("Il manager è stato interrotto durante l'attesa del completamento della ricerca");
+        Move bestMove = null;
+        int currentDepth = maxDepth;
+
+        do {
+            System.out.println("--> Inizio ricerca a profondità " + currentDepth);
+            status.reset();
+            sem.release(threadNumber);
+            System.out.println("--> --> Ricerca iniziata");
+
+            try {
+                barrier.acquire();
+                System.out.println("--> --> Dati acquisiti");
+            } catch (InterruptedException e) {
+                System.err.println("--> --> Il manager è stato interrotto durante l'attesa del completamento della ricerca");
+            }
+
+            if (bestMove == null || !timeManager.isEnd()) {
+                bestMove = status.getBestMove();
+                System.out.println("--> Trovata nuova mossa: " + bestMove);
+
+                for (int i = 0; i < threadNumber; i++) {
+                    workers[i].setMaxDepth(currentDepth + 2);
+                }
+                currentDepth += 2;
+            } else {
+                System.out.println("--> Tempo scaduto");
+                System.out.println("--> Uso la mossa trovata precedentemente: " + bestMove);
+            }
+        } while (!timeManager.isEnd() && bestMove != null);
+
+        for (int i = 0; i < threadNumber; i++) {
+            workers[i].setMaxDepth(maxDepth);
         }
 
-        Move bestMove = status.getBestMove();
         if (bestMove != null) {
             TableState newState = initialState.performMove(bestMove);
             status.updateVisitedStates(newState.hashCode());
-            status.reset();
-
-            if (!depthChanged && newState.getBlackPiecesCount() < 4 && newState.getWhitePiecesCount() < 4) {
-                for (int i = 0; i < threadNumber; i++) {
-                    workers[i].setMaxDepth(7);
-                }
-                depthChanged = true;
-                //System.out.println("--> Profondità cambiata");
-            }
         }
+
         return bestMove;
     }
 
@@ -84,7 +104,7 @@ public class SearchManager {
             try {
                 workers[i].join();
             } catch (InterruptedException e) {
-                System.err.println("Il manager è stato interrotto durante l'attesa degli altri thread");
+                System.err.println("--> Il manager è stato interrotto durante l'attesa degli altri thread");
             }
 
         }
