@@ -53,7 +53,6 @@ public class Client implements Callable<Integer> {
     private static boolean verbose = false;
 
     public static void main(String... args) {
-        System.out.println("JavaBeneCosì v 1.0");
         int exitCode = new CommandLine(new Client()).execute(args);
         if (exitCode != 0) System.exit(exitCode);
         ntw = new Network(serverAddress, port);
@@ -125,6 +124,10 @@ public class Client implements Callable<Integer> {
                 tt = null;
 
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
+                if (serverMove == null){
+                    System.out.println("Ho perso !!");
+                    break;
+                }
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 printVerbose("Ho trovato la mossa (My): " + bestMove.toString());
 
