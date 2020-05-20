@@ -125,22 +125,25 @@ public class Client implements Callable<Integer> {
                 Move bestMove = null;
                 try {
                     bestMove = searchManager.search(tableState, timeManager);
-                } catch (InterruptedException e) {
                     tt.interrupt();
                     tt = null;
+                } catch (InterruptedException e) {
+                    if (tt != null && !tt.isInterrupted()) {
+                        tt.interrupt();
+                        tt = null;
+                    }
                     searchManager.stop();
                     searchManager = new SearchManager(playerType, maxDepth, weights);
                     searchManager.setStatus(searchStatus);
                     bestMove = searchStatus.getBestMove();
-                    if (bestMove == null){
-                        bestMove = tableState.getAllMovesFor(playerType).get(0);
+                    if (bestMove == null) {
+                        var allMoves = tableState.getAllMovesFor(playerType);
+                        bestMove = (allMoves.isEmpty()) ? null : allMoves.get(0);
                     }
                 }
-                tt.interrupt();
-                tt = null;
 
                 ServerMove serverMove = Converter.covertMove(bestMove, playerType);
-                if (serverMove == null){
+                if (serverMove == null) {
                     System.out.println("Ho perso !!");
                     break;
                 }
