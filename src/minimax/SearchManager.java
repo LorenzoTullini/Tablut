@@ -32,7 +32,7 @@ public class SearchManager {
     }
 
 
-    public SearchManager(PlayerType myColour, int maxDepth, double[] weights, int threadNumber) {
+    public SearchManager(@NotNull PlayerType myColour, int maxDepth, double[] weights, int threadNumber) {
         if (threadNumber <= 0) {
             throw new IllegalArgumentException("Numero di thread non valido");
         }
@@ -56,7 +56,7 @@ public class SearchManager {
         status.reset();
     }
 
-    public Move search(@NotNull TableState initialState, TimeManager timeManager) throws InterruptedException {
+    public Move search(@NotNull TableState initialState, @NotNull TimeManager timeManager) throws InterruptedException {
         //System.out.println("--> Turno: " + turn);
         status.updateVisitedStates(initialState.hashCode());
         status.setInitialConditions(initialState.getAllMovesFor(myColour), initialState, timeManager);
