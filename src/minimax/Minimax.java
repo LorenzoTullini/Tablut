@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.Semaphore;
 
 
-public class Minimax extends Thread {
+class Minimax extends Thread {
     private int maxDepth;
     private final double[] weights;
 
@@ -55,22 +55,19 @@ public class Minimax extends Thread {
         this.alreadyVisitedStates = new HashSet<>();
     }
 
-
-    public void setMaxDepth(int newMaxDepth) {
-        maxDepth = newMaxDepth;
-    }
-
     @Override
     public void run() {
+        List<Move> allMoves = null;
         TableState initialState = null;
         TimeManager timeManager = null;
-        int turn = 0;
         while (true) {
             try {
                 sem.acquire();
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.out.println("--> --> --> Thread interroto durante l'attesa di un nuovo turno");
             }
+
+            //System.out.println("--> --> Thread " + Thread.currentThread().getId() + " iniziata ricerca");
 
             if (searchStatus.isStop()) {
                 return;
@@ -78,8 +75,8 @@ public class Minimax extends Thread {
 
             //Ottieni le condizioni iniziali
             initialState = searchStatus.getInitialState();
+            allMoves = searchStatus.getMoves();
             timeManager = searchStatus.getTimeManager();
-            turn = searchStatus.getTurn();
             alreadyVisitedStates = new HashSet<>(searchStatus.getAlreadyVisitedStates());
 
             // Il primo livello va separato dagli altri perchè deve restituire una mossa e non un valore
@@ -87,21 +84,21 @@ public class Minimax extends Thread {
             double val;
             double alpha = Double.NEGATIVE_INFINITY, beta = Double.POSITIVE_INFINITY;
 
-            List<Move> allMoves = (LinkedList<Move>) initialState.getAllMovesFor(myColour);
             for (int i = idx; i < allMoves.size(); i += 4) {
                 //parte con il turno di min perché questo qua è già il turno di max
                 Move m = allMoves.get(i);
                 TableState newState = initialState.performMove(m);
-                val = performAlphabeta(newState, timeManager, false, turn + 1, 1, alpha, beta);
-
+                val = performAlphabeta(newState, timeManager, false, 1, alpha, beta);
+                m.setCosto(val);
                 alpha = searchStatus.updateBestVal(val, m);
             }
 
             searchStatus.done();
+            //System.out.println("--> --> Thread " + Thread.currentThread().getId() + " fine ricerca");
         }
     }
 
-    private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn, int turn,
+    private double performAlphabeta(@NotNull TableState state, TimeManager timeManager, boolean isMaxTurn,
                                     int currentDepth, double alpha, double beta) {
         double bestCost;
         TableState newState;
@@ -124,7 +121,6 @@ public class Minimax extends Thread {
             if (currentDepth == maxDepth || timeManager.isEnd() || allPossibleMoves.isEmpty() || state.hasBlackWon() ||
                     state.hasWhiteWon()) {
                 //Raggiunto un nodo foglia
-
                 bestCost = isMaxTurn ?
                         myHeuristic.evaluate(state, currentDepth) :
                         -opponentHeuristic.evaluate(state, currentDepth);
@@ -137,8 +133,7 @@ public class Minimax extends Thread {
                         newState = state.performMove(m);
 
                         bestCost = Math.max(bestCost,
-                                performAlphabeta(newState, timeManager, false, turn + 1,
-                                        currentDepth + 1, alpha, beta));
+                                performAlphabeta(newState, timeManager, false, currentDepth + 1, alpha, beta));
 
                         alpha = Math.max(alpha, bestCost);
                         if (alpha >= beta) {
@@ -152,8 +147,7 @@ public class Minimax extends Thread {
                         newState = state.performMove(m);
 
                         bestCost = Math.min(bestCost,
-                                performAlphabeta(newState, timeManager, true, turn + 1,
-                                        currentDepth + 1, alpha, beta));
+                                performAlphabeta(newState, timeManager, true, currentDepth + 1, alpha, beta));
 
                         beta = Math.min(beta, bestCost);
                         if (alpha >= beta) {
@@ -167,6 +161,10 @@ public class Minimax extends Thread {
         }
 
         return bestCost;
+    }
+
+    public void setMaxDepth(int newMaxDepth) {
+        maxDepth = newMaxDepth;
     }
 
     public double[] getWeights() {

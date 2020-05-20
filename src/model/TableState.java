@@ -111,8 +111,8 @@ public class TableState {
 //        return moves;
 //    }
 
-    public Deque<Move> getAllMovesFor(PlayerType player) {
-        Deque<Move> dequeMoves = new LinkedList<>();
+    public LinkedList<Move> getAllMovesFor(PlayerType player) {
+        LinkedList<Move> dequeMoves = new LinkedList<>();
         for (int x = 0; x < 9; ++x) {
             for (int y = 0; y < 9; ++y) {
                 if ((utils.getPiece(this.getState()[x][y]) == W && player.equals(PlayerType.WHITE))

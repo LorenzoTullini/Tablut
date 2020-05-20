@@ -514,7 +514,7 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var whiteMove = whitePlayer.search(s, timeManager, turn);
+            var whiteMove = whitePlayer.search(s, timeManager);
 //            var whiteMove = whiteMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (whiteMove != null) {
@@ -541,7 +541,7 @@ public class TestTraining {
             timeManager = new TimeManager();
             tt = new TimerThread(timeManager, timeoutSec * 1000);
             tt.start();
-            var blackMove = blackPlayer.search(s, timeManager, turn);
+            var blackMove = blackPlayer.search(s, timeManager);
 //            var blackMove = blackMinimax.alphabetaTest(s, timeManager, turn);
             tt.interrupt();
             if (blackMove != null) {
