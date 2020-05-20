@@ -42,7 +42,7 @@ public class Test {
     private static SearchManager blackPlayer;
 
     ////////////////////////////////////////////////////////////
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //Partite con la stessa profondità
         test1();
 
@@ -53,7 +53,7 @@ public class Test {
 //        test3();
     }
 
-    public static void test1() {
+    public static void test1() throws InterruptedException {
         TimeManager timeManager = new TimeManager();
         long start, end;
 

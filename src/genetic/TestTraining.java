@@ -36,7 +36,7 @@ public class TestTraining {
     private static final int randomSurplusIndividuals = 4;
     private static Random rndGen;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         //controllo argomenti
 
         for (int i = 0; i < args.length; i++) {
@@ -446,7 +446,7 @@ public class TestTraining {
         }
     }
 
-    private static void giocaPartite(@NotNull List<Individual> population) {
+    private static void giocaPartite(@NotNull List<Individual> population) throws InterruptedException {
         System.out.println("--> Generazione accoppiamenti");
         int giocatori = population.size();
 
@@ -492,7 +492,7 @@ public class TestTraining {
         }
     }
 
-    private static void gioca(Individual whiteInd, Individual blackInd) {
+    private static void gioca(Individual whiteInd, Individual blackInd) throws InterruptedException {
         whiteInd.prepareForNewMatch(PlayerType.WHITE);
         blackInd.prepareForNewMatch(PlayerType.BLACK);
         SearchManager whitePlayer = whiteInd.getPlayer();

@@ -33,6 +33,10 @@ public class SearchManager {
 
 
     public SearchManager(PlayerType myColour, int maxDepth, double[] weights, int threadNumber) {
+        if (threadNumber <= 0) {
+            throw new IllegalArgumentException("Numero di thread non valido");
+        }
+
         this.threadNumber = threadNumber;
         this.myColour = myColour;
         this.maxDepth = maxDepth;
