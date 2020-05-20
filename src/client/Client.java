@@ -98,7 +98,11 @@ public class Client implements Callable<Integer> {
         serverState.printStatus();
 
         int turn = 0;
-        SearchManager searchManager = new SearchManager(playerType, maxDepth, weights);
+        int threads = 0;
+        while(threads <= 0){
+            threads = Runtime.getRuntime().availableProcessors();
+        }
+        SearchManager searchManager = new SearchManager(playerType, maxDepth, weights,threads);
         SearchStatus searchStatus = searchManager.getStatus();
 
         while (true) {
@@ -133,7 +137,7 @@ public class Client implements Callable<Integer> {
                         tt = null;
                     }
                     searchManager.stop();
-                    searchManager = new SearchManager(playerType, maxDepth, weights);
+                    searchManager = new SearchManager(playerType, maxDepth, weights,threads);
                     searchManager.setStatus(searchStatus);
                     bestMove = searchStatus.getBestMove();
                     if (bestMove == null) {
@@ -142,11 +146,12 @@ public class Client implements Callable<Integer> {
                     }
                 }
 
-                ServerMove serverMove = Converter.covertMove(bestMove, playerType);
-                if (serverMove == null) {
+                if (bestMove == null) {
                     System.out.println("Ho perso !!");
                     break;
                 }
+
+                ServerMove serverMove = Converter.covertMove(bestMove, playerType);
                 System.out.println("Ho trovato la mossa (Server): " + serverMove.getFrom() + " " + serverMove.getTo());
                 printVerbose("Ho trovato la mossa (My): " + bestMove.toString());
 
