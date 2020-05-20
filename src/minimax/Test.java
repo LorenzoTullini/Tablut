@@ -2,6 +2,7 @@ package minimax;
 
 import client.TimeManager;
 import client.TimerThread;
+import model.Move;
 import model.PlayerType;
 import model.TableState;
 
@@ -43,8 +44,12 @@ public class Test {
 
     ////////////////////////////////////////////////////////////
     public static void main(String[] args) throws InterruptedException {
+
+        List<Move> l = new ArrayList<>();
+        var m = l.get(0);
+        System.out.println(m);
         //Partite con la stessa profondità
-        test1();
+//        test1();
 
         //Scelta mossa
         //test2();

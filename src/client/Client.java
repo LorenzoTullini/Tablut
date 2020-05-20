@@ -99,10 +99,10 @@ public class Client implements Callable<Integer> {
 
         int turn = 0;
         int threads = 0;
-        while(threads <= 0){
+        while (threads <= 0) {
             threads = Runtime.getRuntime().availableProcessors();
         }
-        SearchManager searchManager = new SearchManager(playerType, maxDepth, weights,threads);
+        SearchManager searchManager = new SearchManager(playerType, maxDepth, weights, threads);
         SearchStatus searchStatus = searchManager.getStatus();
 
         while (true) {
@@ -137,7 +137,7 @@ public class Client implements Callable<Integer> {
                         tt = null;
                     }
                     searchManager.stop();
-                    searchManager = new SearchManager(playerType, maxDepth, weights,threads);
+                    searchManager = new SearchManager(playerType, maxDepth, weights, threads);
                     searchManager.setStatus(searchStatus);
                     bestMove = searchStatus.getBestMove();
                     if (bestMove == null) {

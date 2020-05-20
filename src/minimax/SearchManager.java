@@ -68,6 +68,11 @@ public class SearchManager {
             var deadThreads = status.getDeadThreads();
 
             for (int d : deadThreads) {
+                try {
+                    workers[d].join();
+                } catch (InterruptedException e) {
+                    System.err.println("--> Il manager è stato interrotto durante l'attesa della terminazione di un thread. Continuo");
+                }
                 workers[d] = new Minimax(myColour, maxDepth, weights, sem, d, status);
             }
 
