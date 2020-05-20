@@ -4,13 +4,10 @@ import client.TimeManager;
 import model.Move;
 import model.TableState;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Semaphore;
 
-class SearchStatus {
+public class SearchStatus {
     private double alpha, bestVal;
     private Move bestMove;
     private boolean stop;
@@ -26,6 +23,8 @@ class SearchStatus {
 
     private List<Move> movesToCheck;
 
+    private List<Integer> deadThreads;
+
     public SearchStatus(Semaphore b) {
         alpha = Double.NEGATIVE_INFINITY;
         bestVal = Double.NEGATIVE_INFINITY;
@@ -34,6 +33,7 @@ class SearchStatus {
         barrier = b;
         done = 0;
         orderedMoves = new LinkedList<>();
+        deadThreads = new ArrayList<>();
     }
 
     public double getAlpha() {
@@ -100,6 +100,7 @@ class SearchStatus {
         alpha = Double.NEGATIVE_INFINITY;
         bestVal = Double.NEGATIVE_INFINITY;
         done = 0;
+        deadThreads = new ArrayList<>();
     }
 
     public void setInitialConditions(LinkedList<Move> moves, TableState state, TimeManager timeManager) {
@@ -120,4 +121,14 @@ class SearchStatus {
     public TimeManager getTimeManager() {
         return timeManager;
     }
+
+    public synchronized void updateDeadThreads(int idx) {
+        deadThreads.add(idx);
+    }
+
+    public List<Integer> getDeadThreads() {
+        return deadThreads;
+    }
+
+    ;
 }

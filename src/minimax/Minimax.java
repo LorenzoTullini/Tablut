@@ -65,6 +65,8 @@ class Minimax extends Thread {
                 sem.acquire();
             } catch (InterruptedException e) {
                 System.out.println("--> --> --> Thread interroto durante l'attesa di un nuovo turno");
+                searchStatus.updateDeadThreads(idx);
+                return;
             }
 
             //System.out.println("--> --> Thread " + Thread.currentThread().getId() + " iniziata ricerca");

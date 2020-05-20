@@ -11,11 +11,13 @@ import java.util.concurrent.Semaphore;
 public class SearchManager {
     private static final double[] defaultWeights = {1, 1, 1, 1.5, 1, 2, 3, 2.5, 5, 1};
 
+    private double[] weights;
+
     private final Minimax[] workers;
     private final Semaphore sem;
     private final Semaphore barrier;
 
-    private final SearchStatus status;
+    private SearchStatus status;
 
     private final int threadNumber;
     private final int maxDepth;
@@ -34,6 +36,7 @@ public class SearchManager {
         this.threadNumber = threadNumber;
         this.myColour = myColour;
         this.maxDepth = maxDepth;
+        this.weights = weights;
 
         barrier = new Semaphore(0);
         sem = new Semaphore(0);
@@ -49,7 +52,7 @@ public class SearchManager {
         status.reset();
     }
 
-    public Move search(@NotNull TableState initialState, TimeManager timeManager) {
+    public Move search(@NotNull TableState initialState, TimeManager timeManager) throws InterruptedException {
         //System.out.println("--> Turno: " + turn);
         status.updateVisitedStates(initialState.hashCode());
         status.setInitialConditions(initialState.getAllMovesFor(myColour), initialState, timeManager);
@@ -58,6 +61,12 @@ public class SearchManager {
         int currentDepth = maxDepth;
 
         do {
+            var deadThreads = status.getDeadThreads();
+
+            for (int d : deadThreads) {
+                workers[d] = new Minimax(myColour, maxDepth, weights, sem, d, status);
+            }
+
             System.out.println("--> Inizio ricerca a profondità " + currentDepth);
             status.reset();
             sem.release(threadNumber);
@@ -68,6 +77,7 @@ public class SearchManager {
                 System.out.println("--> --> Dati acquisiti");
             } catch (InterruptedException e) {
                 System.err.println("--> --> Il manager è stato interrotto durante l'attesa del completamento della ricerca");
+                throw new InterruptedException("Search Manager interrotto");
             }
 
             if (bestMove == null || !timeManager.isEnd()) {
@@ -105,7 +115,14 @@ public class SearchManager {
             } catch (InterruptedException e) {
                 System.err.println("--> Il manager è stato interrotto durante l'attesa degli altri thread");
             }
-
         }
+    }
+
+    public SearchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SearchStatus status) {
+        this.status = status;
     }
 }
